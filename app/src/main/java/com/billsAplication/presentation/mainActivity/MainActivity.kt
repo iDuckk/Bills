@@ -1,7 +1,8 @@
-package com.billsAplication
+package com.billsAplication.presentation.mainActivity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.billsAplication.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
