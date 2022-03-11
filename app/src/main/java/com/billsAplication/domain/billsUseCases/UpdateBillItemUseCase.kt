@@ -5,8 +5,6 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class UpdateBillItemUseCase(private val repo : BillsListRepository) {
 
-    suspend fun updateItem(item : BillsItem) {
-        repo.updateItem(item)
-    }
+    suspend operator fun invoke(item : BillsItem) = repo.updateItem(item)
 
 }

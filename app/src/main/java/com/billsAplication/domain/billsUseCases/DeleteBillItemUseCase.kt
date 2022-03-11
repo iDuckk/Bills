@@ -5,8 +5,6 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class DeleteBillItemUseCase(private val repo : BillsListRepository) {
 
-    suspend fun deleteItem(item : BillsItem) {
-        repo.deleteItem(item)
-    }
+    suspend operator fun invoke(item  : BillsItem) = repo.deleteItem(item)
 
 }

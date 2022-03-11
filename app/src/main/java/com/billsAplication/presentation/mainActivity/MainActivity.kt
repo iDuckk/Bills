@@ -16,21 +16,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 //    val item : BillsItem
-//    item = BillsItem( 1, 2, "3", "1", "2", "3",1.0, "2", "3", "1")
+//    item = BillsItem( 3, 2, "3", "1", "2", "3",1.0, "2", "3", "1")
 //    val repo = BillsListRepositoryImpl(application)
 //        CoroutineScope(IO).launch {
 //            repo.addItem(item)
 //        }
     }
 }
-//Version 1.1
-//Add getType
-//Redone Delete = item instead id
-//Redone BillItem = add time, month,
-//Redone month = month instead date
-//Add SQL Room
-//Redone getMonth, getAll, getType = list to LiveData
-//Add Return to getItem(fix)
-//Add Suspend getItem, Delete, Upgrade
-//Add MainActivityViewModel
-//Scope Test

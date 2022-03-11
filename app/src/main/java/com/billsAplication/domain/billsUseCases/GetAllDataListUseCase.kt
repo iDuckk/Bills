@@ -6,8 +6,6 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class GetAllDataListUseCase(private val repo : BillsListRepository) {
 
-    fun getAllDataList() : LiveData<List<BillsItem>> {
-        return repo.getAllDataList()
-    }
+     operator fun invoke() = repo.getAllDataList()
 
 }
