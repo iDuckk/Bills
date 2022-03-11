@@ -6,8 +6,6 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class GetMonthListUseCase(private val repo : BillsListRepository) {
 
-    fun getMonthList(month : String) : LiveData<List<BillsItem>> {
-        return repo.getMonthList(month)
-    }
+    operator fun invoke(month : String) = repo.getMonthList(month)
 
 }

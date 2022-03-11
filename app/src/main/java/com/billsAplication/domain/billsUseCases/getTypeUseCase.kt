@@ -6,8 +6,6 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class getTypeUseCase(private val repo : BillsListRepository) {
 
-    fun getTypeList(type : Int) : LiveData<List<BillsItem>> {
-        return repo.getType(type)
-    }
+    operator fun invoke(type : Int) = repo.getType(type)
 
 }
