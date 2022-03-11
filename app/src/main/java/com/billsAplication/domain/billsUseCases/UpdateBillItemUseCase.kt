@@ -5,7 +5,7 @@ import com.billsAplication.domain.repository.BillsListRepository
 
 class UpdateBillItemUseCase(private val repo : BillsListRepository) {
 
-    fun updateItem(item : BillsItem) {
+    suspend fun updateItem(item : BillsItem) {
         repo.updateItem(item)
     }
 

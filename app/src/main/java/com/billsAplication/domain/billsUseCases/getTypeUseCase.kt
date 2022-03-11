@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.repository.BillsListRepository
 
-class GetAllDataListUseCase(private val repo : BillsListRepository) {
+class getTypeUseCase(private val repo : BillsListRepository) {
 
-    fun getAllDataList() : LiveData<List<BillsItem>> {
-        return repo.getAllDataList()
+    fun getTypeList(type : Int) : LiveData<List<BillsItem>> {
+        return repo.getType(type)
     }
 
 }

@@ -1,6 +1,11 @@
-package com.billsAplication.domain.model
+package com.billsAplication.data.room.model
 
-data class BillsItem(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "bills_list")
+data class BillEntity(
+    @PrimaryKey(autoGenerate = true)
     val id : Int,
     val type : Int,
     val month : String,
