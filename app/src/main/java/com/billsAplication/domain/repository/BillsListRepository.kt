@@ -1,19 +1,22 @@
 package com.billsAplication.domain.repository
 
+import androidx.lifecycle.LiveData
 import com.billsAplication.domain.model.BillsItem
 
 interface BillsListRepository {
 
-    fun addItem(item : BillsItem)
+    suspend fun addItem(item : BillsItem)
 
-    fun deleteItem(id : Int)
+    suspend fun deleteItem(item : BillsItem)
 
-    fun getAllDataList() : List<BillsItem>
+    fun getAllDataList() : LiveData<List<BillsItem>>
 
-    fun getItem(id : Int)
+    suspend fun getItem(id : Int) : BillsItem
 
-    fun getMonthList() : List<BillsItem>
+    fun getMonthList(month : String) : LiveData<List<BillsItem>>
 
-    fun updateItem(item : BillsItem)
+    suspend fun updateItem(item : BillsItem)
+
+    fun getType(type : Int) : LiveData<List<BillsItem>>
 
 }
