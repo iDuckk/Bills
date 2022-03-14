@@ -10,4 +10,19 @@
         android:name="com.billsAplication.presentation.billsList.BillsListFragment"
         android:label="fragment_bills_list"
         tools:layout="@layout/fragment_bills_list" />
+    <fragment
+        android:id="@+id/shopListFragment"
+        android:name="com.billsAplication.presentation.shopList.ShopListFragment"
+        android:label="fragment_shop_list"
+        tools:layout="@layout/fragment_shop_list" />
+    <fragment
+        android:id="@+id/analyticsFragment"
+        android:name="com.billsAplication.presentation.analytics.AnalyticsFragment"
+        android:label="fragment_analytics"
+        tools:layout="@layout/fragment_analytics" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.billsAplication.presentation.settings.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>
