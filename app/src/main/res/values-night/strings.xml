@@ -15,5 +15,6 @@
     <string name="description_search">search</string>
     <string name="description_bookmarks">bookmarks</string>
     <string name="description_add_new_bill">add new bill</string>
+    <string name="item_description">Description</string>
 
 </resources>

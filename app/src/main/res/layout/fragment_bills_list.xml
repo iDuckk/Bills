@@ -97,7 +97,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView_Budget">
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Budget"
+        tools:listitem="@layout/bill_item">
 
     </androidx.recyclerview.widget.RecyclerView>
 
