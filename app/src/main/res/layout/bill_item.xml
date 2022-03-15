@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5sp"
+    android:orientation="horizontal"
+    app:cardCornerRadius="10sp">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView_InfoTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_Item_Income"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50sp"
+                    android:layout_marginStart="10sp"
+                    android:textColor="@color/text_income"
+                    android:gravity="center"
+                    android:text="@string/bills_list_null_0_0"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/tv_Item_Expense"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_Item_Expense"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50sp"
+                    android:gravity="center"
+                    android:text="@string/bills_list_null_0_0"
+                    android:textColor="@color/text_expense"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_Item_Income"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_Item_Description"
+                    app:layout_constraintStart_toEndOf="@+id/tv_Item_Income"
+                    app:layout_constraintTop_toTopOf="@+id/tv_Item_Income" />
+
+                <TextView
+                    android:id="@+id/tv_Item_Description"
+                    android:layout_width="140sp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10sp"
+                    android:gravity="end"
+                    android:maxLength="50"
+                    android:text="@string/item_description"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_Item_Expense"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_Item_Expense" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView_TitleItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toTopOf="@id/cardView_InfoTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_Day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
+                    android:text="00"
+                    android:textSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_MonthYear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=".00.0000"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_Day"
+                    app:layout_constraintStart_toEndOf="@+id/tv_Day"
+                    app:layout_constraintTop_toTopOf="@+id/tv_Day" />
+
+                <TextView
+                    android:id="@+id/tv_Time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:text="00:00 AM"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_MonthYear"
+                    app:layout_constraintStart_toEndOf="@+id/tv_MonthYear"
+                    app:layout_constraintTop_toTopOf="@+id/tv_MonthYear" />
+
+                <TextView
+                    android:id="@+id/tv_Category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:layout_marginEnd="10dp"
+                    android:lines="1"
+                    android:maxLength="20"
+                    android:text="Category"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_Time"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_Time" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
