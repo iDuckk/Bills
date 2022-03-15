@@ -1,14 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.billsList.BillsListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Budget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/recViewBill"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Bar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_income"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bills_list_income"
+                app:layout_constraintEnd_toStartOf="@+id/tv_expense"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_expense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bill_list_expense"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_income"
+                app:layout_constraintEnd_toStartOf="@+id/tv_total"
+                app:layout_constraintStart_toEndOf="@+id/tv_income"
+                app:layout_constraintTop_toTopOf="@+id/tv_income" />
+
+            <TextView
+                android:id="@+id/tv_total"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bill_list_total"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_expense"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_expense"
+                app:layout_constraintTop_toTopOf="@+id/tv_expense" />
+
+            <TextView
+                android:id="@+id/tv_income_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bills_list_null_0_0"
+                android:textColor="#1976D2"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_expense_num"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_income" />
+
+            <TextView
+                android:id="@+id/tv_expense_num"
+                android:layout_width="141dp"
+                android:layout_height="24dp"
+                android:gravity="center"
+                android:text="@string/bills_list_null_0_0"
+                android:textColor="#DD2C00"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_income_num"
+                app:layout_constraintEnd_toStartOf="@id/tv_total_num"
+                app:layout_constraintStart_toEndOf="@+id/tv_income_num"
+                app:layout_constraintTop_toTopOf="@+id/tv_income_num" />
+
+            <TextView
+                android:id="@+id/tv_total_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bills_list_null_0_0"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_expense_num"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_expense_num"
+                app:layout_constraintTop_toTopOf="@+id/tv_expense_num" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recViewBill"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Budget">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardView_Budget">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/im_backMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_previous_month"
+                android:src="@drawable/ic__navigate_before"
+                android:layout_marginStart="10sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_month"/>
+
+            <ImageView
+                android:id="@+id/im_nextMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_next_month"
+                android:src="@drawable/ic_navigate_next"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_month"
+                app:layout_constraintStart_toEndOf="@+id/tv_month"
+                app:layout_constraintTop_toTopOf="@+id/tv_month" />
+
+            <TextView
+                android:id="@+id/tv_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/month"
+                app:layout_constraintBottom_toBottomOf="@+id/im_backMonth"
+                app:layout_constraintStart_toEndOf="@+id/im_backMonth"
+                app:layout_constraintTop_toTopOf="@+id/im_backMonth"
+                app:layout_constraintEnd_toStartOf="@+id/im_nextMonth"/>
+
+            <ImageView
+                android:id="@+id/im_bills_filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_filter"
+                android:src="@drawable/ic_filter"
+                android:layout_marginEnd="10sp"
+                app:layout_constraintBottom_toBottomOf="@+id/im_nextMonth"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/im_nextMonth" />
+
+            <ImageView
+                android:id="@+id/im_bills_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_search"
+                android:src="@drawable/ic_search"
+                android:layout_marginEnd="30sp"
+                app:layout_constraintBottom_toBottomOf="@+id/im_bills_filter"
+                app:layout_constraintEnd_toStartOf="@+id/im_bills_filter"
+                app:layout_constraintTop_toTopOf="@+id/im_bills_filter" />
+
+            <ImageView
+                android:id="@+id/im_bookmarks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_bookmarks"
+                android:layout_marginEnd="30sp"
+                android:src="@drawable/ic_bookmarks"
+                app:layout_constraintBottom_toBottomOf="@+id/im_bills_search"
+                app:layout_constraintEnd_toStartOf="@+id/im_bills_search"
+                app:layout_constraintTop_toTopOf="@+id/im_bills_search" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_addBill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/description_add_new_bill"
+        android:src="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24sp"
+        android:layout_marginBottom="64sp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    app:layout_constraintTop_toBottomOf="@+id/cardView_Budget"-->
