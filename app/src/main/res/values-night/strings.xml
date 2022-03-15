@@ -4,4 +4,16 @@
     <string name="menu_analytics">Analytics</string>
     <string name="menu_shopping_list">Shopping list</string>
     <string name="menu_settings">Settings</string>
+    <string name="bills_list_income">Income</string>
+    <string name="bill_list_expense">Expense</string>
+    <string name="bill_list_total">Total</string>
+    <string name="bills_list_null_0_0">0.0</string>
+    <string name="month">Month</string>
+    <string name="description_previous_month">previous month</string>
+    <string name="description_next_month">next month</string>
+    <string name="description_filter">filter</string>
+    <string name="description_search">search</string>
+    <string name="description_bookmarks">bookmarks</string>
+    <string name="description_add_new_bill">add new bill</string>
+
 </resources>
