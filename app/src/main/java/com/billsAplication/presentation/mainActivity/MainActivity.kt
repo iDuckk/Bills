@@ -4,13 +4,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.billsAplication.R
-import com.billsAplication.data.room.repository.BillsListRepositoryImpl
 import com.billsAplication.presentation.analytics.AnalyticsFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,10 +33,10 @@ class MainActivity : AppCompatActivity() {
 
 //    val repo = BillsListRepositoryImpl(application)
 //    val item : BillsItem
-//    item = BillsItem( 0, 2, "3", "1", "2", "3",1.0, "2", "3", "1")
+//    item = BillsItem( 0, 0, "June", "23.06.2022", "13:15", "Food",100.0, "Lenta", "0", "0")
 //        CoroutineScope(IO).launch {
 //            repo.addItem(item)
-//            //repo.deleteItem(BillsItem( 101, 2, "3", "1", "2", "3",1.0, "2", "3", "1"))
+            //repo.deleteItem(BillsItem( 112, 2, "3", "1", "2", "3",1.0, "2", "3", "1"))
 //        }
 //        val ITEMS : LiveData<List<BillsItem>> = repo.getAllDataList()
 //        ITEMS.observe(this) {
@@ -50,4 +48,9 @@ class MainActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainerViewMain, fragment).commit()
     }
+
+    //Version 1.6
+    //ViewBinding
+    //Create BillsList ViewModel
+    //Adapter
 }
