@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(R.id.fragmentContainerViewMain, fragment).commit()
     }
 
-    //Version 1.6
-    //ViewBinding
-    //Create BillsList ViewModel
-    //Adapter
+    //Version 1.6.1
+    //TODO заменить Description на Note в Адаптере and import com.billsAplication.databinding.BillItemBinding
 }

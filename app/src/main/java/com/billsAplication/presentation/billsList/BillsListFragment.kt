@@ -51,7 +51,7 @@ class BillsListFragment : Fragment() {
         initRecView()
 
         ITEMS.observe(requireActivity()) {
-            billAdapter.submitList(it)
+            billAdapter.submitList(it.toMutableList())
         }
 
 

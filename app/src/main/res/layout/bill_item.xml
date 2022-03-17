@@ -49,18 +49,18 @@
                     android:textColor="@color/text_expense"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_Item_Income"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_Item_Description"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_Item_Note"
                     app:layout_constraintStart_toEndOf="@+id/tv_Item_Income"
                     app:layout_constraintTop_toTopOf="@+id/tv_Item_Income" />
 
                 <TextView
-                    android:id="@+id/tv_Item_Description"
+                    android:id="@+id/tv_Item_Note"
                     android:layout_width="140sp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10sp"
                     android:gravity="end"
                     android:maxLength="50"
-                    android:text="@string/item_description"
+                    android:text="@string/item_note"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_Item_Expense"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tv_Item_Expense" />
