@@ -2,8 +2,9 @@ package com.billsAplication.data.room.mapper
 
 import com.billsAplication.data.room.model.BillEntity
 import com.billsAplication.domain.model.BillsItem
+import javax.inject.Inject
 
-class BillMapper {
+class BillMapper @Inject constructor(){
 
     fun mapBillItemToBillEntity(item : BillsItem) = BillEntity(
         id = item.id,
