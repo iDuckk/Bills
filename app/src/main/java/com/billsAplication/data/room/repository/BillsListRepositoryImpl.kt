@@ -3,16 +3,14 @@ package com.billsAplication.data.room.repository
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.billsAplication.data.room.billsDb.BillDao
 import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.data.room.mapper.BillMapper
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.repository.BillsListRepository
+import javax.inject.Inject
 
-class BillsListRepositoryImpl(private val application: Application) : BillsListRepository {
-
-    private val billDao = BillDatabase.getDatabase(application).billDao()
-
-    private val mapper = BillMapper()
+class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, private val mapper: BillMapper) : BillsListRepository {
 
     override suspend fun addItem(item: BillsItem) {
         billDao.insert(mapper.mapBillItemToBillEntity(item))

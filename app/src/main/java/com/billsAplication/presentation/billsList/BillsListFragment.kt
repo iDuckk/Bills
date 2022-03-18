@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.R
 import com.billsAplication.data.room.repository.BillsListRepositoryImpl
 import com.billsAplication.databinding.FragmentBillsListBinding
+import com.billsAplication.di.DaggerApplicationComponent
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
+import com.billsAplication.presentation.mainActivity.MainActivity
+import javax.inject.Inject
 
 //private const val ARG_PARAM1 = "param1"
 //private const val ARG_PARAM2 = "param2"
@@ -25,7 +28,16 @@ class BillsListFragment : Fragment() {
     private val binding : FragmentBillsListBinding get() = _binding!!
     lateinit var billAdapter : BillsAdapter
 
+    @Inject
+    lateinit var viewModel: BillsListViewModel
+
+    private val component by lazy { //(requireActivity().application as BillsApplication).component
+        DaggerApplicationComponent.factory()
+            .create(requireActivity().application)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
 //        arguments?.let {
 //            param1 = it.getString(ARG_PARAM1)
@@ -44,17 +56,13 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val repo = BillsListRepositoryImpl(requireActivity().application)
-        val ITEMS : LiveData<List<BillsItem>> = repo.getAllDataList()
         billAdapter = BillsAdapter()
 
         initRecView()
 
-        ITEMS.observe(requireActivity()) {
+        viewModel.getAll().observe(requireActivity()){
             billAdapter.submitList(it.toMutableList())
         }
-
-
     }
 
     override fun onDestroyView() {
