@@ -4,9 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.BillItemBinding
+import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.model.BillsItem
+import javax.inject.Inject
 
-class BillsAdapter : ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) { //: ListAdapter<BillsItem, ViewHolder>(BillsListCallback())
+@ApplicationScope
+class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) { //: ListAdapter<BillsItem, ViewHolder>(BillsListCallback())
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BillViewHolder {
         return BillViewHolder(

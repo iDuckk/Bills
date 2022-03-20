@@ -60,8 +60,4 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(R.id.fragmentContainerViewMain, fragment).commit()
     }
 
-    //Use BillsApplication
-    //Add @ApplicationScope in Component, ViewModel
-    //Rebuild NavBottom
-
 }

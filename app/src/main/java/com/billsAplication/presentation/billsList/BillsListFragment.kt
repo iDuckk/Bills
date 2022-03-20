@@ -1,7 +1,6 @@
 package com.billsAplication.presentation.billsList
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +19,8 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
+    @Inject
+    lateinit var billAdapter: BillsAdapter
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -46,7 +47,7 @@ class BillsListFragment : Fragment() {
         viewModel.getAll()
 
         viewModel.list.observe(requireActivity()){
-            viewModel.billAdapter.submitList(it.toList())
+            billAdapter.submitList(it.toList())
         }
     }
 
@@ -58,7 +59,7 @@ class BillsListFragment : Fragment() {
     fun initRecView(){
         with(binding.recViewBill){
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            adapter = viewModel.billAdapter
+            adapter = billAdapter
 
         }
     }
