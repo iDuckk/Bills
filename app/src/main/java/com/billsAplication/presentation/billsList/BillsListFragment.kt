@@ -1,15 +1,22 @@
 package com.billsAplication.presentation.billsList
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.presentation.adapter.BillsAdapter
+import java.time.LocalDate
+import java.util.*
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 
 class BillsListFragment : Fragment() {
@@ -38,9 +45,24 @@ class BillsListFragment : Fragment() {
         _binding = FragmentBillsListBinding.inflate(inflater, container, false)
         return binding.root
     }
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.tvMonth.text = viewModel.currentDate() //Set month`s text in bar
+        binding.tvMonth.setOnClickListener { binding.tvMonth.text = viewModel.currentDate() }
+
+        binding.imBackMonth.setOnClickListener{
+            binding.tvMonth.text = viewModel.changeMonthBar(false) //Set month`s text in bar
+        }
+
+        binding.imNextMonth.setOnClickListener{
+            binding.tvMonth.text = viewModel.changeMonthBar(true) //Set month`s text in bar
+        }
+
+        binding.buttonAddBill.setOnClickListener {
+
+        }
 
         initRecView()
 
