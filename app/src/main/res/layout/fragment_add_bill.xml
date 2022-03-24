@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".presentation.addBill.AddBillFragment">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Add_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardView_Add_main">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/im_addBill_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_marginStart="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/im_addBill_bookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10sp"
+                android:src="@drawable/ic_bookmark_disable"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Add_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Add_Bar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/tv_add_expenses"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5sp"
+                android:background="@drawable/textview_border_expense"
+                android:gravity="center"
+                android:text="@string/bill_list_expense"
+                android:textColor="@color/text_expense"
+                app:layout_constraintBottom_toTopOf="@+id/editTextDate_add"
+                app:layout_constraintEnd_toStartOf="@id/tv_add_income"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_add_income"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="@string/bills_list_income"
+                android:textColor="@color/text_income"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_add_expenses"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_add_expenses"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_add_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/title_date_time"
+                app:layout_constraintBottom_toBottomOf="@+id/editTextDate_add"
+                app:layout_constraintEnd_toStartOf="@+id/editTextDate_add"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/editTextDate_add" />
+
+            <EditText
+                android:id="@+id/editTextTime_add"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10sp"
+                android:backgroundTint="@color/default_background"
+                android:cursorVisible="false"
+                tools:hint="@string/title_time"
+                android:maxLines="1"
+                android:minHeight="48dp"
+                app:layout_constraintBottom_toBottomOf="@+id/editTextDate_add"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/editTextDate_add"
+                app:layout_constraintTop_toTopOf="@+id/editTextDate_add" />
+
+            <EditText
+                android:id="@+id/editTextDate_add"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/default_background"
+                android:cursorVisible="false"
+                tools:hint="@string/title_date"
+                android:maxLines="1"
+                android:minHeight="48dp"
+                app:layout_constraintBottom_toTopOf="@id/ed_add_category"
+                app:layout_constraintEnd_toStartOf="@+id/editTextTime_add"
+                app:layout_constraintStart_toStartOf="@+id/ed_add_category"
+                app:layout_constraintTop_toBottomOf="@+id/tv_add_expenses" />
+
+            <TextView
+                android:id="@+id/tv_add_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/title_category"
+                app:layout_constraintEnd_toStartOf="@+id/ed_add_category"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editTextDate_add" />
+
+            <EditText
+                android:id="@+id/ed_add_category"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/default_background"
+                android:cursorVisible="false"
+                tools:hint="@string/title_category"
+                android:maxLines="1"
+                android:minHeight="48dp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_add_category"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_add_category"
+                app:layout_constraintTop_toTopOf="@+id/tv_add_category" />
+
+            <TextView
+                android:id="@+id/tv_add_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/title_amount"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ed_add_category" />
+
+            <EditText
+                android:id="@+id/ed_add_amount"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/default_background"
+                android:cursorVisible="false"
+                android:inputType="number"
+                tools:hint="@string/title_amount"
+                android:maxLines="1"
+                android:minHeight="48dp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_add_amount"
+                app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
+                app:layout_constraintStart_toStartOf="@+id/ed_add_category"
+                app:layout_constraintTop_toTopOf="@+id/tv_add_amount" />
+
+            <TextView
+                android:id="@+id/tv_add_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/title_note"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ed_add_amount" />
+
+            <EditText
+                android:id="@+id/ed_add_note"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/default_background"
+                android:ems="10"
+                android:inputType="textPersonName"
+                tools:hint="@string/title_note"
+                android:maxLines="1"
+                android:minHeight="48dp"
+                android:textCursorDrawable="@drawable/color_cursor"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_add_note"
+                app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
+                app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
+                app:layout_constraintTop_toTopOf="@+id/tv_add_note" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Add_third_part"
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Add_main">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <EditText
+                android:id="@+id/ed_description"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="@color/default_background"
+                android:hint="@string/title_description"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:textCursorDrawable="@drawable/color_cursor"
+                app:layout_constraintBottom_toTopOf="@+id/im_first_photo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.063" />
+
+            <ImageView
+                android:id="@+id/im_first_photo"
+                android:layout_width="0sp"
+                android:layout_height="80sp"
+                android:layout_marginStart="20dp"
+                android:contentDescription="@string/take_a_photo"
+                android:src="@drawable/ic_add_a_photo"
+                app:layout_constraintBottom_toBottomOf="@id/im_second_photo"
+                app:layout_constraintEnd_toStartOf="@+id/im_second_photo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/im_second_photo" />
+
+            <ImageView
+                android:id="@+id/im_second_photo"
+                android:layout_width="0sp"
+                android:layout_height="80sp"
+                android:layout_marginStart="128dp"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="101dp"
+                android:contentDescription="@string/take_a_photo"
+                android:src="@drawable/ic_add_a_photo"
+                app:layout_constraintBottom_toTopOf="@id/b_add_save"
+                app:layout_constraintEnd_toStartOf="@+id/im_third_photo"
+                app:layout_constraintStart_toEndOf="@+id/im_first_photo"
+                app:layout_constraintTop_toBottomOf="@+id/ed_description" />
+
+            <ImageView
+                android:id="@+id/im_third_photo"
+                android:layout_width="0sp"
+                android:layout_height="80sp"
+                android:layout_marginEnd="20dp"
+                android:contentDescription="@string/take_a_photo"
+                android:src="@drawable/ic_add_a_photo"
+                app:layout_constraintBottom_toBottomOf="@+id/im_second_photo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/im_second_photo"
+                app:layout_constraintTop_toTopOf="@+id/im_second_photo" />
+
+            <Button
+                android:id="@+id/b_add_save"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/add_apply"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/im_second_photo" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

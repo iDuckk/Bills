@@ -12,7 +12,9 @@
         android:theme="@style/Theme.Bills">
         <activity
             android:name=".presentation.mainActivity.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

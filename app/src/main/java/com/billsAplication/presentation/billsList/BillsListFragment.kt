@@ -8,8 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
+import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.presentation.adapter.BillsAdapter
 import java.time.LocalDate
@@ -24,10 +27,13 @@ class BillsListFragment : Fragment() {
     private var _binding: FragmentBillsListBinding? = null
     private val binding : FragmentBillsListBinding get() = _binding!!
 
+    private val bundle = Bundle()
     @Inject
     lateinit var viewModel: BillsListViewModel
     @Inject
     lateinit var billAdapter: BillsAdapter
+
+    val ADD_BILL_KEY = "add_bill_key"
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -41,7 +47,7 @@ class BillsListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentBillsListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -61,7 +67,8 @@ class BillsListFragment : Fragment() {
         }
 
         binding.buttonAddBill.setOnClickListener {
-
+            bundle.putBoolean(ADD_BILL_KEY, true)
+            findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
         }
 
         initRecView()
