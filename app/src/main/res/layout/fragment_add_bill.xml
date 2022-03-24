@@ -66,7 +66,7 @@
                 android:gravity="center"
                 android:text="@string/bill_list_expense"
                 android:textColor="@color/text_expense"
-                app:layout_constraintBottom_toTopOf="@+id/editTextDate_add"
+                app:layout_constraintBottom_toTopOf="@+id/ed_Date_add"
                 app:layout_constraintEnd_toStartOf="@id/tv_add_income"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -91,13 +91,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/title_date_time"
-                app:layout_constraintBottom_toBottomOf="@+id/editTextDate_add"
-                app:layout_constraintEnd_toStartOf="@+id/editTextDate_add"
+                app:layout_constraintBottom_toBottomOf="@+id/ed_Date_add"
+                app:layout_constraintEnd_toStartOf="@+id/ed_Date_add"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/editTextDate_add" />
+                app:layout_constraintTop_toTopOf="@+id/ed_Date_add" />
 
             <EditText
-                android:id="@+id/editTextTime_add"
+                android:id="@+id/edTime_add"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10sp"
@@ -106,13 +106,13 @@
                 tools:hint="@string/title_time"
                 android:maxLines="1"
                 android:minHeight="48dp"
-                app:layout_constraintBottom_toBottomOf="@+id/editTextDate_add"
+                app:layout_constraintBottom_toBottomOf="@+id/ed_Date_add"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/editTextDate_add"
-                app:layout_constraintTop_toTopOf="@+id/editTextDate_add" />
+                app:layout_constraintStart_toEndOf="@+id/ed_Date_add"
+                app:layout_constraintTop_toTopOf="@+id/ed_Date_add" />
 
             <EditText
-                android:id="@+id/editTextDate_add"
+                android:id="@+id/ed_Date_add"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -122,7 +122,7 @@
                 android:maxLines="1"
                 android:minHeight="48dp"
                 app:layout_constraintBottom_toTopOf="@id/ed_add_category"
-                app:layout_constraintEnd_toStartOf="@+id/editTextTime_add"
+                app:layout_constraintEnd_toStartOf="@+id/edTime_add"
                 app:layout_constraintStart_toStartOf="@+id/ed_add_category"
                 app:layout_constraintTop_toBottomOf="@+id/tv_add_expenses" />
 
@@ -134,7 +134,7 @@
                 android:text="@string/title_category"
                 app:layout_constraintEnd_toStartOf="@+id/ed_add_category"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editTextDate_add" />
+                app:layout_constraintTop_toBottomOf="@+id/ed_Date_add" />
 
             <EditText
                 android:id="@+id/ed_add_category"

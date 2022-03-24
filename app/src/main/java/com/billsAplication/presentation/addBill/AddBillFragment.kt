@@ -1,23 +1,23 @@
 package com.billsAplication.presentation.addBill
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.TimePicker
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AddBillFragment : Fragment() {
 
@@ -50,9 +50,12 @@ class AddBillFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        var checkDatePicker = true
+        var checkTimePicker = true
 
         var colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
 
@@ -108,24 +111,30 @@ class AddBillFragment : Fragment() {
             //TODO
         }
 
-        binding.editTextDateAdd.setOnClickListener {
-            //TODO
-        }
-
-        binding.editTextTimeAdd.setOnClickListener {
-            //TODO
-        }
-
         binding.edAddCategory.setOnClickListener {
             //TODO
         }
 
-        binding.editTextDateAdd.setOnFocusChangeListener { view, b ->
+        binding.edDateAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DATE, colorState)
+            //Picker double calls. Because of setText calls ClickListener
+            if(checkDatePicker) {
+                initDatePickerDialog()
+                checkDatePicker = false
+            }
+            binding.edDateAdd.clearFocus()
+            checkDatePicker = true
         }
 
-        binding.editTextTimeAdd.setOnFocusChangeListener { view, b ->
+        binding.edTimeAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(TIME, colorState)
+            //Picker double calls. Because of setText calls ClickListener
+            if(checkTimePicker) {
+                initTimePicker()
+                checkTimePicker = false
+            }
+            binding.edTimeAdd.clearFocus()
+            checkTimePicker = true
         }
 
         binding.edAddCategory.setOnFocusChangeListener { view, b ->
@@ -146,7 +155,10 @@ class AddBillFragment : Fragment() {
 
         val type = arguments?.getBoolean(ADD_BILL_KEY)
         if(type!!){
-            //TODO IF ADD
+            //Set Date
+            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
+            //Set Time
+            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
         }else{
             //TODO IF EDIT
         }
@@ -158,8 +170,8 @@ class AddBillFragment : Fragment() {
     }
 
     private fun isFocusEditText(colorState : ColorStateList){
-        if(binding.editTextDateAdd.isFocused) binding.editTextDateAdd.backgroundTintList = colorState
-        if(binding.editTextTimeAdd.isFocused) binding.editTextTimeAdd.backgroundTintList = colorState
+        if(binding.edDateAdd.isFocused) binding.edDateAdd.backgroundTintList = colorState
+        if(binding.edTimeAdd.isFocused) binding.edTimeAdd.backgroundTintList = colorState
         if(binding.edAddCategory.isFocused) binding.edAddCategory.backgroundTintList = colorState
         if(binding.edAddAmount.isFocused) binding.edAddAmount.backgroundTintList = colorState
         if(binding.edAddNote.isFocused) binding.edAddNote.backgroundTintList = colorState
@@ -167,9 +179,9 @@ class AddBillFragment : Fragment() {
     }
 
     private fun setColorStateEditText(editText : Int, colorState : ColorStateList){
-        binding.editTextDateAdd.backgroundTintList =
+        binding.edDateAdd.backgroundTintList =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.editTextTimeAdd.backgroundTintList =
+        binding.edTimeAdd.backgroundTintList =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
         binding.edAddCategory.backgroundTintList =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
@@ -180,13 +192,45 @@ class AddBillFragment : Fragment() {
         binding.edDescription.backgroundTintList =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
         when(editText){
-            DATE -> binding.editTextDateAdd.backgroundTintList = colorState
-            TIME -> binding.editTextTimeAdd.backgroundTintList = colorState
+            DATE -> binding.edDateAdd.backgroundTintList = colorState
+            TIME -> binding.edTimeAdd.backgroundTintList = colorState
             CATEGORY -> binding.edAddCategory.backgroundTintList = colorState
             AMOUNT -> binding.edAddAmount.backgroundTintList = colorState
             NOTE -> binding.edAddNote.backgroundTintList = colorState
             DESCRIPTION -> binding.edDescription.backgroundTintList = colorState
         }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun initDatePickerDialog(){
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        val dpd = DatePickerDialog(requireActivity(), { view, year, monthOfYear, dayOfMonth ->
+            c.set(year, monthOfYear, dayOfMonth)
+            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
+            binding.edAddCategory.requestFocus()
+        }, year, month, day)
+
+        dpd.show()
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun initTimePicker(){
+        val c = Calendar.getInstance()
+        val cHour = c.get(Calendar.HOUR_OF_DAY)
+        val cMinute = c.get(Calendar.MINUTE)
+
+        val mTimePicker = TimePickerDialog(requireContext(),
+            { view, hour, minute ->
+                c.set(Calendar.HOUR_OF_DAY, hour)
+                c.set(Calendar.MINUTE, minute)
+                binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(c.time))
+                binding.edAddCategory.requestFocus()
+            }, cHour, cMinute, false)
+
+        mTimePicker.show()
     }
 
 }
