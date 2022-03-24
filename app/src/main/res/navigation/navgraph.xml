@@ -9,7 +9,16 @@
         android:id="@+id/billsListFragment"
         android:name="com.billsAplication.presentation.billsList.BillsListFragment"
         android:label="fragment_bills_list"
-        tools:layout="@layout/fragment_bills_list" />
+        tools:layout="@layout/fragment_bills_list" >
+        <action
+            android:id="@+id/action_billsListFragment_to_addBillFragment"
+            app:destination="@id/addBillFragment"
+            app:exitAnim="@animator/nav_default_exit_anim" />
+        <argument
+            android:name="add_bill"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </fragment>
     <fragment
         android:id="@+id/shopListFragment"
         android:name="com.billsAplication.presentation.shopList.ShopListFragment"
@@ -25,4 +34,14 @@
         android:name="com.billsAplication.presentation.settings.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/addBillFragment"
+        android:name="com.billsAplication.presentation.addBill.AddBillFragment"
+        android:label="fragment_add_bill"
+        tools:layout="@layout/fragment_add_bill" >
+        <action
+            android:id="@+id/action_addBillFragment_to_billsListFragment"
+            app:destination="@id/billsListFragment"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
 </navigation>

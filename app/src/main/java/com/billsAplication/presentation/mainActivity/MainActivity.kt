@@ -37,27 +37,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun initBottomNavigation(){
-        val analyticsFragment = AnalyticsFragment()
-        val billsListFragment = BillsListFragment()
-        val settingsFragment = SettingsFragment()
-        val shopListFragment = ShopListFragment()
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        bottomNavigation.setOnNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.menu_list -> replaceFragment(billsListFragment)
-                R.id.menu_analytics -> replaceFragment(analyticsFragment)
-                R.id.menu_shopList -> replaceFragment(shopListFragment)
-                R.id.menu_settings -> replaceFragment(settingsFragment)
-            }
-            true
-        }
-
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerViewMain) as NavHostFragment
+        bottomNavigation.setupWithNavController(navHostFragment.navController)
     }
 
-    private fun replaceFragment(fragment : Fragment){
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainerViewMain, fragment).commit()
-    }
-
+    //Rebuild initBottomNavigation()
+    //Fragment AddBill
 }
