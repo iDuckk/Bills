@@ -41,7 +41,4 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerViewMain) as NavHostFragment
         bottomNavigation.setupWithNavController(navHostFragment.navController)
     }
-
-    //Rebuild initBottomNavigation()
-    //Fragment AddBill
 }
