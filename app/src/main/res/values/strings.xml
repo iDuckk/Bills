@@ -27,4 +27,5 @@
     <string name="title_description">Description</string>
     <string name="add_apply">Apply</string>
     <string name="take_a_photo">Take a photo</string>
+    <string name="title_add">add</string>
 </resources>

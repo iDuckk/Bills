@@ -2,6 +2,7 @@ package com.billsAplication.di
 
 import android.app.Application
 import com.billsAplication.presentation.billsList.BillsListFragment
+import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import dagger.BindsInstance
 import dagger.Component
 
@@ -10,6 +11,8 @@ import dagger.Component
 interface ApplicationComponent {
 
     fun inject(fragment: BillsListFragment)
+
+    fun inject(fragment: FragmentDialogCategory)
 
     @Component.Factory
     interface Factory{
