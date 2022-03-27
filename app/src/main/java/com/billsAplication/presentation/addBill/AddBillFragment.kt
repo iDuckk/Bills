@@ -9,22 +9,26 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TimePicker
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
+import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.text.SimpleDateFormat
 import java.util.*
-
+@SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
 class AddBillFragment : Fragment() {
 
     private var _binding: FragmentAddBillBinding? = null
     private val binding : FragmentAddBillBinding get() = _binding!!
 
     private val ADD_BILL_KEY = "add_bill_key"
+    private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
+    private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
+    private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSE = 0
     private val TYPE_INCOME = 1
     private val DATE = 0
@@ -50,17 +54,17 @@ class AddBillFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var checkDatePicker = true
-        var checkTimePicker = true
+        var checkFocuse = true
 
         var colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
 
         val bottomNavigation = (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.visibility = View.GONE
+
+        var dialogCategory = FragmentDialogCategory()
 
         binding.imAddBillBack.setOnClickListener {
             bottomNavigation.visibility = View.VISIBLE
@@ -111,34 +115,40 @@ class AddBillFragment : Fragment() {
             //TODO
         }
 
-        binding.edAddCategory.setOnClickListener {
-            //TODO
-        }
-
         binding.edDateAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DATE, colorState)
             //Picker double calls. Because of setText calls ClickListener
-            if(checkDatePicker) {
+            if(checkFocuse) {
                 initDatePickerDialog()
-                checkDatePicker = false
+                checkFocuse = false
             }
             binding.edDateAdd.clearFocus()
-            checkDatePicker = true
+            checkFocuse = true
         }
 
         binding.edTimeAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(TIME, colorState)
             //Picker double calls. Because of setText calls ClickListener
-            if(checkTimePicker) {
+            if(checkFocuse) {
                 initTimePicker()
-                checkTimePicker = false
+                checkFocuse = false
             }
             binding.edTimeAdd.clearFocus()
-            checkTimePicker = true
+            checkFocuse = true
         }
 
         binding.edAddCategory.setOnFocusChangeListener { view, b ->
             setColorStateEditText(CATEGORY, colorState)
+            if(checkFocuse) {
+                dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
+                dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
+                    // We use a String here, but any type that can be put in a Bundle is supported
+                    binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
+                }
+                checkFocuse = false
+            }
+            binding.edAddCategory.clearFocus()
+            checkFocuse = true
         }
 
         binding.edAddAmount.setOnFocusChangeListener { view, b ->
@@ -201,7 +211,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     private fun initDatePickerDialog(){
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
@@ -210,13 +219,11 @@ class AddBillFragment : Fragment() {
         val dpd = DatePickerDialog(requireActivity(), { view, year, monthOfYear, dayOfMonth ->
             c.set(year, monthOfYear, dayOfMonth)
             binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
-            binding.edAddCategory.requestFocus()
         }, year, month, day)
 
         dpd.show()
     }
 
-    @SuppressLint("SimpleDateFormat")
     private fun initTimePicker(){
         val c = Calendar.getInstance()
         val cHour = c.get(Calendar.HOUR_OF_DAY)
@@ -227,7 +234,6 @@ class AddBillFragment : Fragment() {
                 c.set(Calendar.HOUR_OF_DAY, hour)
                 c.set(Calendar.MINUTE, minute)
                 binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(c.time))
-                binding.edAddCategory.requestFocus()
             }, cHour, cMinute, false)
 
         mTimePicker.show()
