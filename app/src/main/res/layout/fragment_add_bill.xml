@@ -160,20 +160,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ed_add_category" />
 
-            <EditText
+            <com.cottacush.android.currencyedittext.CurrencyEditText
                 android:id="@+id/ed_add_amount"
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/default_background"
                 android:cursorVisible="false"
-                android:inputType="number"
-                tools:hint="@string/title_amount"
+                android:maxLength="16"
+                android:inputType="number|numberDecimal"
                 android:maxLines="1"
                 android:minHeight="48dp"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_add_amount"
                 app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
                 app:layout_constraintStart_toStartOf="@+id/ed_add_category"
-                app:layout_constraintTop_toTopOf="@+id/tv_add_amount" />
+                app:layout_constraintTop_toTopOf="@+id/tv_add_amount"
+                tools:hint="@string/title_amount" />
 
             <TextView
                 android:id="@+id/tv_add_note"
@@ -185,13 +186,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ed_add_amount" />
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/ed_add_note"
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/default_background"
                 android:ems="10"
                 android:inputType="textPersonName"
+                android:completionThreshold="1"
                 tools:hint="@string/title_note"
                 android:maxLines="1"
                 android:minHeight="48dp"
@@ -200,6 +202,18 @@
                 app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
                 app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
                 app:layout_constraintTop_toTopOf="@+id/tv_add_note" />
+
+            <TextView
+                android:id="@+id/tv_Currancy"
+                android:layout_width="40sp"
+                android:layout_height="0sp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/ed_add_amount"
+                app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
+                app:layout_constraintTop_toBottomOf="@+id/ed_add_category"
+                tools:hint="USD" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
