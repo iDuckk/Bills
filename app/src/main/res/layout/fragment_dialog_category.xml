@@ -23,13 +23,15 @@
         app:layout_constraintTop_toTopOf="parent">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="?colorSecondary">
 
             <TextView
                 android:id="@+id/tv_dialog_category_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5sp"
+                android:textColor="?colorOnPrimary"
                 android:text="@string/title_add"
                 app:layout_constraintBottom_toBottomOf="@+id/ed_dialog_category_add"
                 app:layout_constraintStart_toEndOf="@+id/ed_dialog_category_add"
@@ -50,6 +52,8 @@
                 android:layout_width="200sp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30sp"
+                android:textColor="?colorOnPrimary"
+                android:textColorHint="?colorOnPrimary"
                 android:hint="@string/title_category"
                 android:inputType="textPersonName"
                 app:layout_constraintBottom_toBottomOf="parent"

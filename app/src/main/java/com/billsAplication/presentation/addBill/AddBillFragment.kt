@@ -1,3 +1,5 @@
+@file:Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+
 package com.billsAplication.presentation.addBill
 
 import android.annotation.SuppressLint
@@ -5,20 +7,27 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.res.ColorStateList
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
+import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.cottacush.android.currencyedittext.CurrencyInputWatcher
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+
+
 @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
 class AddBillFragment : Fragment() {
 
@@ -57,7 +66,7 @@ class AddBillFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var checkFocuse = true
+        var checkFocus = true
 
         var colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
 
@@ -65,6 +74,11 @@ class AddBillFragment : Fragment() {
         bottomNavigation.visibility = View.GONE
 
         var dialogCategory = FragmentDialogCategory()
+
+        //Set Currency of amount EditText - Default currency
+        binding.tvCurrancy.text = DecimalFormat().currency.currencyCode
+        //Set autoCompleteEditText
+        //initAutoCompleteEditText() //TODO LIST
 
         binding.imAddBillBack.setOnClickListener {
             bottomNavigation.visibility = View.VISIBLE
@@ -118,37 +132,37 @@ class AddBillFragment : Fragment() {
         binding.edDateAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DATE, colorState)
             //Picker double calls. Because of setText calls ClickListener
-            if(checkFocuse) {
+            if(checkFocus) {
                 initDatePickerDialog()
-                checkFocuse = false
+                checkFocus = false
             }
             binding.edDateAdd.clearFocus()
-            checkFocuse = true
+            checkFocus = true
         }
 
         binding.edTimeAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(TIME, colorState)
             //Picker double calls. Because of setText calls ClickListener
-            if(checkFocuse) {
+            if(checkFocus) {
                 initTimePicker()
-                checkFocuse = false
+                checkFocus = false
             }
             binding.edTimeAdd.clearFocus()
-            checkFocuse = true
+            checkFocus = true
         }
 
         binding.edAddCategory.setOnFocusChangeListener { view, b ->
             setColorStateEditText(CATEGORY, colorState)
-            if(checkFocuse) {
+            if(checkFocus) {
                 dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
                     binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
                 }
-                checkFocuse = false
+                checkFocus = false
             }
             binding.edAddCategory.clearFocus()
-            checkFocuse = true
+            checkFocus = true
         }
 
         binding.edAddAmount.setOnFocusChangeListener { view, b ->
@@ -178,7 +192,7 @@ class AddBillFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+    //If Focus change color too
     private fun isFocusEditText(colorState : ColorStateList){
         if(binding.edDateAdd.isFocused) binding.edDateAdd.backgroundTintList = colorState
         if(binding.edTimeAdd.isFocused) binding.edTimeAdd.backgroundTintList = colorState
@@ -187,8 +201,9 @@ class AddBillFragment : Fragment() {
         if(binding.edAddNote.isFocused) binding.edAddNote.backgroundTintList = colorState
         if(binding.edDescription.isFocused) binding.edDescription.backgroundTintList = colorState
     }
-
+    //Change Type color Expense - Income when you click on View
     private fun setColorStateEditText(editText : Int, colorState : ColorStateList){
+        //First step set Default color
         binding.edDateAdd.backgroundTintList =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
         binding.edTimeAdd.backgroundTintList =
@@ -237,6 +252,11 @@ class AddBillFragment : Fragment() {
             }, cHour, cMinute, false)
 
         mTimePicker.show()
+    }
+
+    private fun initAutoCompleteEditText(list : MutableList<String>){
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, list)
+        binding.edAddNote.setAdapter(adapter)
     }
 
 }
