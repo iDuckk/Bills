@@ -10,18 +10,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.mainActivity.MainActivity
-import com.cottacush.android.currencyedittext.CurrencyInputWatcher
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -50,6 +47,9 @@ class AddBillFragment : Fragment() {
     private var TYPE_BILL = TYPE_EXPENSE
 
     private var bookmark = false
+    var checkFocus = true
+
+    lateinit var colorState : ColorStateList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,23 +66,55 @@ class AddBillFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var checkFocus = true
-
-        var colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
-
-        val bottomNavigation = (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigation.visibility = View.GONE
-
-        var dialogCategory = FragmentDialogCategory()
+        //Set Bottom bar - invisible
+        (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
 
         //Set Currency of amount EditText - Default currency
         binding.tvCurrancy.text = DecimalFormat().currency.currencyCode
+
         //Set autoCompleteEditText
         //initAutoCompleteEditText() //TODO LIST
 
-        binding.imAddBillBack.setOnClickListener {
-            bottomNavigation.visibility = View.VISIBLE
+        imageListeners()
+
+        textViewListeners()
+
+        editTextListeners()
+
+        binding.bAddSave.setOnClickListener {
+            //TODO
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+        }
+
+        val type = arguments?.getBoolean(ADD_BILL_KEY)
+        if(type!!){             //Create item
+            //Set Date
+            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
+            //Set Time
+            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
+            //Set Expense TextView as default
+            binding.tvAddExpenses.performClick()
+        }else{                  //Edit item
+            //TODO IF EDIT
+        }
+
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun imageListeners(){
+        binding.imFirstPhoto.setOnClickListener {
+            //TODO
+        }
+
+        binding.imSecondPhoto.setOnClickListener {
+            //TODO
+        }
+
+        binding.imThirdPhoto.setOnClickListener {
+            //TODO
         }
 
         binding.imAddBillBookmark.setOnClickListener {
@@ -96,42 +128,16 @@ class AddBillFragment : Fragment() {
             //TODO Bookmark
         }
 
-        binding.tvAddExpenses.setOnClickListener {
-            binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
-            binding.tvAddIncome.setBackgroundResource(0)
-            TYPE_BILL = TYPE_EXPENSE
-            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
-            isFocusEditText(colorState)
-        }
-
-        binding.tvAddIncome.setOnClickListener {
-            binding.tvAddIncome.setBackgroundResource(R.drawable.textview_border_income)
-            binding.tvAddExpenses.setBackgroundResource(0)
-            TYPE_BILL = TYPE_INCOME
-            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
-            isFocusEditText(colorState)
-        }
-
-        binding.bAddSave.setOnClickListener {
-            //TODO
+        binding.imAddBillBack.setOnClickListener {
+            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
+    }
 
-        binding.imFirstPhoto.setOnClickListener {
-            //TODO
-        }
-
-        binding.imSecondPhoto.setOnClickListener {
-            //TODO
-        }
-
-        binding.imThirdPhoto.setOnClickListener {
-            //TODO
-        }
-
+    private fun editTextListeners(){
         binding.edDateAdd.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(DATE, colorState)
-            //Picker double calls. Because of setText calls ClickListener
+            setColorStateEditText(DATE)
+            //Picker double calls. Because of setText calls Focus: clearFocus()
             if(checkFocus) {
                 initDatePickerDialog()
                 checkFocus = false
@@ -141,8 +147,8 @@ class AddBillFragment : Fragment() {
         }
 
         binding.edTimeAdd.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(TIME, colorState)
-            //Picker double calls. Because of setText calls ClickListener
+            setColorStateEditText(TIME)
+            //Picker double calls. Because of setText calls Focus: clearFocus()
             if(checkFocus) {
                 initTimePicker()
                 checkFocus = false
@@ -152,12 +158,14 @@ class AddBillFragment : Fragment() {
         }
 
         binding.edAddCategory.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(CATEGORY, colorState)
+            setColorStateEditText(CATEGORY)
             if(checkFocus) {
+                var dialogCategory = FragmentDialogCategory()
                 dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
                     binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
+                    binding.edAddAmount.requestFocus()
                 }
                 checkFocus = false
             }
@@ -166,56 +174,56 @@ class AddBillFragment : Fragment() {
         }
 
         binding.edAddAmount.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(AMOUNT, colorState)
+            setColorStateEditText(AMOUNT)
         }
 
         binding.edAddNote.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(NOTE, colorState)
+            setColorStateEditText(NOTE)
         }
 
         binding.edDescription.setOnFocusChangeListener { view, b ->
-            setColorStateEditText(DESCRIPTION, colorState)
+            setColorStateEditText(DESCRIPTION)
+        }
+    }
+
+    private fun textViewListeners(){
+        binding.tvAddExpenses.setOnClickListener {
+            binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
+            binding.tvAddIncome.setBackgroundResource(0)
+            TYPE_BILL = TYPE_EXPENSE
+            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
+            isFocusEditText()
         }
 
-        val type = arguments?.getBoolean(ADD_BILL_KEY)
-        if(type!!){
-            //Set Date
-            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
-            //Set Time
-            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
-        }else{
-            //TODO IF EDIT
+        binding.tvAddIncome.setOnClickListener {
+            binding.tvAddIncome.setBackgroundResource(R.drawable.textview_border_income)
+            binding.tvAddExpenses.setBackgroundResource(0)
+            TYPE_BILL = TYPE_INCOME
+            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
+            isFocusEditText()
         }
+    }
 
-    }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
     //If Focus change color too
-    private fun isFocusEditText(colorState : ColorStateList){
+    private fun isFocusEditText(){
         if(binding.edDateAdd.isFocused) binding.edDateAdd.backgroundTintList = colorState
         if(binding.edTimeAdd.isFocused) binding.edTimeAdd.backgroundTintList = colorState
         if(binding.edAddCategory.isFocused) binding.edAddCategory.backgroundTintList = colorState
         if(binding.edAddAmount.isFocused) binding.edAddAmount.backgroundTintList = colorState
         if(binding.edAddNote.isFocused) binding.edAddNote.backgroundTintList = colorState
         if(binding.edDescription.isFocused) binding.edDescription.backgroundTintList = colorState
+        binding.edAddAmount.requestFocus() // Because When skip DialogView and color doesn't change
     }
     //Change Type color Expense - Income when you click on View
-    private fun setColorStateEditText(editText : Int, colorState : ColorStateList){
+    private fun setColorStateEditText(editText : Int){
+        var colorStateDefault = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
         //First step set Default color
-        binding.edDateAdd.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.edTimeAdd.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.edAddCategory.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.edAddAmount.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.edAddNote.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
-        binding.edDescription.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
+        binding.edDateAdd.backgroundTintList = colorStateDefault
+        binding.edTimeAdd.backgroundTintList = colorStateDefault
+        binding.edAddCategory.backgroundTintList = colorStateDefault
+        binding.edAddAmount.backgroundTintList = colorStateDefault
+        binding.edAddNote.backgroundTintList = colorStateDefault
+        binding.edDescription.backgroundTintList = colorStateDefault
         when(editText){
             DATE -> binding.edDateAdd.backgroundTintList = colorState
             TIME -> binding.edTimeAdd.backgroundTintList = colorState
@@ -233,7 +241,8 @@ class AddBillFragment : Fragment() {
         val day = c.get(Calendar.DAY_OF_MONTH)
         val dpd = DatePickerDialog(requireActivity(), { view, year, monthOfYear, dayOfMonth ->
             c.set(year, monthOfYear, dayOfMonth)
-            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
+            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(c.time))
+            binding.edAddAmount.requestFocus()
         }, year, month, day)
 
         dpd.show()
@@ -249,6 +258,7 @@ class AddBillFragment : Fragment() {
                 c.set(Calendar.HOUR_OF_DAY, hour)
                 c.set(Calendar.MINUTE, minute)
                 binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(c.time))
+                binding.edAddAmount.requestFocus()
             }, cHour, cMinute, false)
 
         mTimePicker.show()

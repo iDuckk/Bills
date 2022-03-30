@@ -166,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/default_background"
                 android:cursorVisible="false"
-                android:maxLength="16"
+                android:maxLength="25"
                 android:inputType="number|numberDecimal"
                 android:maxLines="1"
                 android:minHeight="48dp"
