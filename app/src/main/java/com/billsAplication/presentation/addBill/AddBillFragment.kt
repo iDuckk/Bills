@@ -2,11 +2,12 @@
 
 package com.billsAplication.presentation.addBill
 
+import android.R.attr.bitmap
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -24,7 +25,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -38,8 +38,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.DecimalFormat
@@ -53,9 +55,6 @@ class AddBillFragment : Fragment() {
     private var _binding: FragmentAddBillBinding? = null
     private val binding : FragmentAddBillBinding get() = _binding!!
 
-    private val PHOTO_1 = "1"
-    private val PHOTO_2 = "2"
-    private val PHOTO_3 = "3"
     private val REQUEST_CODE_PERMISSIONS = 10
     private var REQUEST_IMAGE_CAPTURE = 12
     private val FIRST_IMAGE = 11
@@ -73,7 +72,8 @@ class AddBillFragment : Fragment() {
     private val AMOUNT = 3
     private val NOTE = 4
     private val DESCRIPTION = 5
-    private val currentPhotoPath: MutableList<String> = ArrayList()
+
+    private val bitmapByte: MutableList<ByteArray> = ArrayList()
 
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
@@ -115,6 +115,8 @@ class AddBillFragment : Fragment() {
 
         binding.bAddSave.setOnClickListener { //Create or Update
             //TODO
+//            val f = createImageFile()
+//            f.writeBytes(b)
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
 
@@ -136,27 +138,23 @@ class AddBillFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-                CoroutineScope(IO).launch {
-                    if(currentPhotoPath.isNotEmpty())
-                        deletePhoto(currentPhotoPath)
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun imageListeners(){
         binding.imFirstPhoto.setOnClickListener {
             REQUEST_IMAGE_CAPTURE = FIRST_IMAGE //choose which imView set photo
-            cameraPermission(PHOTO_1) //add to nameFile to match image and the required file(5 letters)
+            cameraPermission() //add to nameFile to match image and the required file(5 letters)
         }
 
         binding.imSecondPhoto.setOnClickListener {
             REQUEST_IMAGE_CAPTURE = SECOND_IMAGE //choose which imView set photo
-            cameraPermission(PHOTO_2) //add to nameFile to match image and the required file(5 letters)
+            cameraPermission() //add to nameFile to match image and the required file(5 letters)
         }
 
         binding.imThirdPhoto.setOnClickListener {
             REQUEST_IMAGE_CAPTURE = THIRD_IMAGE //choose which imView set photo
-            cameraPermission(PHOTO_3) //add to nameFile to match image and the required file(5 letters)
+            cameraPermission() //add to nameFile to match image and the required file(5 letters)
         }
 
         binding.imAddBillBookmark.setOnClickListener {
@@ -172,10 +170,6 @@ class AddBillFragment : Fragment() {
 
         binding.imAddBillBack.setOnClickListener {
             (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
-            CoroutineScope(IO).launch {
-                if(currentPhotoPath.isNotEmpty())
-                    deletePhoto(currentPhotoPath)
-            }
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
@@ -317,11 +311,11 @@ class AddBillFragment : Fragment() {
         binding.edAddNote.setAdapter(adapter)
     }
 
-    private fun cameraPermission(typeView: String){
+    private fun cameraPermission(){
 
         when{
             ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED->{
-                dispatchTakePictureIntent(typeView)
+                dispatchTakePictureIntent()
             }
             shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)-> getActivity()?.let {
                 ActivityCompat.requestPermissions(
@@ -332,16 +326,16 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    private fun dispatchTakePictureIntent(typeView: String) {
+    private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         // Create the File where the photo should go
-        photoFile = createImageFile(typeView)
+        photoFile = createImageFile()
 
         // Continue only if the File was successfully created
         if(photoFile != null){
             val photoURI: Uri = FileProvider.getUriForFile(
                 requireContext(),
-                "com.billsAplication.fileprovider",
+                "com.billsAplication.fileprovider", // Your package
                 photoFile!!)
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         }
@@ -353,9 +347,20 @@ class AddBillFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+
             val imageBitmap =  BitmapFactory.decodeFile(photoFile!!.absolutePath)
+
+            //Save image's bytes in array
+            bitmapByte.add(photoFile!!.readBytes())
+
+            //delete File, cause we may do not save Image... It was like a buffer
+            CoroutineScope(IO).launch {
+                    deletePhoto(photoFile!!.absolutePath)
+            }
+
             when (REQUEST_IMAGE_CAPTURE ) {
                 11 -> binding.imFirstPhoto.setImageBitmap(imageBitmap)
                 12 -> binding.imSecondPhoto.setImageBitmap(imageBitmap)
@@ -366,24 +371,21 @@ class AddBillFragment : Fragment() {
 
     @SuppressLint("SimpleDateFormat")
     @Throws(IOException::class)
-    private fun createImageFile(typeView: String): File {
+    private fun createImageFile(): File {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
-            "JPEG_${typeView}${timeStamp}_", /* prefix */
+            "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath.add(absolutePath)
-        }
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun deletePhoto(paths : MutableList<String>) {
-        paths.forEach {
-            val path = Paths.get(it)
+    private suspend fun deletePhoto(strPath: String) {
+
+        val path = Paths.get(strPath)
 
             try {
                 val result = Files.deleteIfExists(path)
@@ -396,7 +398,6 @@ class AddBillFragment : Fragment() {
                 println("Deletion failed.")
                 e.printStackTrace()
             }
-        }
     }
 
 }
