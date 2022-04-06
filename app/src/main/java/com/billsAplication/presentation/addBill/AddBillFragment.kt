@@ -2,10 +2,10 @@
 
 package com.billsAplication.presentation.addBill
 
-import android.R.attr.bitmap
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -23,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -30,23 +32,29 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
+import com.billsAplication.domain.model.ImageItem
+import com.billsAplication.presentation.adapter.*
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
+import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategoryViewModel
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.ByteBuffer
+import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 
 @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
@@ -57,9 +65,6 @@ class AddBillFragment : Fragment() {
 
     private val REQUEST_CODE_PERMISSIONS = 10
     private var REQUEST_IMAGE_CAPTURE = 12
-    private val FIRST_IMAGE = 11
-    private val SECOND_IMAGE = 12
-    private val THIRD_IMAGE = 13
     private val ADD_BILL_KEY = "add_bill_key"
     private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
@@ -73,8 +78,9 @@ class AddBillFragment : Fragment() {
     private val NOTE = 4
     private val DESCRIPTION = 5
 
-    private val bitmapByte: MutableList<ByteArray> = ArrayList()
+    private val bitmapByte: MutableList<ImageItem> = ArrayList()
 
+    private var ID_IMAGE = 0
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
     private var bookmark = false
@@ -82,7 +88,17 @@ class AddBillFragment : Fragment() {
 
     lateinit var colorState : ColorStateList
 
+    @Inject
+    lateinit var viewModel: FragmentDialogCategoryViewModel
+    @Inject
+    lateinit var imageAdapter: ImageAdapter
+
+    private val component by lazy {
+        (requireActivity().application as BillsApplication).component
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
     }
 
@@ -108,6 +124,8 @@ class AddBillFragment : Fragment() {
         //initAutoCompleteEditText() //TODO LIST
 
         imageListeners()
+
+        initRecViewImage()
 
         textViewListeners()
 
@@ -140,21 +158,40 @@ class AddBillFragment : Fragment() {
         _binding = null
     }
 
+    fun initRecViewImage(){
+
+        imageAdapter.submitList(bitmapByte.toMutableList())
+
+        with(binding.recViewPhoto){
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = imageAdapter
+
+        }
+        onClickListenerDeleteImage = {
+            bitmapByte.remove(it)
+            imageAdapter.submitList(bitmapByte.toMutableList())
+        }
+
+        onClickListenerSaveImage = {
+            //Save image on storage
+            MediaStore.Images.Media.insertImage(
+                requireActivity().contentResolver,
+                BitmapFactory.decodeByteArray(it.bytesImage,0, it.bytesImage.size),
+                SimpleDateFormat("yyyyMMdd").format(Date()) + "_${it.id}",
+                null
+            )
+        }
+
+        onClickListenerItem = {
+            onCreateDialog(it)!!.show()
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun imageListeners(){
-        binding.imFirstPhoto.setOnClickListener {
-            REQUEST_IMAGE_CAPTURE = FIRST_IMAGE //choose which imView set photo
-            cameraPermission() //add to nameFile to match image and the required file(5 letters)
-        }
 
-        binding.imSecondPhoto.setOnClickListener {
-            REQUEST_IMAGE_CAPTURE = SECOND_IMAGE //choose which imView set photo
-            cameraPermission() //add to nameFile to match image and the required file(5 letters)
-        }
-
-        binding.imThirdPhoto.setOnClickListener {
-            REQUEST_IMAGE_CAPTURE = THIRD_IMAGE //choose which imView set photo
-            cameraPermission() //add to nameFile to match image and the required file(5 letters)
+        binding.imAddPhoto.setOnClickListener {
+            cameraPermission()
         }
 
         binding.imAddBillBookmark.setOnClickListener {
@@ -340,7 +377,7 @@ class AddBillFragment : Fragment() {
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         }
 
-        if (takePictureIntent.resolveActivity(requireContext().packageManager) != null) {
+        if (requireContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
             // Start the image capture intent to take photo
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         }
@@ -354,17 +391,12 @@ class AddBillFragment : Fragment() {
             val imageBitmap =  BitmapFactory.decodeFile(photoFile!!.absolutePath)
 
             //Save image's bytes in array
-            bitmapByte.add(photoFile!!.readBytes())
-
+            bitmapByte.add(ImageItem(photoFile!!.readBytes(), ID_IMAGE))
+            ID_IMAGE++
+            imageAdapter.submitList(bitmapByte.toMutableList())
             //delete File, cause we may do not save Image... It was like a buffer
             CoroutineScope(IO).launch {
                     deletePhoto(photoFile!!.absolutePath)
-            }
-
-            when (REQUEST_IMAGE_CAPTURE ) {
-                11 -> binding.imFirstPhoto.setImageBitmap(imageBitmap)
-                12 -> binding.imSecondPhoto.setImageBitmap(imageBitmap)
-                13 -> binding.imThirdPhoto.setImageBitmap(imageBitmap)
             }
         }
     }
@@ -398,6 +430,16 @@ class AddBillFragment : Fragment() {
                 println("Deletion failed.")
                 e.printStackTrace()
             }
+    }
+
+    private fun onCreateDialog(item : ImageItem): Dialog? {
+        val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity)
+        val inflater = requireActivity().layoutInflater
+        val view: View = inflater.inflate(R.layout.full_image_dialog, null)
+        builder.setView(view)
+        view.findViewById<ImageView>(R.id.im_fullScreen)
+            .setImageBitmap(BitmapFactory.decodeByteArray(item.bytesImage,0, item.bytesImage.size))
+        return builder.create()
     }
 
 }
