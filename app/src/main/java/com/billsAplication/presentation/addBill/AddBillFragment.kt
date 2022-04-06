@@ -7,22 +7,18 @@ import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
@@ -45,10 +41,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.DecimalFormat
@@ -63,8 +58,9 @@ class AddBillFragment : Fragment() {
     private var _binding: FragmentAddBillBinding? = null
     private val binding : FragmentAddBillBinding get() = _binding!!
 
-    private val REQUEST_CODE_PERMISSIONS = 10
-    private var REQUEST_IMAGE_CAPTURE = 12
+    private val REQUEST_CODE_PERMISSIONS = 100
+    private var REQUEST_IMAGE_CAPTURE = 102
+    private var PICK_IMAGE = 109
     private val ADD_BILL_KEY = "add_bill_key"
     private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
@@ -110,7 +106,7 @@ class AddBillFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -138,6 +134,7 @@ class AddBillFragment : Fragment() {
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
 
+        //Type entrances: Add or Update
         val type = arguments?.getBoolean(ADD_BILL_KEY)
         if(type!!){             //Create item
             //Set Date
@@ -157,7 +154,7 @@ class AddBillFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+    @RequiresApi(Build.VERSION_CODES.R)
     fun initRecViewImage(){
 
         imageAdapter.submitList(bitmapByte.toMutableList())
@@ -189,6 +186,9 @@ class AddBillFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun imageListeners(){
+        binding.imAttach.setOnClickListener {
+            onPickPhoto()
+        }
 
         binding.imAddPhoto.setOnClickListener {
             cameraPermission()
@@ -384,12 +384,52 @@ class AddBillFragment : Fragment() {
 
     }
 
+    fun onPickPhoto() {
+        // Create intent for picking a photo from the gallery
+        val intent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        )
+        // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
+        // So as long as the result is not null, it's safe to use the intent.
+        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+            // Bring up gallery to select a photo
+            startActivityForResult(intent, PICK_IMAGE)
+        }
+    }
+
+    fun loadFromUri(photoUri: Uri?): Bitmap? {
+        var image: Bitmap? = null
+        try {
+            // check version of Android on device
+            image = if (Build.VERSION.SDK_INT > 27) {
+                // on newer versions of Android, use the new decodeBitmap method
+                val source: ImageDecoder.Source =
+                    ImageDecoder.createSource(requireContext().getContentResolver(), photoUri!!)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                // support older versions of Android by using getBitmap
+                MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), photoUri)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return image
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
+            //Save image's bytes in array
+            bitmapByte.add(ImageItem(
+                loadFromUri(data?.data)!!.toByteArray(),
+                ID_IMAGE))
+            ID_IMAGE++
+            imageAdapter.submitList(bitmapByte.toMutableList())
+        }
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-
-            val imageBitmap =  BitmapFactory.decodeFile(photoFile!!.absolutePath)
-
             //Save image's bytes in array
             bitmapByte.add(ImageItem(photoFile!!.readBytes(), ID_IMAGE))
             ID_IMAGE++
@@ -398,6 +438,14 @@ class AddBillFragment : Fragment() {
             CoroutineScope(IO).launch {
                     deletePhoto(photoFile!!.absolutePath)
             }
+        }
+    }
+
+    // extension function to convert bitmap to byte array
+    fun Bitmap.toByteArray():ByteArray{
+        ByteArrayOutputStream().apply {
+            compress(Bitmap.CompressFormat.JPEG,100,this)
+            return toByteArray()
         }
     }
 
@@ -432,13 +480,21 @@ class AddBillFragment : Fragment() {
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun onCreateDialog(item : ImageItem): Dialog? {
-        val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity)
+        val bMapScaled = Bitmap.createScaledBitmap(
+            BitmapFactory.decodeByteArray(item.bytesImage,0, item.bytesImage.size),
+            requireContext().display!!.width,
+            requireContext().display!!.height,
+            true)
+
+        val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity,
+            android.R.style.Theme_Material_NoActionBar_TranslucentDecor)
         val inflater = requireActivity().layoutInflater
         val view: View = inflater.inflate(R.layout.full_image_dialog, null)
         builder.setView(view)
         view.findViewById<ImageView>(R.id.im_fullScreen)
-            .setImageBitmap(BitmapFactory.decodeByteArray(item.bytesImage,0, item.bytesImage.size))
+            .setImageBitmap(bMapScaled)
         return builder.create()
     }
 
