@@ -35,8 +35,11 @@ import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.domain.model.ImageItem
 import com.billsAplication.presentation.adapter.*
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
-import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategoryViewModel
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.CreateImageFile
+import com.billsAplication.utils.DeleteFIle
+import com.billsAplication.utils.LoadImageFromGallery
+import com.billsAplication.utils.mToast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -85,7 +88,15 @@ class AddBillFragment : Fragment() {
     lateinit var colorState : ColorStateList
 
     @Inject
-    lateinit var viewModel: FragmentDialogCategoryViewModel
+    lateinit var loadImage: LoadImageFromGallery
+    @Inject
+    lateinit var createImageFile: CreateImageFile
+    @Inject
+    lateinit var deleteFile: DeleteFIle
+    @Inject
+    lateinit var mToast: mToast
+    @Inject
+    lateinit var viewModel: AddBillViewModel
     @Inject
     lateinit var imageAdapter: ImageAdapter
 
@@ -116,8 +127,7 @@ class AddBillFragment : Fragment() {
         //Set Currency of amount EditText - Default currency
         binding.tvCurrancy.text = DecimalFormat().currency.currencyCode
 
-        //Set autoCompleteEditText
-        //initAutoCompleteEditText() //TODO LIST
+        initAutoCompleteEditText()
 
         imageListeners()
 
@@ -129,8 +139,6 @@ class AddBillFragment : Fragment() {
 
         binding.bAddSave.setOnClickListener { //Create or Update
             //TODO
-//            val f = createImageFile()
-//            f.writeBytes(b)
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
 
@@ -198,11 +206,12 @@ class AddBillFragment : Fragment() {
             if(bookmark) {
                 binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
                 bookmark = false
+                mToast(getString(R.string.unsaved_bookmark))
             } else {
                 binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
                 bookmark = true
+                mToast(getString(R.string.saved_bookmark))
             }
-            //TODO Bookmark
         }
 
         binding.imAddBillBack.setOnClickListener {
@@ -293,6 +302,7 @@ class AddBillFragment : Fragment() {
         if(binding.edDescription.isFocused) binding.edDescription.backgroundTintList = colorState
         binding.edAddAmount.requestFocus() // Because When skip DialogView and color doesn't change
     }
+
     //Change Type color Expense - Income when you click on View
     private fun setColorStateEditText(editText : Int){
         var colorStateDefault = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.default_background))
@@ -343,8 +353,16 @@ class AddBillFragment : Fragment() {
         mTimePicker.show()
     }
 
-    private fun initAutoCompleteEditText(list : MutableList<String>){
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, list)
+    private fun initAutoCompleteEditText(){
+        val list : MutableList<String> = ArrayList()
+        //Create list of Notes
+        viewModel.getAll()
+        viewModel.list.observe(requireActivity()){ item ->
+            item.forEach {
+                list.add(it.note)
+            }
+        }
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, list.distinct())
         binding.edAddNote.setAdapter(adapter)
     }
 
@@ -366,7 +384,7 @@ class AddBillFragment : Fragment() {
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         // Create the File where the photo should go
-        photoFile = createImageFile()
+        photoFile = createImageFile.invoke()
 
         // Continue only if the File was successfully created
         if(photoFile != null){
@@ -392,38 +410,20 @@ class AddBillFragment : Fragment() {
         )
         // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
         // So as long as the result is not null, it's safe to use the intent.
-        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+//        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
             // Bring up gallery to select a photo
             startActivityForResult(intent, PICK_IMAGE)
-        }
+//        }
     }
 
-    fun loadFromUri(photoUri: Uri?): Bitmap? {
-        var image: Bitmap? = null
-        try {
-            // check version of Android on device
-            image = if (Build.VERSION.SDK_INT > 27) {
-                // on newer versions of Android, use the new decodeBitmap method
-                val source: ImageDecoder.Source =
-                    ImageDecoder.createSource(requireContext().getContentResolver(), photoUri!!)
-                ImageDecoder.decodeBitmap(source)
-            } else {
-                // support older versions of Android by using getBitmap
-                MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), photoUri)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return image
-    }
-
+    @Deprecated("Deprecated in Java")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
             //Save image's bytes in array
             bitmapByte.add(ImageItem(
-                loadFromUri(data?.data)!!.toByteArray(),
+                loadImage(data?.data)!!.toByteArray(),
                 ID_IMAGE))
             ID_IMAGE++
             imageAdapter.submitList(bitmapByte.toMutableList())
@@ -436,48 +436,9 @@ class AddBillFragment : Fragment() {
             imageAdapter.submitList(bitmapByte.toMutableList())
             //delete File, cause we may do not save Image... It was like a buffer
             CoroutineScope(IO).launch {
-                    deletePhoto(photoFile!!.absolutePath)
+                deleteFile(photoFile!!.absolutePath)
             }
         }
-    }
-
-    // extension function to convert bitmap to byte array
-    fun Bitmap.toByteArray():ByteArray{
-        ByteArrayOutputStream().apply {
-            compress(Bitmap.CompressFormat.JPEG,100,this)
-            return toByteArray()
-        }
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun deletePhoto(strPath: String) {
-
-        val path = Paths.get(strPath)
-
-            try {
-                val result = Files.deleteIfExists(path)
-                if (result) {
-                    println("Deletion succeeded.")
-                } else {
-                    println("Deletion failed.")
-                }
-            } catch (e: IOException) {
-                println("Deletion failed.")
-                e.printStackTrace()
-            }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -496,6 +457,14 @@ class AddBillFragment : Fragment() {
         view.findViewById<ImageView>(R.id.im_fullScreen)
             .setImageBitmap(bMapScaled)
         return builder.create()
+    }
+
+    // extension function to convert bitmap to byte array
+    fun Bitmap.toByteArray():ByteArray{
+        ByteArrayOutputStream().apply {
+            compress(Bitmap.CompressFormat.JPEG,100,this)
+            return toByteArray()
+        }
     }
 
 }
