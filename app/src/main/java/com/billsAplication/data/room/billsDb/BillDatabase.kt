@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.billsAplication.data.room.model.BillEntity
 import javax.inject.Inject
 
-@Database(entities = [BillEntity::class], version = 1, exportSchema = false)
+@Database(entities = [BillEntity::class], version = 2, exportSchema = false)
 abstract class BillDatabase : RoomDatabase() {
 
     abstract fun billDao(): BillDao

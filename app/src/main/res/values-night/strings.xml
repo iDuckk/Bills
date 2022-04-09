@@ -29,5 +29,8 @@
     <string name="stop_capture">Stop Capture</string>
     <string name="saved_bookmark">Bookmark is saved</string>
     <string name="unsaved_bookmark">Bookmark is unsaved</string>
+    <string name="toast_fill_amount">Please fill Amount gap</string>
+    <string name="toast_fill_category">Please fill Category gap</string>
+    <string name="toast_fill_both_gaps">Please fill Amount and Category gaps</string>
 
 </resources>

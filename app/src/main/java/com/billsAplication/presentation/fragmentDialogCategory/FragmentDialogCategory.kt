@@ -8,13 +8,10 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.databinding.FragmentDialogCategoryBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.BillsAdapter
 import com.billsAplication.presentation.adapter.DialogCategoryAdapter
-import com.billsAplication.presentation.billsList.BillsListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -66,7 +63,7 @@ class FragmentDialogCategory : DialogFragment() {
                     0.0,
                     "",
                     "",
-                    ""))
+                    false, "", "", "", "", ""))
             }
             binding.edDialogCategoryAdd.setText("")
             binding.edDialogCategoryAdd.clearFocus()
