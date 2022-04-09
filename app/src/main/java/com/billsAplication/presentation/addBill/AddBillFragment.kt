@@ -1,4 +1,3 @@
-@file:Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 
 package com.billsAplication.presentation.addBill
 
@@ -12,12 +11,11 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ImageView
@@ -27,11 +25,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
+import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.ImageItem
 import com.billsAplication.presentation.adapter.*
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
@@ -46,11 +46,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Month
 import java.util.*
 import javax.inject.Inject
 
@@ -77,16 +76,17 @@ class AddBillFragment : Fragment() {
     private val NOTE = 4
     private val DESCRIPTION = 5
 
-    private val bitmapByte: MutableList<ImageItem> = ArrayList()
+    private val imageList: MutableList<ImageItem> = ArrayList()
 
     private var ID_IMAGE = 0
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
     private var bookmark = false
     private var checkFocus = true
+    private var countPhoto = 0
+    private var MAX_PHOTO = 5
 
     lateinit var colorState : ColorStateList
-
     @Inject
     lateinit var loadImage: LoadImageFromGallery
     @Inject
@@ -125,7 +125,7 @@ class AddBillFragment : Fragment() {
         (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
 
         //Set Currency of amount EditText - Default currency
-        binding.tvCurrancy.text = DecimalFormat().currency.currencyCode
+        binding.tvCurrancy.text = DecimalFormat().currency!!.currencyCode
 
         initAutoCompleteEditText()
 
@@ -135,22 +135,36 @@ class AddBillFragment : Fragment() {
 
         textViewListeners()
 
-        editTextListeners()
-
-        binding.bAddSave.setOnClickListener { //Create or Update
-            //TODO
-            findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
-        }
-
+        editTextListeners()//TODO CATEGORY when NULL also TODO image in BillsList if exist
+        //TODO AMOUNT correct number
+        //TODO REcView Bills last Item cannot see
         //Type entrances: Add or Update
         val type = arguments?.getBoolean(ADD_BILL_KEY)
+
         if(type!!){             //Create item
             //Set Date
-            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().time))
+            binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
             //Set Time
             binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
             //Set Expense TextView as default
             binding.tvAddExpenses.performClick()
+            //Add new Item
+            binding.bAddSave.setOnClickListener {
+                if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                    CoroutineScope(IO).launch {
+                        viewModel.add(createBillItem())
+                    }
+                    findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+                }else {
+                    if(binding.edAddAmount.text.isNullOrEmpty())
+                        mToast(getString(R.string.toast_fill_amount))
+                    else if(binding.edAddCategory.text.isNullOrEmpty())
+                        mToast(getString(R.string.toast_fill_category))
+                    else mToast(getString(R.string.toast_fill_both_gaps))
+                    binding.edAddAmount.requestFocus()
+                }
+            }
+
         }else{                  //Edit item
             //TODO IF EDIT
         }
@@ -165,7 +179,7 @@ class AddBillFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.R)
     fun initRecViewImage(){
 
-        imageAdapter.submitList(bitmapByte.toMutableList())
+        imageAdapter.submitList(imageList.toMutableList())
 
         with(binding.recViewPhoto){
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -173,15 +187,23 @@ class AddBillFragment : Fragment() {
 
         }
         onClickListenerDeleteImage = {
-            bitmapByte.remove(it)
-            imageAdapter.submitList(bitmapByte.toMutableList())
+            imageList.remove(it)
+            imageAdapter.submitList(imageList.toMutableList())
+            //Check how many photo we added
+            if(countPhoto == MAX_PHOTO){
+                binding.imAddPhoto.isEnabled = true
+                binding.imAttach.isEnabled = true
+            }
+            countPhoto--
         }
 
         onClickListenerSaveImage = {
+            //Decode String to Bytes
+            val byteImage = Base64.getDecoder().decode(it.stringImage)
             //Save image on storage
             MediaStore.Images.Media.insertImage(
                 requireActivity().contentResolver,
-                BitmapFactory.decodeByteArray(it.bytesImage,0, it.bytesImage.size),
+                BitmapFactory.decodeByteArray(byteImage,0, byteImage.size), //To BitMap
                 SimpleDateFormat("yyyyMMdd").format(Date()) + "_${it.id}",
                 null
             )
@@ -220,6 +242,7 @@ class AddBillFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun editTextListeners(){
         binding.edDateAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DATE)
@@ -323,6 +346,43 @@ class AddBillFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createBillItem(): BillsItem{
+        var image1 = ""
+        var image2 = ""
+        var image3 = ""
+        var image4 = ""
+        var image5 = ""
+        val date = LocalDate.parse(SimpleDateFormat("yyyy-dd-MM").format(Date(binding.edDateAdd.text.toString())).toString())
+
+        imageList.forEachIndexed { index, imageItem ->
+            when(index){
+                0 -> image1 = imageItem.stringImage
+                1 -> image2 = imageItem.stringImage
+                2 -> image3 = imageItem.stringImage
+                3 -> image4 = imageItem.stringImage
+                4 -> image5 = imageItem.stringImage
+            }
+        }
+        return BillsItem(
+            0,
+            TYPE_BILL,
+            date.month.toString()+ " " + date.year.toString(),
+            binding.edDateAdd.text.toString(),
+            binding.edTimeAdd.text.toString(),
+            binding.edAddCategory.text.toString(),
+            binding.edAddAmount.text.toString().replace(",", "").toDouble(),
+            binding.edAddNote.text.toString(),
+            binding.edDescription.text.toString(),
+            bookmark,
+            image1,
+            image2,
+            image3,
+            image4,
+            image5
+        )
+    }
+
     private fun initDatePickerDialog(){
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
@@ -330,7 +390,7 @@ class AddBillFragment : Fragment() {
         val day = c.get(Calendar.DAY_OF_MONTH)
         val dpd = DatePickerDialog(requireActivity(), { view, year, monthOfYear, dayOfMonth ->
             c.set(year, monthOfYear, dayOfMonth)
-            binding.edDateAdd.setText(SimpleDateFormat("dd.MM.yyyy").format(c.time))
+            binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(c.time))
             binding.edAddAmount.requestFocus()
         }, year, month, day)
 
@@ -402,7 +462,7 @@ class AddBillFragment : Fragment() {
 
     }
 
-    fun onPickPhoto() {
+    private fun onPickPhoto() {
         // Create intent for picking a photo from the gallery
         val intent = Intent(
             Intent.ACTION_PICK,
@@ -421,30 +481,37 @@ class AddBillFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
-            //Save image's bytes in array
-            bitmapByte.add(ImageItem(
-                loadImage(data?.data)!!.toByteArray(),
+            //Decode String to Bytes than Save image's bytes in array
+            imageList.add(ImageItem(
+                Base64.getEncoder().encodeToString(loadImage(data?.data)!!.toByteArray()),
                 ID_IMAGE))
             ID_IMAGE++
-            imageAdapter.submitList(bitmapByte.toMutableList())
+            imageAdapter.submitList(imageList.toMutableList())
         }
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            //Save image's bytes in array
-            bitmapByte.add(ImageItem(photoFile!!.readBytes(), ID_IMAGE))
+            //Decode String to Bytes than Save image's bytes in array
+            imageList.add(ImageItem(Base64.getEncoder().encodeToString(photoFile!!.readBytes()), ID_IMAGE))
             ID_IMAGE++
-            imageAdapter.submitList(bitmapByte.toMutableList())
+            imageAdapter.submitList(imageList.toMutableList())
             //delete File, cause we may do not save Image... It was like a buffer
             CoroutineScope(IO).launch {
                 deleteFile(photoFile!!.absolutePath)
             }
         }
+        //Check how many photo we added
+        countPhoto++
+        if(countPhoto == MAX_PHOTO){
+            binding.imAddPhoto.isEnabled = false
+            binding.imAttach.isEnabled = false
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun onCreateDialog(item : ImageItem): Dialog? {
+        val byteImage = Base64.getDecoder().decode(item.stringImage)
         val bMapScaled = Bitmap.createScaledBitmap(
-            BitmapFactory.decodeByteArray(item.bytesImage,0, item.bytesImage.size),
+            BitmapFactory.decodeByteArray(byteImage,0, byteImage.size),
             requireContext().display!!.width,
             requireContext().display!!.height,
             true)

@@ -1,6 +1,8 @@
 package com.billsAplication.presentation.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.BillItemBinding
@@ -12,6 +14,8 @@ import javax.inject.Inject
 class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) { //: ListAdapter<BillsItem, ViewHolder>(BillsListCallback())
 
     private val TYPE_CATEGORY = 2
+    private val TYPE_EXPENSES = 0
+    private val TYPE_INCOME = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BillViewHolder {
         return BillViewHolder(
@@ -33,11 +37,13 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
             holderBill.tv_Category.text = item.category
             holderBill.tv_Item_Description.text = item.note
 
-            if (item.amount > 0) {
+            if (item.type == TYPE_INCOME) {
                 holderBill.tv_Item_Income.text = item.amount.toString()
-            } else {
+                holderBill.tv_Item_Expense.visibility = View.GONE
+            } else if(item.type == TYPE_EXPENSES) {
                 holderBill.tv_Item_Expense.text = item.amount.toString()
-            }
+                holderBill.tv_Item_Income.visibility = View.GONE
+            }else Log.e("TAG", "BillsAdapter: Not found type of bill")
         }
 
     }

@@ -1,11 +1,14 @@
 package com.billsAplication.presentation.adapter
 
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.ImageItemBinding
 import com.billsAplication.domain.model.ImageItem
+import java.util.*
 import javax.inject.Inject
 
 var onClickListenerDeleteImage: ((item : ImageItem) -> Unit)? = null
@@ -23,6 +26,7 @@ class ImageAdapter @Inject constructor(): ListAdapter<ImageItem, ImageViewHolder
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val item = getItem(position)
 
@@ -37,8 +41,10 @@ class ImageAdapter @Inject constructor(): ListAdapter<ImageItem, ImageViewHolder
         holder.im_preview.setOnClickListener {
             onClickListenerItem?.invoke(item)
         }
+        //Decode String to Bytes
+        val decodeImage: ByteArray = Base64.getDecoder().decode(item.stringImage)
 
-        holder.im_preview.setImageBitmap(BitmapFactory.decodeByteArray(item.bytesImage,0, item.bytesImage.size))
+        holder.im_preview.setImageBitmap(BitmapFactory.decodeByteArray(decodeImage,0, decodeImage.size))
     }
 
 }

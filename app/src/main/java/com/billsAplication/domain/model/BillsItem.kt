@@ -10,5 +10,10 @@ data class BillsItem(
     val amount : Double,
     val note : String,
     val description : String,
-    val urlImage : String
+    val bookmark : Boolean,
+    val image1 : String,
+    val image2 : String,
+    val image3 : String,
+    val image4 : String,
+    val image5 : String
 )

@@ -58,11 +58,11 @@ class BillsListFragment : Fragment() {
         binding.tvMonth.text = viewModel.currentDate() //Set month`s text in bar
         binding.tvMonth.setOnClickListener { binding.tvMonth.text = viewModel.currentDate() }
 
-        binding.imBackMonth.setOnClickListener{
+        binding.imBackMonth.setOnClickListener{ //Previous month
             binding.tvMonth.text = viewModel.changeMonthBar(false) //Set month`s text in bar
         }
 
-        binding.imNextMonth.setOnClickListener{
+        binding.imNextMonth.setOnClickListener{ //Next month
             binding.tvMonth.text = viewModel.changeMonthBar(true) //Set month`s text in bar
         }
 
