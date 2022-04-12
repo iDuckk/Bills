@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.adapter
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,8 @@ import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.model.BillsItem
+import java.math.BigDecimal
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 @ApplicationScope
@@ -27,8 +30,17 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
         )
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holderBill: BillViewHolder, position: Int) {
         val item = getItem(position)
+
+        if(!item.image1.isNullOrEmpty()
+            ||!item.image2.isNullOrEmpty()
+            ||!item.image3.isNullOrEmpty()||
+            !item.image4.isNullOrEmpty()||
+            !item.image4.isNullOrEmpty())
+                holderBill.im_ifExist.visibility = View.VISIBLE
+        else holderBill.im_ifExist.visibility = View.GONE
 
         if(item.type != TYPE_CATEGORY) {
             holderBill.tv_Day.text = item.date.dropLast(8)
@@ -38,10 +50,13 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
             holderBill.tv_Item_Description.text = item.note
 
             if (item.type == TYPE_INCOME) {
-                holderBill.tv_Item_Income.text = item.amount.toString()
+                holderBill.tv_Item_Income
+                holderBill.tv_Item_Income.visibility = View.VISIBLE
+                holderBill.tv_Item_Income.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
                 holderBill.tv_Item_Expense.visibility = View.GONE
             } else if(item.type == TYPE_EXPENSES) {
-                holderBill.tv_Item_Expense.text = item.amount.toString()
+                holderBill.tv_Item_Expense.visibility = View.VISIBLE
+                holderBill.tv_Item_Expense.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
                 holderBill.tv_Item_Income.visibility = View.GONE
             }else Log.e("TAG", "BillsAdapter: Not found type of bill")
         }

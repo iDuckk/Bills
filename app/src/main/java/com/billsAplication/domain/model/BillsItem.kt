@@ -7,7 +7,7 @@ data class BillsItem(
     val date : String,
     val time : String,
     val category : String,
-    val amount : Double,
+    val amount : String,
     val note : String,
     val description : String,
     val bookmark : Boolean,

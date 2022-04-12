@@ -12,5 +12,6 @@ class BillViewHolder( binding: BillItemBinding) : RecyclerView.ViewHolder(bindin
     val tv_Item_Income = binding.tvItemIncome
     val tv_Item_Expense = binding.tvItemExpense
     val tv_Item_Description = binding.tvItemNote
+    val im_ifExist = binding.imIfExist
 
 }
