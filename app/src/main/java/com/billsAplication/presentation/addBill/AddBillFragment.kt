@@ -6,6 +6,7 @@ import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -46,6 +47,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -75,9 +77,12 @@ class AddBillFragment : Fragment() {
     private val AMOUNT = 3
     private val NOTE = 4
     private val DESCRIPTION = 5
+    private val NOTE_KEY_PREFERENCE = "Note_Key"
 
     private val imageList: MutableList<ImageItem> = ArrayList()
+    private var setNote: MutableSet<String>? = null
 
+    var checkNoteObserve = true
     private var ID_IMAGE = 0
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
@@ -135,9 +140,8 @@ class AddBillFragment : Fragment() {
 
         textViewListeners()
 
-        editTextListeners()//TODO CATEGORY when NULL also TODO image in BillsList if exist
-        //TODO AMOUNT correct number
-        //TODO REcView Bills last Item cannot see
+        editTextListeners()
+
         //Type entrances: Add or Update
         val type = arguments?.getBoolean(ADD_BILL_KEY)
 
@@ -151,6 +155,7 @@ class AddBillFragment : Fragment() {
             //Add new Item
             binding.bAddSave.setOnClickListener {
                 if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                    //Add new BillItem
                     CoroutineScope(IO).launch {
                         viewModel.add(createBillItem())
                     }
@@ -354,7 +359,6 @@ class AddBillFragment : Fragment() {
         var image4 = ""
         var image5 = ""
         val date = LocalDate.parse(SimpleDateFormat("yyyy-dd-MM").format(Date(binding.edDateAdd.text.toString())).toString())
-
         imageList.forEachIndexed { index, imageItem ->
             when(index){
                 0 -> image1 = imageItem.stringImage
@@ -364,6 +368,7 @@ class AddBillFragment : Fragment() {
                 4 -> image5 = imageItem.stringImage
             }
         }
+
         return BillsItem(
             0,
             TYPE_BILL,
@@ -371,7 +376,7 @@ class AddBillFragment : Fragment() {
             binding.edDateAdd.text.toString(),
             binding.edTimeAdd.text.toString(),
             binding.edAddCategory.text.toString(),
-            binding.edAddAmount.text.toString().replace(",", "").toDouble(),
+            binding.edAddAmount.text.toString(),
             binding.edAddNote.text.toString(),
             binding.edDescription.text.toString(),
             bookmark,
@@ -414,16 +419,25 @@ class AddBillFragment : Fragment() {
     }
 
     private fun initAutoCompleteEditText(){
-        val list : MutableList<String> = ArrayList()
-        //Create list of Notes
-        viewModel.getAll()
-        viewModel.list.observe(requireActivity()){ item ->
-            item.forEach {
-                list.add(it.note)
+            val list: MutableList<String> = ArrayList()
+            //Create list of Notes
+            viewModel.getAll()
+            viewModel.list.observe(requireActivity()) { item ->
+                item.forEach {
+                    list.add(it.note)
+                }
+                val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    list.distinct()
+                )
+                if(checkNoteObserve) { //Throw Null Exception when we leave Fragments
+                    binding.edAddNote.setAdapter(adapter)
+                    checkNoteObserve = false
+                }
+
+                viewModel.list.removeObservers(this)
             }
-        }
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, list.distinct())
-        binding.edAddNote.setAdapter(adapter)
     }
 
     private fun cameraPermission(){

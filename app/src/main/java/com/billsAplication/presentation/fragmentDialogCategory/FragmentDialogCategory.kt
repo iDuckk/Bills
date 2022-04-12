@@ -53,20 +53,27 @@ class FragmentDialogCategory : DialogFragment() {
 
         binding.tvDialogCategoryAdd.setOnClickListener {
             val text = binding.edDialogCategoryAdd.text.toString()
-            CoroutineScope(IO).launch {
-                viewModel.addCategory(BillsItem(0,
-                    2,
-                    "",
-                    "",
-                    "",
-                    text,
-                    0.0,
-                    "",
-                    "",
-                    false, "", "", "", "", ""))
+
+            if(text.isNotEmpty()) {
+                CoroutineScope(IO).launch {
+                    viewModel.addCategory(
+                        BillsItem(
+                            0,
+                            2,
+                            "",
+                            "",
+                            "",
+                            text,
+                            "",
+                            "",
+                            "",
+                            false, "", "", "", "", ""
+                        )
+                    )
+                }
+                binding.edDialogCategoryAdd.setText("")
+                binding.edDialogCategoryAdd.clearFocus()
             }
-            binding.edDialogCategoryAdd.setText("")
-            binding.edDialogCategoryAdd.clearFocus()
         }
 
         viewModel.getCategoryType()
