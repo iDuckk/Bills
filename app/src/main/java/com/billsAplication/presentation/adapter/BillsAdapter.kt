@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.model.BillsItem
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import javax.inject.Inject
 
@@ -19,6 +18,8 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
     private val TYPE_CATEGORY = 2
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+
+    var onClickListenerBillItem: ((item : BillsItem) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BillViewHolder {
         return BillViewHolder(
@@ -59,6 +60,10 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
                 holderBill.tv_Item_Expense.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
                 holderBill.tv_Item_Income.visibility = View.GONE
             }else Log.e("TAG", "BillsAdapter: Not found type of bill")
+        }
+
+        holderBill.itemView.setOnClickListener {
+            onClickListenerBillItem?.invoke(item)
         }
 
     }

@@ -11,7 +11,7 @@ import javax.inject.Inject
 class AddBillViewModel @Inject constructor(
     private val addBill: AddBillItemUseCase,
     private val updateBill: UpdateBillItemUseCase,
-    private val getAllDatabase : GetAllDataListUseCase
+    private val getAllDatabase: GetAllDataListUseCase
 ): ViewModel() {
 
     lateinit var list : LiveData<List<BillsItem>>

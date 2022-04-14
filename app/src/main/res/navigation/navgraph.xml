@@ -18,6 +18,11 @@
             android:name="add_bill"
             app:argType="boolean"
             android:defaultValue="true" />
+        <argument
+            android:name="bill_item"
+            app:argType="com.billsAplication.domain.model.BillsItem"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
