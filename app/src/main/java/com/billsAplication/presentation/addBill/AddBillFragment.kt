@@ -16,6 +16,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
@@ -24,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.LiveData
@@ -63,9 +66,10 @@ class AddBillFragment : Fragment() {
     private val binding : FragmentAddBillBinding get() = _binding!!
 
     private val REQUEST_CODE_PERMISSIONS = 100
-    private var REQUEST_IMAGE_CAPTURE = 102
-    private var PICK_IMAGE = 109
+    private val REQUEST_IMAGE_CAPTURE = 102
+    private val PICK_IMAGE = 109
     private val ADD_BILL_KEY = "add_bill_key"
+    private val BILL_ITEM_KEY = "bill_item_key"
     private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
     private val TAG_DIALOG_CATEGORY = "Dialog Category"
@@ -77,10 +81,8 @@ class AddBillFragment : Fragment() {
     private val AMOUNT = 3
     private val NOTE = 4
     private val DESCRIPTION = 5
-    private val NOTE_KEY_PREFERENCE = "Note_Key"
 
     private val imageList: MutableList<ImageItem> = ArrayList()
-    private var setNote: MutableSet<String>? = null
 
     var checkNoteObserve = true
     private var ID_IMAGE = 0
@@ -90,6 +92,7 @@ class AddBillFragment : Fragment() {
     private var checkFocus = true
     private var countPhoto = 0
     private var MAX_PHOTO = 5
+    private var billItem: BillsItem? = null
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -144,34 +147,16 @@ class AddBillFragment : Fragment() {
 
         //Type entrances: Add or Update
         val type = arguments?.getBoolean(ADD_BILL_KEY)
-
-        if(type!!){             //Create item
-            //Set Date
-            binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
-            //Set Time
-            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
-            //Set Expense TextView as default
-            binding.tvAddExpenses.performClick()
-            //Add new Item
-            binding.bAddSave.setOnClickListener {
-                if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
-                    //Add new BillItem
-                    CoroutineScope(IO).launch {
-                        viewModel.add(createBillItem())
-                    }
-                    findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
-                }else {
-                    if(binding.edAddAmount.text.isNullOrEmpty())
-                        mToast(getString(R.string.toast_fill_amount))
-                    else if(binding.edAddCategory.text.isNullOrEmpty())
-                        mToast(getString(R.string.toast_fill_category))
-                    else mToast(getString(R.string.toast_fill_both_gaps))
-                    binding.edAddAmount.requestFocus()
-                }
-            }
-
-        }else{                  //Edit item
-            //TODO IF EDIT
+        //BillItem when we update item
+        billItem = arguments?.getParcelable(BILL_ITEM_KEY)
+        //Because TransactionTooLargeException
+        arguments?.clear()
+        //Create item
+        if(type!!){
+            setViewsCreateType()
+        //Edit item
+        }else{
+            setViewsEditType()
         }
 
     }
@@ -181,8 +166,9 @@ class AddBillFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
     @RequiresApi(Build.VERSION_CODES.R)
-    fun initRecViewImage(){
+    private fun initRecViewImage(){
 
         imageAdapter.submitList(imageList.toMutableList())
 
@@ -200,6 +186,8 @@ class AddBillFragment : Fragment() {
                 binding.imAttach.isEnabled = true
             }
             countPhoto--
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
         }
 
         onClickListenerSaveImage = {
@@ -239,6 +227,8 @@ class AddBillFragment : Fragment() {
                 bookmark = true
                 mToast(getString(R.string.saved_bookmark))
             }
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
         }
 
         binding.imAddBillBack.setOnClickListener {
@@ -307,6 +297,10 @@ class AddBillFragment : Fragment() {
             TYPE_BILL = TYPE_EXPENSE
             colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
             binding.bAddSave.backgroundTintList = colorState
+            binding.tvAddExpenses.isEnabled = false
+            binding.tvAddIncome.isEnabled = true
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
             isFocusEditText()
         }
 
@@ -316,8 +310,126 @@ class AddBillFragment : Fragment() {
             TYPE_BILL = TYPE_INCOME
             colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
             binding.bAddSave.backgroundTintList = colorState
+            binding.tvAddExpenses.isEnabled = true
+            binding.tvAddIncome.isEnabled = false
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
             isFocusEditText()
         }
+    }
+    //set views when create type
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setViewsCreateType(){
+        //Set Date
+        binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
+        //Set Time
+        binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
+        //Set Expense TextView as default
+        binding.tvAddExpenses.performClick()
+        //Add new Item
+        binding.bAddSave.setOnClickListener {
+            if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                //Add new BillItem
+                CoroutineScope(IO).launch {
+                    viewModel.add(createBillItem())
+                }
+                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+            }else {
+                if(binding.edAddAmount.text.isNullOrEmpty())
+                    mToast(getString(R.string.toast_fill_amount))
+                else if(binding.edAddCategory.text.isNullOrEmpty())
+                    mToast(getString(R.string.toast_fill_category))
+                else mToast(getString(R.string.toast_fill_both_gaps))
+                binding.edAddAmount.requestFocus()
+            }
+        }
+    }
+    //Set views when Edit type
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setViewsEditType(){
+        if(billItem != null){
+            //set type bill
+            if(billItem?.type == TYPE_INCOME){
+                binding.tvAddIncome.performClick()
+            }else if(billItem?.type == TYPE_EXPENSE){
+                binding.tvAddExpenses.performClick()
+            }else mToast(getString(R.string.Error_incorrect_typeOfBill))
+            //set Bookmark
+            if(billItem!!.bookmark) {
+                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
+                bookmark = true
+            }
+            else {
+                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
+                bookmark = false
+            }
+            //set EditTexts
+            binding.edDateAdd.setText(billItem?.date.toString())
+            binding.edTimeAdd.setText(billItem?.time.toString())
+            binding.edAddCategory.setText(billItem?.category.toString())
+            binding.edAddAmount.setText(billItem?.amount.toString())
+            binding.edAddNote.setText(billItem?.note.toString())
+            binding.edDescription.setText(billItem?.description.toString())
+            //set ImageViews
+            if(!billItem?.image1.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image1, ID_IMAGE++))
+            if(!billItem?.image2.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image2, ID_IMAGE++))
+            if(!billItem?.image3.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image3, ID_IMAGE++))
+            if(!billItem?.image4.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image4, ID_IMAGE++))
+            if(!billItem?.image5.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image5, ID_IMAGE++))
+            if(!imageList.isNullOrEmpty())
+                imageAdapter.submitList(imageList.toMutableList())
+
+            binding.bAddSave.isEnabled = false
+        }
+        //if Views' content is changed
+        changeViewsListeners()
+
+        binding.bAddSave.setOnClickListener{
+            CoroutineScope(IO).launch {
+                viewModel.update(createBillItem())
+            }
+            findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+        }
+    }
+
+    private fun changeViewsListeners(){
+        binding.edDateAdd.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+        binding.edTimeAdd.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+        binding.edAddCategory.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+        binding.edAddAmount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+        binding.edAddNote.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+        binding.edDescription.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                binding.bAddSave.isEnabled = true
+            } })
+
     }
 
     //If Focus change color too
@@ -370,7 +482,7 @@ class AddBillFragment : Fragment() {
         }
 
         return BillsItem(
-            0,
+            if(billItem == null) 0 else billItem!!.id,
             TYPE_BILL,
             date.month.toString()+ " " + date.year.toString(),
             binding.edDateAdd.text.toString(),
@@ -501,6 +613,8 @@ class AddBillFragment : Fragment() {
                 ID_IMAGE))
             ID_IMAGE++
             imageAdapter.submitList(imageList.toMutableList())
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
         }
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -512,6 +626,8 @@ class AddBillFragment : Fragment() {
             CoroutineScope(IO).launch {
                 deleteFile(photoFile!!.absolutePath)
             }
+            //if type is Edit
+            binding.bAddSave.isEnabled = true
         }
         //Check how many photo we added
         countPhoto++

@@ -15,6 +15,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.presentation.adapter.BillsAdapter
+import com.billsAplication.presentation.adapter.onClickListenerItem
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
@@ -33,7 +34,8 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var billAdapter: BillsAdapter
 
-    val ADD_BILL_KEY = "add_bill_key"
+    private val ADD_BILL_KEY = "add_bill_key"
+    private val BILL_ITEM_KEY = "bill_item_key"
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -85,11 +87,18 @@ class BillsListFragment : Fragment() {
         _binding = null
     }
 
-    fun initRecView(){
+    private fun initRecView(){
         with(binding.recViewBill){
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = billAdapter
 
+        }
+
+
+        billAdapter.onClickListenerBillItem = {
+            bundle.putBoolean(ADD_BILL_KEY, false)
+            bundle.putParcelable(BILL_ITEM_KEY, it)
+            findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
         }
     }
 

@@ -1,5 +1,9 @@
 package com.billsAplication.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class BillsItem(
     val id : Int,
     val type : Int,
@@ -16,4 +20,4 @@ data class BillsItem(
     val image3 : String,
     val image4 : String,
     val image5 : String
-)
+): Parcelable
