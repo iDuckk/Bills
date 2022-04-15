@@ -81,6 +81,7 @@ class AddBillFragment : Fragment() {
     private val AMOUNT = 3
     private val NOTE = 4
     private val DESCRIPTION = 5
+    private val MAX_PHOTO = 5
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -91,8 +92,8 @@ class AddBillFragment : Fragment() {
     private var bookmark = false
     private var checkFocus = true
     private var countPhoto = 0
-    private var MAX_PHOTO = 5
     private var billItem: BillsItem? = null
+    private var TYPE_ENTRENCE = true
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -146,13 +147,11 @@ class AddBillFragment : Fragment() {
         editTextListeners()
 
         //Type entrances: Add or Update
-        val type = arguments?.getBoolean(ADD_BILL_KEY)
+        TYPE_ENTRENCE = requireArguments().getBoolean(ADD_BILL_KEY)
         //BillItem when we update item
         billItem = arguments?.getParcelable(BILL_ITEM_KEY)
-        //Because TransactionTooLargeException
-        arguments?.clear()
         //Create item
-        if(type!!){
+        if(TYPE_ENTRENCE){
             setViewsCreateType()
         //Edit item
         }else{
@@ -333,6 +332,8 @@ class AddBillFragment : Fragment() {
                 CoroutineScope(IO).launch {
                     viewModel.add(createBillItem())
                 }
+                //Because TransactionTooLargeException
+                arguments?.clear()
                 findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
             }else {
                 if(binding.edAddAmount.text.isNullOrEmpty())
@@ -388,6 +389,8 @@ class AddBillFragment : Fragment() {
             CoroutineScope(IO).launch {
                 viewModel.update(createBillItem())
             }
+            //Because TransactionTooLargeException
+            arguments?.clear()
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
@@ -471,6 +474,10 @@ class AddBillFragment : Fragment() {
         var image4 = ""
         var image5 = ""
         val date = LocalDate.parse(SimpleDateFormat("yyyy-dd-MM").format(Date(binding.edDateAdd.text.toString())).toString())
+        var correctDate: String = ""
+        if(TYPE_ENTRENCE) correctDate = date.month.toString()+ " " + date.year.toString()
+        else correctDate = date.month.toString()+ " " + date.year.minus(1).toString()
+
         imageList.forEachIndexed { index, imageItem ->
             when(index){
                 0 -> image1 = imageItem.stringImage
@@ -484,7 +491,7 @@ class AddBillFragment : Fragment() {
         return BillsItem(
             if(billItem == null) 0 else billItem!!.id,
             TYPE_BILL,
-            date.month.toString()+ " " + date.year.toString(),
+            correctDate,
             binding.edDateAdd.text.toString(),
             binding.edTimeAdd.text.toString(),
             binding.edAddCategory.text.toString(),

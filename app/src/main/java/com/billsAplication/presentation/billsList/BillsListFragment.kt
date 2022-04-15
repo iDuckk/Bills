@@ -2,25 +2,18 @@ package com.billsAplication.presentation.billsList
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.presentation.adapter.BillsAdapter
-import com.billsAplication.presentation.adapter.onClickListenerItem
-import java.time.LocalDate
-import java.util.*
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 
 
 class BillsListFragment : Fragment() {
@@ -36,6 +29,11 @@ class BillsListFragment : Fragment() {
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
+
+    private val NEXT_MONTH = true
+    private val PREV_MONTH = false
+    private val CREATE_TYPE = true
+    private val UPDATE_TYPE = false
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -57,26 +55,36 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.tvMonth.text = viewModel.currentDate() //Set month`s text in bar
-        binding.tvMonth.setOnClickListener { binding.tvMonth.text = viewModel.currentDate() }
+        binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+        binding.tvMonth.setOnClickListener {
+            viewModel.currentDate
+            binding.tvMonth.text = viewModel.currentDate()
+            viewModel.defaultMonth()
+            //set a new list
+            setNewList(binding.tvMonth.text.toString())
+        }
 
         binding.imBackMonth.setOnClickListener{ //Previous month
-            binding.tvMonth.text = viewModel.changeMonthBar(false) //Set month`s text in bar
+            viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
+            binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+            //set a new list
+            setNewList(binding.tvMonth.text.toString())
         }
 
         binding.imNextMonth.setOnClickListener{ //Next month
-            binding.tvMonth.text = viewModel.changeMonthBar(true) //Set month`s text in bar
+            viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
+            binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+            //set a new list
+            setNewList(binding.tvMonth.text.toString())
         }
 
         binding.buttonAddBill.setOnClickListener {
-            bundle.putBoolean(ADD_BILL_KEY, true)
+            bundle.putBoolean(ADD_BILL_KEY, CREATE_TYPE)
             findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
         }
 
         initRecView()
-
-        viewModel.getAll()
-
+        //set list of month
         viewModel.list.observe(requireActivity()){
             billAdapter.submitList(it.toList())
         }
@@ -91,14 +99,25 @@ class BillsListFragment : Fragment() {
         with(binding.recViewBill){
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = billAdapter
-
+            binding.recViewBill.itemAnimator = null
+            //billAdapter.currentList.sortByDescending { it.date.toInt() }
         }
 
 
         billAdapter.onClickListenerBillItem = {
-            bundle.putBoolean(ADD_BILL_KEY, false)
+            bundle.putBoolean(ADD_BILL_KEY, UPDATE_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
             findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setNewList(month: String){
+        //set a new list
+        viewModel.list.removeObservers(this)
+        viewModel.getMonth(month)
+        viewModel.list.observe(requireActivity()){
+            billAdapter.submitList(it.toList())
         }
     }
 

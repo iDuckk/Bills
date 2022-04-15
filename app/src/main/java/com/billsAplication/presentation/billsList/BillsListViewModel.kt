@@ -3,6 +3,7 @@ package com.billsAplication.presentation.billsList
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
@@ -11,7 +12,9 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ApplicationScope
 class BillsListViewModel @Inject constructor(
     private val getAllDatabase : GetAllDataListUseCase,
@@ -21,12 +24,29 @@ class BillsListViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private var date = LocalDate.now()
 
-    lateinit var list : LiveData<List<BillsItem>>
+    lateinit var list: LiveData<List<BillsItem>>
+    var currentDate: String
+
     private var changeMonth = 0
     private var changeYear = 0
 
+    init {
+        getMonth(currentDate())
+        currentDate = currentDate()
+    }
+
+    fun defaultMonth(){
+        changeMonth = 0
+        changeYear = 0
+    }
+
     fun getAll() {
-        list =  getAllDatabase.invoke()
+        list = getAllDatabase.invoke()
+    }
+
+    fun getMonth(month: String) {
+        list =  getMonth.invoke(month)
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -54,16 +74,5 @@ class BillsListViewModel @Inject constructor(
                         " " + date.year.minus(Math.abs(changeYear).toLong()).toString()
             }
     }
-
-
-    //date.month.minus(1)
-    //date.year.minus(1)
-
-
-    //        val repo = BillsListRepositoryImpl(requireActivity().application)
-//        val ITEMS : LiveData<List<BillsItem>> = repo.getAllDataList()
-//        ITEMS.observe(requireActivity()) {
-//            billAdapter.submitList(it.toMutableList())
-//        }
 
 }
