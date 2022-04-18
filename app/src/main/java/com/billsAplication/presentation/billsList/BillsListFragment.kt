@@ -2,6 +2,7 @@ package com.billsAplication.presentation.billsList
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -95,7 +96,7 @@ class BillsListFragment : Fragment() {
         _binding = null
     }
 
-    private fun initRecView(){
+    private fun initRecView(){  //TODO Sorting
         with(binding.recViewBill){
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = billAdapter
@@ -108,6 +109,10 @@ class BillsListFragment : Fragment() {
             bundle.putBoolean(ADD_BILL_KEY, UPDATE_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
             findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
+        }
+
+        billAdapter.onLongClickListenerBillItem = {
+            //TODO
         }
     }
 

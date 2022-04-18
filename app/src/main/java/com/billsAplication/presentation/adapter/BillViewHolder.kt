@@ -14,4 +14,6 @@ class BillViewHolder( binding: BillItemBinding) : RecyclerView.ViewHolder(bindin
     val tv_Item_Description = binding.tvItemNote
     val im_ifExist = binding.imIfExist
 
+    val cardVIewTitle = binding.cardViewTitleItem
+
 }
