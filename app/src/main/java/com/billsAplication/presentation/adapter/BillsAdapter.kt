@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
@@ -14,18 +16,22 @@ import javax.inject.Inject
 
 
 //@ApplicationScope
-class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) { //: ListAdapter<BillsItem, ViewHolder>(BillsListCallback())
+class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) {
 
     private val TYPE_CATEGORY = 2
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
 
-    private var isClicked = false
+    private var isClicked = false //If selected item for adapter
 
-    private val electedItemsList : ArrayList<Int> = ArrayList()
+    private var mIsHighlight = MutableLiveData<Boolean> ()
+    val isHighlight : LiveData<Boolean>
+        get() = mIsHighlight //If selected item for billList fragment
+
+    private val electedItemsList: ArrayList<BillsItem> = ArrayList()
 
     var onClickListenerBillItem: ((item : BillsItem) -> Unit)? = null
-    var onLongClickListenerBillItem: ((item : BillsItem) -> Unit)? = null
+    var onLongClickListenerBillItem: ((ArrayList<BillsItem>) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BillViewHolder {
         return BillViewHolder(
@@ -44,9 +50,8 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
         holderBill.cardVIewTitle.setBackgroundResource(R.drawable.background_selector)
         holderBill.itemView.setBackgroundResource(R.drawable.background_selector)
         //Choose select item or not
-        holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item.id } == item.id
-        holderBill.itemView.isSelected = electedItemsList.find { it == item.id } == item.id
-
+        holderBill.cardVIewTitle.isSelected = electedItemsList.find { it== item } == item
+        holderBill.itemView.isSelected = electedItemsList.find { it == item} == item
 
         if(item.image1.isNotEmpty()
             || item.image2.isNotEmpty()
@@ -82,9 +87,8 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
         }
 
         holderBill.itemView.setOnLongClickListener {
-            onLongClickListenerBillItem?.invoke(item)
+            onLongClickListenerBillItem?.invoke(electedItemsList)
             highlightItem(item, holderBill)
-            isClicked = true
             true
         }
 
@@ -94,16 +98,29 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
         item: BillsItem,
         holderBill: BillViewHolder
     ) {
-        if (electedItemsList.find { it == item.id } == item.id) {
-            electedItemsList.remove(item.id)
+        if(electedItemsList.isEmpty()){
+            isClicked = true
+            mIsHighlight.value = true
+        }
+
+        if(electedItemsList.find { it == item} == item) {
+            electedItemsList.remove(item)
             holderBill.cardVIewTitle.isSelected = false
             holderBill.itemView.isSelected = false
-            if(electedItemsList.isEmpty()) isClicked = false
+            if(electedItemsList.isEmpty()) {
+                mIsHighlight.value = false
+                isClicked = false
+            }
         } else {
-            electedItemsList.add(item.id)
+            electedItemsList.add(item)
             holderBill.cardVIewTitle.isSelected = true
             holderBill.itemView.isSelected = true
         }
     }
 
+    fun deleteItems(){
+        electedItemsList.clear()
+        mIsHighlight.value = false
+        isClicked = false
+    }
 }

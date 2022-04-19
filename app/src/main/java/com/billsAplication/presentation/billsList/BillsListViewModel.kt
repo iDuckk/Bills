@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.di.ApplicationScope
+import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
 import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
 import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
 import com.billsAplication.domain.model.BillsItem
@@ -19,6 +20,7 @@ import kotlin.coroutines.coroutineContext
 class BillsListViewModel @Inject constructor(
     private val getAllDatabase : GetAllDataListUseCase,
     private val getMonth : GetMonthListUseCase,
+    private val delete : DeleteBillItemUseCase,
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -47,6 +49,10 @@ class BillsListViewModel @Inject constructor(
     fun getMonth(month: String) {
         list =  getMonth.invoke(month)
 
+    }
+
+    suspend fun delete(item: BillsItem){
+        delete.invoke(item)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

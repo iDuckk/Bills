@@ -291,29 +291,11 @@ class AddBillFragment : Fragment() {
 
     private fun textViewListeners(){
         binding.tvAddExpenses.setOnClickListener {
-            binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
-            binding.tvAddIncome.setBackgroundResource(0)
-            TYPE_BILL = TYPE_EXPENSE
-            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
-            binding.bAddSave.backgroundTintList = colorState
-            binding.tvAddExpenses.isEnabled = false
-            binding.tvAddIncome.isEnabled = true
-            //if type is Edit
-            binding.bAddSave.isEnabled = true
-            isFocusEditText()
+            setTypeExpense()
         }
 
         binding.tvAddIncome.setOnClickListener {
-            binding.tvAddIncome.setBackgroundResource(R.drawable.textview_border_income)
-            binding.tvAddExpenses.setBackgroundResource(0)
-            TYPE_BILL = TYPE_INCOME
-            colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
-            binding.bAddSave.backgroundTintList = colorState
-            binding.tvAddExpenses.isEnabled = true
-            binding.tvAddIncome.isEnabled = false
-            //if type is Edit
-            binding.bAddSave.isEnabled = true
-            isFocusEditText()
+            setTypeIncome()
         }
     }
     //set views when create type
@@ -324,7 +306,7 @@ class AddBillFragment : Fragment() {
         //Set Time
         binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
         //Set Expense TextView as default
-        binding.tvAddExpenses.performClick()
+        setTypeExpense()
         //Add new Item
         binding.bAddSave.setOnClickListener {
             if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
@@ -334,6 +316,7 @@ class AddBillFragment : Fragment() {
                 }
                 //Because TransactionTooLargeException
                 arguments?.clear()
+                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
                 findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
             }else {
                 if(binding.edAddAmount.text.isNullOrEmpty())
@@ -351,9 +334,9 @@ class AddBillFragment : Fragment() {
         if(billItem != null){
             //set type bill
             if(billItem?.type == TYPE_INCOME){
-                binding.tvAddIncome.performClick()
+                setTypeIncome()
             }else if(billItem?.type == TYPE_EXPENSE){
-                binding.tvAddExpenses.performClick()
+                setTypeExpense()
             }else mToast(getString(R.string.Error_incorrect_typeOfBill))
             //set Bookmark
             if(billItem!!.bookmark) {
@@ -391,6 +374,7 @@ class AddBillFragment : Fragment() {
             }
             //Because TransactionTooLargeException
             arguments?.clear()
+            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
@@ -474,10 +458,9 @@ class AddBillFragment : Fragment() {
         var image4 = ""
         var image5 = ""
         val date = LocalDate.parse(SimpleDateFormat("yyyy-dd-MM").format(Date(binding.edDateAdd.text.toString())).toString())
-        var correctDate: String = ""
-        if(TYPE_ENTRENCE) correctDate = date.month.toString()+ " " + date.year.toString()
-        else correctDate = date.month.toString()+ " " + date.year.minus(1).toString()
-
+//        var correctDate: String = ""
+//        if(TYPE_ENTRENCE) correctDate = date.month.toString()+ " " + date.year.toString()
+//        else correctDate = date.month.toString()+ " " + date.year.minus(1).toString()
         imageList.forEachIndexed { index, imageItem ->
             when(index){
                 0 -> image1 = imageItem.stringImage
@@ -491,7 +474,7 @@ class AddBillFragment : Fragment() {
         return BillsItem(
             if(billItem == null) 0 else billItem!!.id,
             TYPE_BILL,
-            correctDate,
+            date.month.toString()+ " " + date.year.minus(1).toString(),
             binding.edDateAdd.text.toString(),
             binding.edTimeAdd.text.toString(),
             binding.edAddCategory.text.toString(),
@@ -662,6 +645,33 @@ class AddBillFragment : Fragment() {
             .setImageBitmap(bMapScaled)
         return builder.create()
     }
+    //Set expense type after join to fragment
+    private fun setTypeExpense(){
+        binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
+        binding.tvAddIncome.setBackgroundResource(0)
+        TYPE_BILL = TYPE_EXPENSE
+        colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
+        binding.bAddSave.backgroundTintList = colorState
+        binding.tvAddExpenses.isEnabled = false
+        binding.tvAddIncome.isEnabled = true
+        //if type is Edit
+        binding.bAddSave.isEnabled = true
+        isFocusEditText()
+    }
+    //set income type after join to fragment
+    private fun setTypeIncome(){
+        binding.tvAddIncome.setBackgroundResource(R.drawable.textview_border_income)
+        binding.tvAddExpenses.setBackgroundResource(0)
+        TYPE_BILL = TYPE_INCOME
+        colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
+        binding.bAddSave.backgroundTintList = colorState
+        binding.tvAddExpenses.isEnabled = true
+        binding.tvAddIncome.isEnabled = false
+        //if type is Edit
+        binding.bAddSave.isEnabled = true
+        isFocusEditText()
+    }
+
 
     // extension function to convert bitmap to byte array
     fun Bitmap.toByteArray():ByteArray{
