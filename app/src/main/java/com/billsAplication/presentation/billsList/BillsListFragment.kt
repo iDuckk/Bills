@@ -117,7 +117,7 @@ class BillsListFragment : Fragment() {
         initRecView()
         //set list of month
         viewModel.list.observe(requireActivity()) {
-            billAdapter.submitList(it.toList())
+            billAdapter.submitList(it.sortedBy {  item -> item.date }.toList())
         }
     }
 
@@ -132,7 +132,7 @@ class BillsListFragment : Fragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = billAdapter
             binding.recViewBill.itemAnimator = null
-            //billAdapter.currentList.sortByDescending { it.date.toInt() }
+//            billAdapter.currentList.sortByDescending { it.date.dropLast(8).toInt() }
         }
 
 
