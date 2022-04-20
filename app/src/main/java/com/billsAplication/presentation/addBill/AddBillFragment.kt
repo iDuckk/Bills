@@ -457,10 +457,12 @@ class AddBillFragment : Fragment() {
         var image3 = ""
         var image4 = ""
         var image5 = ""
-        val date = LocalDate.parse(SimpleDateFormat("yyyy-dd-MM").format(Date(binding.edDateAdd.text.toString())).toString())
-//        var correctDate: String = ""
-//        if(TYPE_ENTRENCE) correctDate = date.month.toString()+ " " + date.year.toString()
-//        else correctDate = date.month.toString()+ " " + date.year.minus(1).toString()
+
+        val day = binding.edDateAdd.text.dropLast(8).toString()
+        val month = binding.edDateAdd.text.drop(3).dropLast(5).toString()
+        val year = binding.edDateAdd.text.drop(6).toString()
+        val date = LocalDate.of(year.toInt(),month.toInt(), day.toInt())
+
         imageList.forEachIndexed { index, imageItem ->
             when(index){
                 0 -> image1 = imageItem.stringImage
@@ -474,7 +476,7 @@ class AddBillFragment : Fragment() {
         return BillsItem(
             if(billItem == null) 0 else billItem!!.id,
             TYPE_BILL,
-            date.month.toString()+ " " + date.year.minus(1).toString(),
+            date.month.toString() + " " + date.year.toString(),
             binding.edDateAdd.text.toString(),
             binding.edTimeAdd.text.toString(),
             binding.edAddCategory.text.toString(),
