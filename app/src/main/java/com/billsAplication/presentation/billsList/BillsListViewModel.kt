@@ -11,6 +11,7 @@ import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
 import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
+import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
@@ -27,6 +28,7 @@ class BillsListViewModel @Inject constructor(
     private var date = LocalDate.now()
 
     lateinit var list: LiveData<List<BillsItem>>
+
     var currentDate: String
 
     private var changeMonth = 0
@@ -48,7 +50,6 @@ class BillsListViewModel @Inject constructor(
 
     fun getMonth(month: String) {
         list =  getMonth.invoke(month)
-
     }
 
     suspend fun delete(item: BillsItem){

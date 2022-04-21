@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import javax.inject.Inject
+import kotlin.math.exp
 
 
 //@ApplicationScope

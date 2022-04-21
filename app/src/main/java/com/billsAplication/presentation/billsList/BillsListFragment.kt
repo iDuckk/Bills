@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.billsList
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -7,7 +8,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,10 +19,13 @@ import com.billsAplication.presentation.adapter.BillsAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.math.exp
 
 
 class BillsListFragment : Fragment() {
@@ -38,11 +41,15 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var billAdapter: BillsAdapter
 
+    var income = BigDecimal(0)
+    var expense = BigDecimal(0)
     private var deleteItem = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
+    private val TYPE_EXPENSES = 0
+    private val TYPE_INCOME = 1
 
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
@@ -66,6 +73,7 @@ class BillsListFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -117,8 +125,22 @@ class BillsListFragment : Fragment() {
         initRecView()
         //set list of month
         viewModel.list.observe(requireActivity()) {
-            billAdapter.submitList(it.sortedBy {  item -> item.date }.toList())
+            //Add list in adapter
+            billAdapter.submitList(it.sortedBy { item -> item.date }.toList())
+            //Create amount for title amountTextView
+            it.forEachIndexed { index, item ->
+                when (item.type) {
+                    TYPE_INCOME ->
+                        income += BigDecimal(item.amount.replace(",", ""))
+                    TYPE_EXPENSES ->
+                        expense += BigDecimal(item.amount.replace(",", ""))
+                }
+
+                if (it.lastIndex == index && _binding != null)
+                    setAmountNum()
+            }
         }
+
     }
 
     override fun onDestroyView() {
@@ -127,14 +149,12 @@ class BillsListFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun initRecView() {                              //TODO Sorting
+    private fun initRecView() {
         with(binding.recViewBill) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = billAdapter
             binding.recViewBill.itemAnimator = null
-//            billAdapter.currentList.sortByDescending { it.date.dropLast(8).toInt() }
         }
-
 
         billAdapter.onClickListenerBillItem = {
             bundle.putBoolean(ADD_BILL_KEY, UPDATE_TYPE)
@@ -173,6 +193,30 @@ class BillsListFragment : Fragment() {
         viewModel.list.observe(requireActivity()) {
             billAdapter.submitList(it.toList())
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setAmountNum() {
+        billAdapter.currentList.forEachIndexed { index, item ->
+            binding.tvIncomeNum.text = "%,.2f".format(income)
+            binding.tvExpenseNum.text = "%,.2f".format(expense)
+            binding.tvTotalNum.text = "%,.2f".format((income - expense))
+            //Resize text in views if value is huge
+            if (binding.tvIncomeNum.text.length > 13
+                || binding.tvExpenseNum.text.length > 13
+                || binding.tvTotalNum.text.length > 13
+            ) {
+                binding.tvIncomeNum.textSize = 11F
+                binding.tvExpenseNum.textSize = 11F
+                binding.tvTotalNum.textSize = 11F
+            } else {
+                binding.tvIncomeNum.textSize = 18F
+                binding.tvExpenseNum.textSize = 18F
+                binding.tvTotalNum.textSize = 18F
+            }
+        }
+        income = BigDecimal(0)
+        expense = BigDecimal(0)
     }
 
 }
