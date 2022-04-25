@@ -88,7 +88,7 @@ class BookmarksFragment : Fragment() {
             binding.recViewBookmarks.itemAnimator = null
         }
 
-        bookmarkAdapter.onClickListenerBookmarkItem = { //TODO
+        bookmarkAdapter.onClickListenerBookmarkItem = {
             bundle.putInt(ADD_BILL_KEY, BOOKMARK_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
             findNavController().navigate(R.id.action_bookmarksFragment_to_addBillFragment, bundle)
