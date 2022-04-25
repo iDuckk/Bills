@@ -48,6 +48,14 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         }
     }
 
+    override fun getBookmarks(type: Boolean): LiveData<List<BillsItem>> {
+        return Transformations.map(billDao.getBookmarks(type)){
+            it.map{
+                mapper.mapBillEntityToBillItem(it)
+            }
+        }
+    }
+
     override suspend fun updateItem(item: BillsItem) {
         billDao.update(mapper.mapBillItemToBillEntity(item))
     }

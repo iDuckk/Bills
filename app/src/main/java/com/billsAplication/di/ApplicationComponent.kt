@@ -4,6 +4,7 @@ import android.app.Application
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.addBill.AddBillFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
+import com.billsAplication.presentation.bookmarks.BookmarksFragment
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import dagger.BindsInstance
 import dagger.Component
@@ -17,6 +18,8 @@ interface ApplicationComponent {
     fun inject(fragment: FragmentDialogCategory)
 
     fun inject(fragment: AddBillFragment)
+
+    fun inject(fragment: BookmarksFragment)
 
     @Component.Factory
     interface Factory{

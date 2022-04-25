@@ -53,8 +53,8 @@ class BillsListFragment : Fragment() {
 
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
-    private val CREATE_TYPE = true
-    private val UPDATE_TYPE = false
+    private val CREATE_TYPE = 100
+    private val UPDATE_TYPE = 101
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -77,6 +77,8 @@ class BillsListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
 
         binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
         binding.tvMonth.setOnClickListener {
@@ -101,6 +103,12 @@ class BillsListFragment : Fragment() {
             setNewList(binding.tvMonth.text.toString())
         }
 
+        binding.imBookmarks.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_billsListFragment_to_bookmarksFragment,
+            )
+        }
+
         binding.buttonAddBill.setOnClickListener {
             if (deleteItem) {
                 CoroutineScope(Main).launch {
@@ -114,7 +122,7 @@ class BillsListFragment : Fragment() {
                     listDeleteItems.clear()
                 }
             } else {
-                bundle.putBoolean(ADD_BILL_KEY, CREATE_TYPE)
+                bundle.putInt(ADD_BILL_KEY, CREATE_TYPE)
                 findNavController().navigate(
                     R.id.action_billsListFragment_to_addBillFragment,
                     bundle
@@ -157,7 +165,7 @@ class BillsListFragment : Fragment() {
         }
 
         billAdapter.onClickListenerBillItem = {
-            bundle.putBoolean(ADD_BILL_KEY, UPDATE_TYPE)
+            bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
             findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
         }

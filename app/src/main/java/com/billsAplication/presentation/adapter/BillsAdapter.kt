@@ -17,7 +17,6 @@ import javax.inject.Inject
 import kotlin.math.exp
 
 
-//@ApplicationScope
 class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder>(BillsListCallback()) {
 
     private val TYPE_CATEGORY = 2

@@ -93,7 +93,9 @@ class AddBillFragment : Fragment() {
     private var checkFocus = true
     private var countPhoto = 0
     private var billItem: BillsItem? = null
-    private var TYPE_ENTRENCE = true
+    private var TYPE_UPDATE = 101
+    private var TYPE_ADD = 100
+    private var TYPE_BOOKMARK = 102
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -146,16 +148,13 @@ class AddBillFragment : Fragment() {
 
         editTextListeners()
 
-        //Type entrances: Add or Update
-        TYPE_ENTRENCE = requireArguments().getBoolean(ADD_BILL_KEY)
         //BillItem when we update item
         billItem = arguments?.getParcelable(BILL_ITEM_KEY)
-        //Create item
-        if(TYPE_ENTRENCE){
-            setViewsCreateType()
-        //Edit item
-        }else{
-            setViewsEditType()
+        when(requireArguments().getInt(ADD_BILL_KEY)){
+            TYPE_ADD -> setViewsCreateType()
+            TYPE_UPDATE -> setViewsEditType()
+            TYPE_BOOKMARK -> mToast("Bookmark")
+            else -> mToast("AddBillFragment: Wrong type of entrance")
         }
 
     }
@@ -231,7 +230,6 @@ class AddBillFragment : Fragment() {
         }
 
         binding.imAddBillBack.setOnClickListener {
-            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
@@ -316,7 +314,6 @@ class AddBillFragment : Fragment() {
                 }
                 //Because TransactionTooLargeException
                 arguments?.clear()
-                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
                 findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
             }else {
                 if(binding.edAddAmount.text.isNullOrEmpty())
@@ -374,7 +371,6 @@ class AddBillFragment : Fragment() {
             }
             //Because TransactionTooLargeException
             arguments?.clear()
-            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
