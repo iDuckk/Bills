@@ -19,4 +19,6 @@ interface BillsListRepository {
 
     fun getType(type : Int) : LiveData<List<BillsItem>>
 
+    fun getBookmarks(type : Boolean) : LiveData<List<BillsItem>>
+
 }

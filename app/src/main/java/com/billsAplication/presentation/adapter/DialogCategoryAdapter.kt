@@ -9,7 +9,6 @@ import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.model.BillsItem
 import javax.inject.Inject
 
-@ApplicationScope
 class DialogCategoryAdapter  @Inject constructor(): ListAdapter<BillsItem, DialogCategoryViewHolder>(DialogCategoryCallback()) {
 
     var onClickListenerDelete: ((item : BillsItem) -> Unit)? = null
