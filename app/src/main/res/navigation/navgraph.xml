@@ -50,6 +50,9 @@
             android:id="@+id/action_addBillFragment_to_billsListFragment"
             app:destination="@id/billsListFragment"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_addBillFragment_to_bookmarksFragment"
+            app:destination="@id/bookmarksFragment" />
     </fragment>
     <fragment
         android:id="@+id/bookmarksFragment"

@@ -6,7 +6,6 @@ import android.app.Activity.RESULT_OK
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -18,7 +17,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ImageView
@@ -26,10 +24,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -50,11 +46,9 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.Month
 import java.util.*
 import javax.inject.Inject
 
@@ -96,6 +90,7 @@ class AddBillFragment : Fragment() {
     private var TYPE_UPDATE = 101
     private var TYPE_ADD = 100
     private var TYPE_BOOKMARK = 102
+    private var TYPE_ENTRENCE = 0
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -150,12 +145,15 @@ class AddBillFragment : Fragment() {
 
         //BillItem when we update item
         billItem = arguments?.getParcelable(BILL_ITEM_KEY)
-        when(requireArguments().getInt(ADD_BILL_KEY)){
+        TYPE_ENTRENCE = requireArguments().getInt(ADD_BILL_KEY)
+        when(TYPE_ENTRENCE){
             TYPE_ADD -> setViewsCreateType()
             TYPE_UPDATE -> setViewsEditType()
-            TYPE_BOOKMARK -> mToast("Bookmark")
-            else -> mToast("AddBillFragment: Wrong type of entrance")
+            TYPE_BOOKMARK -> setViewsBookmarksType()
+            else -> mToast(getString(R.string.Wrong_entrence_type))
         }
+        //Because TransactionTooLargeException
+        arguments?.clear()
 
     }
 
@@ -226,10 +224,20 @@ class AddBillFragment : Fragment() {
                 mToast(getString(R.string.saved_bookmark))
             }
             //if type is Edit
-            binding.bAddSave.isEnabled = true
+            if(TYPE_ENTRENCE == TYPE_UPDATE){
+                if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                    CoroutineScope(IO).launch {
+                        viewModel.update(createBillItem())
+                    }
+                    findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+                } else doNotFillAllGapsAttention()
+            }
         }
 
         binding.imAddBillBack.setOnClickListener {
+            if(TYPE_ENTRENCE == TYPE_BOOKMARK)
+            findNavController().navigate(R.id.action_addBillFragment_to_bookmarksFragment)
+            else
             findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
@@ -306,44 +314,15 @@ class AddBillFragment : Fragment() {
         //Set Expense TextView as default
         setTypeExpense()
         //Add new Item
-        binding.bAddSave.setOnClickListener {
-            if(!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
-                //Add new BillItem
-                CoroutineScope(IO).launch {
-                    viewModel.add(createBillItem())
-                }
-                //Because TransactionTooLargeException
-                arguments?.clear()
-                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
-            }else {
-                if(binding.edAddAmount.text.isNullOrEmpty())
-                    mToast(getString(R.string.toast_fill_amount))
-                else if(binding.edAddCategory.text.isNullOrEmpty())
-                    mToast(getString(R.string.toast_fill_category))
-                else mToast(getString(R.string.toast_fill_both_gaps))
-                binding.edAddAmount.requestFocus()
-            }
-        }
+        clickListenerButtonAddSave()
     }
+
     //Set views when Edit type
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setViewsEditType(){
         if(billItem != null){
-            //set type bill
-            if(billItem?.type == TYPE_INCOME){
-                setTypeIncome()
-            }else if(billItem?.type == TYPE_EXPENSE){
-                setTypeExpense()
-            }else mToast(getString(R.string.Error_incorrect_typeOfBill))
-            //set Bookmark
-            if(billItem!!.bookmark) {
-                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
-                bookmark = true
-            }
-            else {
-                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
-                bookmark = false
-            }
+            setTypeBill()
+            setBookmarkImage()
             //set EditTexts
             binding.edDateAdd.setText(billItem?.date.toString())
             binding.edTimeAdd.setText(billItem?.time.toString())
@@ -352,27 +331,123 @@ class AddBillFragment : Fragment() {
             binding.edAddNote.setText(billItem?.note.toString())
             binding.edDescription.setText(billItem?.description.toString())
             //set ImageViews
-            if(!billItem?.image1.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image1, ID_IMAGE++))
-            if(!billItem?.image2.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image2, ID_IMAGE++))
-            if(!billItem?.image3.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image3, ID_IMAGE++))
-            if(!billItem?.image4.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image4, ID_IMAGE++))
-            if(!billItem?.image5.isNullOrEmpty()) imageList.add(ImageItem(billItem!!.image5, ID_IMAGE++))
-            if(!imageList.isNullOrEmpty())
-                imageAdapter.submitList(imageList.toMutableList())
+            addImageItemToList()
 
             binding.bAddSave.isEnabled = false
         }
         //if Views' content is changed
         changeViewsListeners()
+        clickListenerButtonEditSave()
+    }
 
-        binding.bAddSave.setOnClickListener{
-            CoroutineScope(IO).launch {
-                viewModel.update(createBillItem())
-            }
-            //Because TransactionTooLargeException
-            arguments?.clear()
-            findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setViewsBookmarksType() {
+        if(billItem != null) {
+            //set type bill
+            setTypeBill()
+
+            //Set Date
+            binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
+            //Set Time
+            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
+            //set EditTexts others EditText
+            binding.edAddCategory.setText(billItem?.category.toString())
+            binding.edAddAmount.setText(billItem?.amount.toString())
+            binding.edAddNote.setText(billItem?.note.toString())
+            binding.edDescription.setText(billItem?.description.toString())
+            //set ImageViews
+            addImageItemToList()
+            clickListenerButtonAddSave()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun clickListenerButtonAddSave() {
+        binding.bAddSave.setOnClickListener {
+            if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                //Add new BillItem
+                CoroutineScope(IO).launch {
+                    viewModel.add(createBillItem())
+                }
+                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+            } else {
+                doNotFillAllGapsAttention()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun clickListenerButtonEditSave(){
+        binding.bAddSave.setOnClickListener {
+            if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                CoroutineScope(IO).launch {
+                    viewModel.update(createBillItem())
+                }
+                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+            } else doNotFillAllGapsAttention()
+        }
+    }
+
+    private fun doNotFillAllGapsAttention() {
+        when {
+            binding.edAddAmount.text.isNullOrEmpty() -> mToast(getString(R.string.toast_fill_amount))
+            binding.edAddCategory.text.isNullOrEmpty() -> mToast(getString(R.string.toast_fill_category))
+            else -> mToast(getString(R.string.toast_fill_both_gaps))
+        }
+        binding.edAddAmount.requestFocus()
+    }
+
+    private fun addImageItemToList() {
+        if (!billItem?.image1.isNullOrEmpty()) imageList.add(
+            ImageItem(
+                billItem!!.image1,
+                ID_IMAGE++
+            )
+        )
+        if (!billItem?.image2.isNullOrEmpty()) imageList.add(
+            ImageItem(
+                billItem!!.image2,
+                ID_IMAGE++
+            )
+        )
+        if (!billItem?.image3.isNullOrEmpty()) imageList.add(
+            ImageItem(
+                billItem!!.image3,
+                ID_IMAGE++
+            )
+        )
+        if (!billItem?.image4.isNullOrEmpty()) imageList.add(
+            ImageItem(
+                billItem!!.image4,
+                ID_IMAGE++
+            )
+        )
+        if (!billItem?.image5.isNullOrEmpty()) imageList.add(
+            ImageItem(
+                billItem!!.image5,
+                ID_IMAGE++
+            )
+        )
+        if (!imageList.isNullOrEmpty())
+            imageAdapter.submitList(imageList.toMutableList())
+    }
+
+    private fun setBookmarkImage() {
+        if (billItem!!.bookmark) {
+            binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
+            bookmark = true
+        } else {
+            binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
+            bookmark = false
+        }
+    }
+
+    private fun setTypeBill() {
+        if (billItem?.type == TYPE_INCOME) {
+            setTypeIncome()
+        } else if (billItem?.type == TYPE_EXPENSE) {
+            setTypeExpense()
+        } else mToast(getString(R.string.Error_incorrect_typeOfBill))
     }
 
     private fun changeViewsListeners(){
@@ -470,7 +545,7 @@ class AddBillFragment : Fragment() {
         }
 
         return BillsItem(
-            if(billItem == null) 0 else billItem!!.id,
+            if(TYPE_ENTRENCE == TYPE_ADD || TYPE_ENTRENCE == TYPE_BOOKMARK) 0 else billItem!!.id,
             TYPE_BILL,
             date.month.toString() + " " + date.year.toString(),
             binding.edDateAdd.text.toString(),
