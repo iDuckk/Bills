@@ -1,9 +1,11 @@
 package com.billsAplication.presentation.adapter
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
@@ -42,36 +44,58 @@ class BookmarksAdapter  @Inject constructor(): ListAdapter<BillsItem, BookmarksV
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     override fun onBindViewHolder(holder: BookmarksViewHolder, position: Int) {
         val item = getItem(position)
-//        //set background here because it doesn't set in XML
-//        holder.cardVIew.setBackgroundResource(R.drawable.background_selector)
-//        holder.itemView.setBackgroundResource(R.drawable.background_selector)
-//        //Choose select item or not
-//        holder.cardVIew.isSelected = electedItemsList.find { it== item } == item
-//        holder.itemView.isSelected = electedItemsList.find { it == item} == item
+        //set background here because it doesn't set in XML
+        holder.cardVIew.setBackgroundResource(R.drawable.background_selector)
+        //Choose select item or not
+        holder.cardVIew.isSelected = electedItemsList.find { it == item} == item
 
         holder.tv_category.text = item.category
         holder.tv_item_note.text = item.note
         holder.tv_item_amount.text = item.amount
-        when (item.type) {
-            TYPE_INCOME -> holder.tv_item_amount.setTextColor(R.color.text_income)
-            TYPE_EXPENSES -> holder.tv_item_amount.setTextColor(R.color.text_expense)
-            else -> Log.e("TAG", "BookmarksAdapter: Not found type of bill")
-        }
+        setAmountTextColor(item, holder)
 
 
         holder.itemView.setOnClickListener {
-//            if(isClicked)
-//                highlightItem(item, holder)
-//            else
+            if(isClicked)
+                highlightItem(item, holder)
+            else
                 onClickListenerBookmarkItem?.invoke(item)
         }
-//
-//        holder.itemView.setOnLongClickListener {
-//            onLongClickListenerBookmarkItem?.invoke(electedItemsList)
-//            highlightItem(item, holder)
-//            true
-//        }
 
+        holder.itemView.setOnLongClickListener {
+            onLongClickListenerBookmarkItem?.invoke(electedItemsList)
+            highlightItem(item, holder)
+            true
+        }
+
+    }
+
+    private fun setAmountTextColor(
+        item: BillsItem,
+        holder: BookmarksViewHolder
+    ) {
+        when (item.type) {
+            TYPE_INCOME -> holder.tv_item_amount.setTextColor(
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.text_income
+                    )
+                )
+            )
+            TYPE_EXPENSES -> holder.tv_item_amount.setTextColor(
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.text_expense
+                    )
+                )
+            )
+            else -> Log.e(
+                "TAG",
+                holder.itemView.context.getString(R.string.attention_mookmark_notfoundType)
+            )
+        }
     }
 
     private fun highlightItem(
@@ -87,6 +111,7 @@ class BookmarksAdapter  @Inject constructor(): ListAdapter<BillsItem, BookmarksV
             electedItemsList.remove(item)
             holderBill.cardVIew.isSelected = false
             holderBill.itemView.isSelected = false
+            setAmountTextColor(item, holderBill)
             if(electedItemsList.isEmpty()) {
                 mIsHighlight.value = false
                 isClicked = false
@@ -95,12 +120,15 @@ class BookmarksAdapter  @Inject constructor(): ListAdapter<BillsItem, BookmarksV
             electedItemsList.add(item)
             holderBill.cardVIew.isSelected = true
             holderBill.itemView.isSelected = true
+            holderBill.tv_item_amount.setTextColor(
+                ColorStateList.valueOf(ContextCompat.getColor(holderBill.itemView.context, R.color.default_background)))
         }
     }
 
-    fun deleteItems(){
+    fun deleteItemsAfterRemovedItemFromDB(){
         electedItemsList.clear()
         mIsHighlight.value = false
         isClicked = false
     }
+
 }

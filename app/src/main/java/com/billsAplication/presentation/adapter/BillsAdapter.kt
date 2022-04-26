@@ -119,7 +119,7 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
         }
     }
 
-    fun deleteItems(){
+    fun deleteItemsAfterRemovedItemFromDB(){
         electedItemsList.clear()
         mIsHighlight.value = false
         isClicked = false
