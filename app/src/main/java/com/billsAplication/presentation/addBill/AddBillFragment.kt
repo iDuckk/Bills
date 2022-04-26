@@ -214,23 +214,31 @@ class AddBillFragment : Fragment() {
         }
 
         binding.imAddBillBookmark.setOnClickListener {
-            if(bookmark) {
-                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
-                bookmark = false
-                mToast(getString(R.string.unsaved_bookmark))
-            } else {
-                binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
-                bookmark = true
-                mToast(getString(R.string.saved_bookmark))
-            }
             //if type is Edit
             if(TYPE_ENTRENCE == TYPE_UPDATE){
+                if(bookmark) {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
+                    bookmark = false
+                    mToast(getString(R.string.unsaved_bookmark))
+                } else {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
+                    bookmark = true
+                    mToast(getString(R.string.saved_bookmark))
+                }
                 if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
                     CoroutineScope(IO).launch {
                         viewModel.update(createBillItem())
                     }
                     findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
                 } else doNotFillAllGapsAttention()
+            }else{
+                if(bookmark) {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
+                    bookmark = false
+                } else {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
+                    bookmark = true
+                }
             }
         }
 

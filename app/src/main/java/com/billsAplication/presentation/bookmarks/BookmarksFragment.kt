@@ -17,6 +17,9 @@ import com.billsAplication.presentation.adapter.BillsAdapter
 import com.billsAplication.presentation.adapter.BookmarksAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookmarksFragment : Fragment() {
@@ -61,11 +64,25 @@ class BookmarksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
+        binding.imBookmarksDelete.visibility = View.GONE
 
         binding.imBookmarksBack.setOnClickListener {
             findNavController().navigate(
                 R.id.action_bookmarksFragment_to_billsListFragment,
             )
+        }
+
+        binding.imBookmarksDelete.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                if (listDeleteItems.isNotEmpty()) {
+                    listDeleteItems.forEach {
+                        viewModel.updateBookmarks(billItemMapper(it))
+                    }
+                }
+                bookmarkAdapter.deleteItemsAfterRemovedItemFromDB()
+                deleteItem = false
+                listDeleteItems.clear()
+            }
         }
 
         initRecView()
@@ -94,27 +111,40 @@ class BookmarksFragment : Fragment() {
             findNavController().navigate(R.id.action_bookmarksFragment_to_addBillFragment, bundle)
         }
 
-        bookmarkAdapter.onLongClickListenerBookmarkItem = { //TODO
-            //listDeleteItems = it
+        bookmarkAdapter.onLongClickListenerBookmarkItem = {
+            listDeleteItems = it
         }
         //Highlight item
-        bookmarkAdapter.isHighlight.observe(requireActivity()) { //TODO
-//            deleteItem = it
-//            if (it) {
-//                deleteItem = it
-//                binding.buttonAddBill.setImageResource(R.drawable.ic_delete_forever)
-//                binding.cardViewBar.visibility = View.GONE
-//                binding.cardViewBudget.visibility = View.GONE
-//                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
-//                    View.GONE
-//            } else {
-//                binding.buttonAddBill.setImageResource(R.drawable.ic_add)
-//                binding.cardViewBar.visibility = View.VISIBLE
-//                binding.cardViewBudget.visibility = View.VISIBLE
-//                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
-//                    View.VISIBLE
-//            }
+        bookmarkAdapter.isHighlight.observe(requireActivity()) {
+            deleteItem = it
+            if (it) {
+                deleteItem = it
+                binding.imBookmarksDelete.visibility = View.VISIBLE
+            } else {
+                binding.imBookmarksDelete.visibility = View.GONE
+            }
         }
+    }
+
+    private fun billItemMapper(item: BillsItem): BillsItem{
+        //change Bookmark
+        return BillsItem(
+            item.id,
+            item.type,
+            item.month,
+            item.date,
+            item.time,
+            item.category,
+            item.amount,
+            item.note,
+            item.description,
+            false,
+            item.image1,
+            item.image2,
+            item.image3,
+            item.image4,
+            item.image5
+        )
     }
 
 }

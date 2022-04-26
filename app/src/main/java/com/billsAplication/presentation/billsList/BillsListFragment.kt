@@ -3,7 +3,6 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,10 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.math.exp
 
 
 class BillsListFragment : Fragment() {
@@ -117,7 +114,7 @@ class BillsListFragment : Fragment() {
                             viewModel.delete(it)
                         }
                     }
-                    billAdapter.deleteItems()
+                    billAdapter.deleteItemsAfterRemovedItemFromDB()
                     deleteItem = false
                     listDeleteItems.clear()
                 }
