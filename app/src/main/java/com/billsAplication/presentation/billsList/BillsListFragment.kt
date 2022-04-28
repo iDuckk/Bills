@@ -3,11 +3,14 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -23,6 +26,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.math.exp
 
 
 class BillsListFragment : Fragment() {
@@ -38,10 +42,13 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var billAdapter: BillsAdapter
 
-    var income = BigDecimal(0)
-    var expense = BigDecimal(0)
+    private var income = BigDecimal(0)
+    private var expense = BigDecimal(0)
     private var deleteItem = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
+    private var titleIncome = MutableLiveData<BigDecimal>()
+    private var titleExpense = MutableLiveData<BigDecimal>()
+    private var titleTotal = MutableLiveData<BigDecimal>()
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
@@ -76,8 +83,29 @@ class BillsListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.VISIBLE
-
-        binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+        //Set title Total
+        titleTotal.observe(requireActivity()){
+            if(_binding != null) {
+                binding.tvTotalNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
+        //Set title Expense
+        titleExpense.observe(requireActivity()){
+            if(_binding != null) {
+                binding.tvExpenseNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
+        //Set title Income
+        titleIncome.observe(requireActivity()){
+            if(_binding != null) {
+                binding.tvIncomeNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
+        //Set month`s text in bar
+        binding.tvMonth.text = viewModel.currentDate
         binding.tvMonth.setOnClickListener {
             viewModel.currentDate
             binding.tvMonth.text = viewModel.currentDate()
@@ -85,15 +113,15 @@ class BillsListFragment : Fragment() {
             //set a new list
             setNewList(binding.tvMonth.text.toString())
         }
-
-        binding.imBackMonth.setOnClickListener { //Previous month
+        //Previous month
+        binding.imBackMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             //set a new list
             setNewList(binding.tvMonth.text.toString())
         }
-
-        binding.imNextMonth.setOnClickListener { //Next month
+        //Next month
+        binding.imNextMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             //set a new list
@@ -106,7 +134,7 @@ class BillsListFragment : Fragment() {
             )
         }
 
-        binding.buttonAddBill.setOnClickListener {
+        binding.buttonAddBill.setOnClickListener { //TODO Update title Amount
             if (deleteItem) {
                 CoroutineScope(Main).launch {
                     if (listDeleteItems.isNotEmpty()) {
@@ -129,23 +157,7 @@ class BillsListFragment : Fragment() {
 
         initRecView()
         //set list of month
-        viewModel.list.observe(requireActivity()) {
-            //Add list in adapter
-            billAdapter.submitList(it.sortedBy { item -> item.date }.toList())
-            //Create amount for title amountTextView
-            it.forEachIndexed { index, item ->
-                when (item.type) {
-                    TYPE_INCOME ->
-                        income += BigDecimal(item.amount.replace(",", ""))
-                    TYPE_EXPENSES ->
-                        expense += BigDecimal(item.amount.replace(",", ""))
-                }
-
-                if (it.lastIndex == index && _binding != null)
-                    setAmountNum()
-            }
-        }
-
+        setNewList(binding.tvMonth.text.toString())
     }
 
     override fun onDestroyView() {
@@ -192,36 +204,46 @@ class BillsListFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNewList(month: String) {
-        //set a new list
+        //Delete observe if Active
+        if(viewModel.list.hasActiveObservers())
         viewModel.list.removeObservers(this)
+        //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(requireActivity()) {
-            billAdapter.submitList(it.toList())
+            billAdapter.submitList(it.sortedBy { item -> item.date }.toList())
+            //Create amount for title amountTextView
+            it.forEach { item ->
+                when (item.type) {
+                    TYPE_INCOME ->
+                        income += BigDecimal(item.amount.replace(",", ""))
+                    TYPE_EXPENSES ->
+                        expense += BigDecimal(item.amount.replace(",", ""))
+                }
+            }
+            titleIncome.postValue(income)
+            titleExpense.postValue(expense)
+            titleTotal.postValue(income - expense)
+            income = BigDecimal(0)
+            expense = BigDecimal(0)
+
         }
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setAmountNum() {
-        billAdapter.currentList.forEachIndexed { index, item ->
-            binding.tvIncomeNum.text = "%,.2f".format(income)
-            binding.tvExpenseNum.text = "%,.2f".format(expense)
-            binding.tvTotalNum.text = "%,.2f".format((income - expense))
-            //Resize text in views if value is huge
-            if (binding.tvIncomeNum.text.length > 13
+    private fun resizeText() {
+        //Resize text in views if value is huge
+        if (binding.tvIncomeNum.text.length > 13
                 || binding.tvExpenseNum.text.length > 13
                 || binding.tvTotalNum.text.length > 13
-            ) {
+        ) {
                 binding.tvIncomeNum.textSize = 11F
                 binding.tvExpenseNum.textSize = 11F
                 binding.tvTotalNum.textSize = 11F
-            } else {
+        } else {
                 binding.tvIncomeNum.textSize = 18F
                 binding.tvExpenseNum.textSize = 18F
                 binding.tvTotalNum.textSize = 18F
-            }
         }
-        income = BigDecimal(0)
-        expense = BigDecimal(0)
     }
 
 }
