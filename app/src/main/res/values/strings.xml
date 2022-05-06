@@ -40,4 +40,5 @@
     <string name="title_bookmarks">Bookmarks</string>
     <string name="Wrong_entrence_type">AddBillFragment: Wrong type of entrance</string>
     <string name="attention_mookmark_notfoundType">BookmarksAdapter: Not found type of bill</string>
+    <string name="title_desc_date">Desc Date</string>
 </resources>

@@ -12,8 +12,9 @@
         android:id="@+id/cardView_Budget"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/recViewBill"
-        app:layout_constraintTop_toBottomOf="@+id/cardView_Bar">
+        app:layout_constraintBottom_toTopOf="@id/cardView_filter"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Bar"
+        android:layout_marginBottom="1sp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -101,7 +102,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView_Budget"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_filter"
         tools:listitem="@layout/bill_item">
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -199,6 +200,74 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="24sp"
         android:layout_marginBottom="24sp"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/recViewBill"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Budget"
+        android:layout_marginBottom="1sp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_cv_filter">
+
+            <CheckBox
+                android:id="@+id/checkBox_income"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:textSize="12sp"
+                android:text="@string/bills_list_income"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/checkBox_expense"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <CheckBox
+                android:id="@+id/checkBox_expense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:textSize="12sp"
+                android:text="@string/bill_list_expense"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/checkBox_decDate"
+                app:layout_constraintStart_toEndOf="@+id/checkBox_income"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <CheckBox
+                android:id="@+id/checkBox_decDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleX="0.9"
+                android:scaleY="0.9"
+                android:textSize="12sp"
+                android:text="@string/title_desc_date"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/spinner_filter"
+                app:layout_constraintStart_toEndOf="@+id/checkBox_expense"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/spinner_filter"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="1sp"
+                android:layout_marginStart="5sp"
+                android:gravity="center|right"
+                app:layout_constraintBottom_toBottomOf="@+id/checkBox_decDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/checkBox_decDate"
+                app:layout_constraintTop_toTopOf="@+id/checkBox_decDate" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
