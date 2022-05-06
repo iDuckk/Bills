@@ -9,6 +9,7 @@ import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
 import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
 import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
+import com.billsAplication.domain.billsUseCases.GetTypeUseCase
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
 import java.math.BigDecimal
@@ -22,21 +23,26 @@ class BillsListViewModel @Inject constructor(
     private val getAllDatabase : GetAllDataListUseCase,
     private val getMonth : GetMonthListUseCase,
     private val delete : DeleteBillItemUseCase,
+    private val getTypeUseCase: GetTypeUseCase
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private var date = LocalDate.now()
 
     lateinit var list: LiveData<List<BillsItem>>
+    lateinit var listCategory: LiveData<List<BillsItem>>
 
     var currentDate: String
 
     private var changeMonth = 0
     private var changeYear = 0
 
+    private val TYPE_CATEGORY = 2
+
     init {
         getMonth(currentDate())
         currentDate = currentDate()
+        getCategoryType()
     }
 
     fun defaultMonth(){
@@ -46,6 +52,10 @@ class BillsListViewModel @Inject constructor(
 
     fun getAll() {
         list = getAllDatabase.invoke()
+    }
+
+    fun getCategoryType() {
+        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY)
     }
 
     fun getMonth(month: String) {
