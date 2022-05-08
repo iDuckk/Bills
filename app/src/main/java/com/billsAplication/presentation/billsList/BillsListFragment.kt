@@ -183,7 +183,7 @@ class BillsListFragment : Fragment() {
             setDescentSorting(billAdapter.currentList)
         }
         //Set Spinner
-        spinnerCategory(incomeList, expenseList)
+        spinnerCategory()
 
     }
     //Get list Type (Income or Expense)
@@ -212,27 +212,33 @@ class BillsListFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun spinnerCategory(inc: ArrayList<BillsItem>, exp: ArrayList<BillsItem>) {
+    private fun spinnerCategory() {
         val listCategory = ArrayList<String>()
         listCategory.add("None") //Default value without it doesn't work
 
         //create Category List
-        viewModel.listCategory.observe(requireActivity()) { item ->
-            item.forEach {
-                listCategory += it.category
+        viewModel.listCategory.observe(requireActivity()) { list ->
+            //Because Observer in ViewModel, and it doesn't destroy.
+            //According that we add items again
+            if(listCategory.isNotEmpty()){
+                listCategory.clear()
+                listCategory.add("None")
             }
-            viewModel.listCategory.removeObservers(this)
+            list.forEach { item ->
+                    listCategory += item.category
+            }
         }
 
-        val myAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            requireActivity().applicationContext,
+
+        val spinnerAdapter = ArrayAdapter<String>(
+            requireContext(),
             android.R.layout.simple_spinner_item,
             listCategory
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        binding.spinnerFilter.adapter = myAdapter
+        binding.spinnerFilter.adapter = spinnerAdapter
 
         // Set an on item selected listener for spinner object
         binding.spinnerFilter.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
@@ -369,6 +375,7 @@ class BillsListFragment : Fragment() {
 
         billAdapter.onLongClickListenerBillItem = {
             listDeleteItems = it
+            binding.cardViewFilter.visibility = View.GONE
         }
         //Highlight item
         billAdapter.isHighlight.observe(requireActivity()) {
