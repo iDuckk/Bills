@@ -3,6 +3,7 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,6 +87,7 @@ class BillsListFragment : Fragment() {
         (activity as MainActivity)
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
+
         binding.cardViewFilter.visibility = View.GONE
 
         titleAmount()
@@ -229,7 +231,6 @@ class BillsListFragment : Fragment() {
             }
         }
 
-
         val spinnerAdapter = ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -244,7 +245,7 @@ class BillsListFragment : Fragment() {
         binding.spinnerFilter.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
-                view: View,
+                view: View?,
                 position: Int,
                 id: Long
             ) {//parent.getItemAtPosition(position).toString()
@@ -295,12 +296,10 @@ class BillsListFragment : Fragment() {
         binding.imBillsFilter.setOnClickListener{
             if(binding.cardViewFilter.isVisible) {
                 billAdapter.submitList(viewModel.list.value?.sortedBy { it.date }?.toList())
-                binding.checkBoxIncome.isChecked = false
-                binding.checkBoxExpense.isChecked = false
-                binding.checkBoxDecDate.isChecked = false
-                binding.spinnerFilter.setSelection(0)
                 binding.cardViewFilter.visibility = View.GONE
+
             }else{
+                setDefaultSortingViews()
                 binding.cardViewFilter.visibility = View.VISIBLE
             }
         }
@@ -422,6 +421,14 @@ class BillsListFragment : Fragment() {
             expense = BigDecimal(0)
 
         }
+    }
+
+    private fun setDefaultSortingViews() {
+        binding.checkBoxIncome.isChecked = false
+        binding.checkBoxExpense.isChecked = false
+        binding.checkBoxDecDate.isChecked = false
+        binding.spinnerFilter.setSelection(0)
+        binding.cardViewFilter.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
