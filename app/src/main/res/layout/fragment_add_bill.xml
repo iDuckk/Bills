@@ -30,6 +30,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/tv_addBill_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_new_bill"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/im_addBill_back"
+                app:layout_constraintStart_toEndOf="@+id/im_addBill_back"
+                app:layout_constraintTop_toTopOf="@+id/im_addBill_back" />
+
             <ImageView
                 android:id="@+id/im_addBill_bookmark"
                 android:layout_width="wrap_content"
@@ -89,7 +100,7 @@
                 android:id="@+id/tv_add_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="10sp"
                 android:text="@string/title_date_time"
                 app:layout_constraintBottom_toBottomOf="@+id/ed_Date_add"
                 app:layout_constraintEnd_toStartOf="@+id/ed_Date_add"
