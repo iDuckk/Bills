@@ -6,6 +6,7 @@ import com.billsAplication.presentation.addBill.AddBillFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.bookmarks.BookmarksFragment
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
+import com.billsAplication.presentation.search.SearchFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -20,6 +21,8 @@ interface ApplicationComponent {
     fun inject(fragment: AddBillFragment)
 
     fun inject(fragment: BookmarksFragment)
+
+    fun inject(fragment: SearchFragment)
 
     @Component.Factory
     interface Factory{
