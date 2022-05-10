@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presentation.search.SearchFragment">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_Bookmarks_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/cardView_search">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/im_search_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_marginStart="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_title_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_search"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/im_search_back"
+                app:layout_constraintStart_toEndOf="@+id/im_search_back"
+                app:layout_constraintTop_toTopOf="@+id/im_search_back" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Bookmarks_Bar"
+        app:layout_constraintBottom_toTopOf="@id/cardView_RollImage">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/ed_search_note"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="10sp"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:minHeight="48sp"
+                app:layout_constraintBottom_toTopOf="@+id/et_search_category"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/et_search_category"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:hint="Note" />
+
+            <EditText
+                android:id="@+id/et_search_category"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="10sp"
+                android:layout_marginStart="5sp"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:minHeight="48sp"
+                app:layout_constraintBottom_toTopOf="@+id/et_search_amount_Min"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_category"
+                app:layout_constraintTop_toBottomOf="@+id/ed_search_note"
+                tools:hint="Category" />
+
+            <TextView
+                android:id="@+id/tv_search_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_note"
+                app:layout_constraintBottom_toBottomOf="@+id/ed_search_note"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ed_search_note" />
+
+            <TextView
+                android:id="@+id/tv_search_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_category"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_category"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ed_search_note" />
+
+            <TextView
+                android:id="@+id/tv_search_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_amount"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_amount_Min"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
+
+            <EditText
+                android:id="@+id/et_search_amount_Min"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:gravity="center"
+                android:hint="@string/amount_min"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:minHeight="48sp"
+                app:layout_constraintBottom_toTopOf="@+id/et_search_period"
+                app:layout_constraintEnd_toStartOf="@+id/tv_search_separete"
+                app:layout_constraintStart_toStartOf="@+id/et_search_category"
+                app:layout_constraintTop_toBottomOf="@+id/et_search_category" />
+
+            <TextView
+                android:id="@+id/tv_search_separete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:layout_marginEnd="10sp"
+                android:text="@string/search_amount_separete"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_amount_Min"
+                app:layout_constraintEnd_toStartOf="@+id/et_search_amount_Max"
+                app:layout_constraintStart_toEndOf="@+id/et_search_amount_Min"
+                app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
+
+            <EditText
+                android:id="@+id/et_search_amount_Max"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="@string/amount_max"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:minHeight="48sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_search_separete"
+                app:layout_constraintEnd_toEndOf="@+id/et_search_category"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_separete"
+                app:layout_constraintTop_toTopOf="@+id/tv_search_separete" />
+
+            <TextView
+                android:id="@+id/tv_search_period"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:text="@string/title_period"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_period"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_search_period" />
+
+            <EditText
+                android:id="@+id/et_search_period"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="10sp"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:minHeight="48sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/et_search_amount_Min"
+                app:layout_constraintTop_toBottomOf="@+id/et_search_amount_Min"
+                tools:hint="Period" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_RollImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/cardView_search_budget"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_search"
+        android:layout_marginBottom="1sp">
+
+        <ImageView
+            android:id="@+id/im_rollViews"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:layout_marginTop="5sp"
+            android:layout_marginBottom="5sp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_arrow_up"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_search_budget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recViewBill_search"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_RollImage">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_search_income"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bills_list_income"
+                app:layout_constraintEnd_toStartOf="@+id/tv_search_expense"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_search_expense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bill_list_expense"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_search_income"
+                app:layout_constraintEnd_toStartOf="@+id/tv_search_total"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_income"
+                app:layout_constraintTop_toTopOf="@+id/tv_search_income" />
+
+            <TextView
+                android:id="@+id/tv_search_total"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bill_list_total"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_search_expense"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_expense"
+                app:layout_constraintTop_toTopOf="@+id/tv_search_expense" />
+
+            <TextView
+                android:id="@+id/tv_search_income_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lines="1"
+                android:text="@string/bills_list_null_0_0"
+                android:textColor="#1976D2"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_search_expense_num"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_search_income" />
+
+            <TextView
+                android:id="@+id/tv_search_expense_num"
+                android:layout_width="141dp"
+                android:layout_height="24dp"
+                android:gravity="center"
+                android:lines="1"
+                android:text="@string/bills_list_null_0_0"
+                android:textColor="#DD2C00"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_search_income_num"
+                app:layout_constraintEnd_toStartOf="@id/tv_search_total_num"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_income_num"
+                app:layout_constraintTop_toTopOf="@+id/tv_search_income_num" />
+
+            <TextView
+                android:id="@+id/tv_search_total_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lines="1"
+                android:text="@string/bills_list_null_0_0"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_search_expense_num"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_search_expense_num"
+                app:layout_constraintTop_toTopOf="@+id/tv_search_expense_num" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recViewBill_search"
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_search_budget"
+        tools:listitem="@layout/bill_item">
+    </androidx.recyclerview.widget.RecyclerView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

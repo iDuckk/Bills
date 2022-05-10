@@ -3,7 +3,6 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,13 +93,24 @@ class BillsListFragment : Fragment() {
 
         titleBar()
 
-        searchBar()
+        filterBar()
 
         addButton()
+
+        searchButton()
 
         initRecView()
 
         setNewList(binding.tvMonth.text.toString())
+    }
+
+    private fun searchButton(){
+        binding.imBillsSearch.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_billsListFragment_to_searchFragment,
+                bundle
+            )
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -128,7 +138,7 @@ class BillsListFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun searchBar(){
+    private fun filterBar(){
         var incomeList = ArrayList<BillsItem>()
         var expenseList = ArrayList<BillsItem>()
         //income list
