@@ -56,6 +56,9 @@
         <action
             android:id="@+id/action_addBillFragment_to_bookmarksFragment"
             app:destination="@id/bookmarksFragment" />
+        <action
+            android:id="@+id/action_addBillFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
     <fragment
         android:id="@+id/bookmarksFragment"
@@ -85,5 +88,16 @@
         <action
             android:id="@+id/action_searchFragment_to_billsListFragment"
             app:destination="@id/billsListFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_addBillFragment"
+            app:destination="@id/addBillFragment" />
+        <argument
+            android:name="add_bill"
+            app:argType="integer" />
+        <argument
+            android:name="bill-item"
+            app:argType="com.billsAplication.domain.model.BillsItem"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 </navigation>

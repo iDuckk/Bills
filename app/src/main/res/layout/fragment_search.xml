@@ -7,7 +7,7 @@
     tools:context=".presentation.search.SearchFragment">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView_Bookmarks_Bar"
+        android:id="@+id/cardView_search_Bar"
         android:layout_width="match_parent"
         android:layout_height="40sp"
         android:layout_marginBottom="1dp"
@@ -40,7 +40,6 @@
                 app:layout_constraintStart_toEndOf="@+id/im_search_back"
                 app:layout_constraintTop_toTopOf="@+id/im_search_back" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -50,7 +49,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView_Bookmarks_Bar"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_search_Bar"
         app:layout_constraintBottom_toTopOf="@id/cardView_RollImage">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -306,5 +305,17 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView_search_budget"
         tools:listitem="@layout/bill_item">
     </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/b_search_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24sp"
+        android:layout_marginBottom="24sp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:src="@drawable/ic_delete_forever"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

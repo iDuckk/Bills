@@ -107,8 +107,7 @@ class BillsListFragment : Fragment() {
     private fun searchButton(){
         binding.imBillsSearch.setOnClickListener {
             findNavController().navigate(
-                R.id.action_billsListFragment_to_searchFragment,
-                bundle
+                R.id.action_billsListFragment_to_searchFragment
             )
         }
     }
