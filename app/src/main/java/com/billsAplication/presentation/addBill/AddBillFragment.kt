@@ -90,6 +90,7 @@ class AddBillFragment : Fragment() {
     private var TYPE_UPDATE = 101
     private var TYPE_ADD = 100
     private var TYPE_BOOKMARK = 102
+    private val UPDATE_TYPE_SEARCH = 103
     private var TYPE_ENTRENCE = 0
 
     lateinit var colorState : ColorStateList
@@ -149,6 +150,7 @@ class AddBillFragment : Fragment() {
         when(TYPE_ENTRENCE){
             TYPE_ADD -> setViewsCreateType()
             TYPE_UPDATE -> setViewsEditType()
+            UPDATE_TYPE_SEARCH -> setViewsEditType()
             TYPE_BOOKMARK -> setViewsBookmarksType()
             else -> mToast(getString(R.string.Wrong_entrence_type))
         }
@@ -231,7 +233,23 @@ class AddBillFragment : Fragment() {
                     }
                     findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
                 } else doNotFillAllGapsAttention()
-            }else{
+            } else if(TYPE_ENTRENCE == UPDATE_TYPE_SEARCH){
+                if(bookmark) {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
+                    bookmark = false
+                    mToast(getString(R.string.unsaved_bookmark))
+                } else {
+                    binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_enable)
+                    bookmark = true
+                    mToast(getString(R.string.saved_bookmark))
+                }
+                if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
+                    CoroutineScope(IO).launch {
+                        viewModel.update(createBillItem())
+                    }
+                    findNavController().navigate(R.id.action_addBillFragment_to_searchFragment)
+                } else doNotFillAllGapsAttention()
+            } else{
                 if(bookmark) {
                     binding.imAddBillBookmark.setImageResource(R.drawable.ic_bookmark_disable)
                     bookmark = false
@@ -244,9 +262,11 @@ class AddBillFragment : Fragment() {
 
         binding.imAddBillBack.setOnClickListener {
             if(TYPE_ENTRENCE == TYPE_BOOKMARK)
-            findNavController().navigate(R.id.action_addBillFragment_to_bookmarksFragment)
+                findNavController().navigate(R.id.action_addBillFragment_to_bookmarksFragment)
+            else if(TYPE_ENTRENCE == UPDATE_TYPE_SEARCH)
+                findNavController().navigate(R.id.action_addBillFragment_to_searchFragment)
             else
-            findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
         }
     }
 
@@ -391,7 +411,10 @@ class AddBillFragment : Fragment() {
                 CoroutineScope(IO).launch {
                     viewModel.update(createBillItem())
                 }
-                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+                if(TYPE_ENTRENCE == UPDATE_TYPE_SEARCH)
+                    findNavController().navigate(R.id.action_addBillFragment_to_searchFragment)
+                else
+                    findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
             } else doNotFillAllGapsAttention()
         }
     }
