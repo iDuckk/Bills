@@ -76,10 +76,11 @@ class AddBillFragment : Fragment() {
     private val NOTE = 4
     private val DESCRIPTION = 5
     private val MAX_PHOTO = 5
+    private val EMPTY_STRING = ""
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
-    var checkNoteObserve = true
+    private var checkNoteObserve = true
     private var ID_IMAGE = 0
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
@@ -630,6 +631,7 @@ class AddBillFragment : Fragment() {
             viewModel.getAll()
             viewModel.list.observe(requireActivity()) { item ->
                 item.forEach {
+                    if(it.note != EMPTY_STRING)
                     list.add(it.note)
                 }
                 val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
