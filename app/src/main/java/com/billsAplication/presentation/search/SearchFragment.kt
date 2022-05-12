@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.search
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -19,6 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 class SearchFragment : Fragment() {
@@ -37,7 +40,14 @@ class SearchFragment : Fragment() {
     private val UPDATE_TYPE_SEARCH = 103
     private val BILL_ITEM_KEY = "bill_item_key"
     private val ADD_BILL_KEY = "add_bill_key"
+    private val TYPE_EXPENSES = 0
+    private val TYPE_INCOME = 1
 
+    private var income = BigDecimal(0)
+    private var expense = BigDecimal(0)
+    private var titleIncome = MutableLiveData<BigDecimal>()
+    private var titleExpense = MutableLiveData<BigDecimal>()
+    private var titleTotal = MutableLiveData<BigDecimal>()
     private var imageRoll = false
     private var deleteItem = false
     private var allItemList = ArrayList<BillsItem>()
@@ -72,17 +82,56 @@ class SearchFragment : Fragment() {
             list.forEach {
                 if(it.type != TYPE_CATEGORY)
                 allItemList.add(it)
+                //Create amount for title amountTextView
+                when (it.type) {
+                    TYPE_INCOME ->
+                        income += BigDecimal(it.amount.replace(",", ""))
+                    TYPE_EXPENSES ->
+                        expense += BigDecimal(it.amount.replace(",", ""))
+                }
             }
+            titleIncome.postValue(income)
+            titleExpense.postValue(expense)
+            titleTotal.postValue(income - expense)
+            income = BigDecimal(0)
+            expense = BigDecimal(0)
+
             billAdapter.submitList(allItemList)
         }
 
         titleBar()
+
+        titleAmount()
 
         searchViews()
 
         initRecView()
 
         buttonDelete()
+    }
+
+    private fun titleAmount() {
+        //Set title Total
+        titleTotal.observe(requireActivity()) {
+            if (_binding != null) {
+                binding.tvSearchTotalNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
+        //Set title Expense
+        titleExpense.observe(requireActivity()) {
+            if (_binding != null) {
+                binding.tvSearchExpenseNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
+        //Set title Income
+        titleIncome.observe(requireActivity()) {
+            if (_binding != null) {
+                binding.tvSearchIncomeNum.text = "%,.2f".format(it)
+                resizeText()
+            }
+        }
     }
 
     private fun buttonDelete() {
@@ -171,6 +220,23 @@ class SearchFragment : Fragment() {
             binding.cardViewSearchBar.visibility = View.GONE
             binding.cardViewRollImage.visibility = View.GONE
             binding.cardViewSearchBudget.visibility = View.GONE
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun resizeText() {
+        //Resize text in views if value is huge
+        if (binding.tvSearchIncomeNum.text.length > 13
+            || binding.tvSearchExpenseNum.text.length > 13
+            || binding.tvSearchTotalNum.text.length > 13
+        ) {
+            binding.tvSearchIncomeNum.textSize = 11F
+            binding.tvSearchExpenseNum.textSize = 11F
+            binding.tvSearchTotalNum.textSize = 11F
+        } else {
+            binding.tvSearchIncomeNum.textSize = 18F
+            binding.tvSearchExpenseNum.textSize = 18F
+            binding.tvSearchTotalNum.textSize = 18F
         }
     }
 
