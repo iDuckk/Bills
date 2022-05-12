@@ -101,7 +101,7 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-        setNewList(binding.tvMonth.text.toString())
+        setNewList(binding.tvMonth.text.toString()) //TODO change sorting list, cause we have to see first of all last added items
     }
 
     private fun searchButton(){

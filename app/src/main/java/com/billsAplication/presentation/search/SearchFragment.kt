@@ -3,11 +3,15 @@ package com.billsAplication.presentation.search
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.ArrayAdapter
+import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
+
 
 class SearchFragment : Fragment() {
 
@@ -42,12 +47,15 @@ class SearchFragment : Fragment() {
     private val ADD_BILL_KEY = "add_bill_key"
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+    private val listNote: ArrayList<String> = ArrayList()
+    private val EMPTY_STRING = ""
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
     private var titleIncome = MutableLiveData<BigDecimal>()
     private var titleExpense = MutableLiveData<BigDecimal>()
     private var titleTotal = MutableLiveData<BigDecimal>()
+    private var checkNoteObserve = true
     private var imageRoll = false
     private var deleteItem = false
     private var allItemList = ArrayList<BillsItem>()
@@ -79,24 +87,20 @@ class SearchFragment : Fragment() {
             .visibility = View.GONE
 
         viewModel.list.observe(requireActivity()){ list ->
-            list.forEach {
-                if(it.type != TYPE_CATEGORY)
-                allItemList.add(it)
-                //Create amount for title amountTextView
-                when (it.type) {
-                    TYPE_INCOME ->
-                        income += BigDecimal(it.amount.replace(",", ""))
-                    TYPE_EXPENSES ->
-                        expense += BigDecimal(it.amount.replace(",", ""))
-                }
-            }
-            titleIncome.postValue(income)
-            titleExpense.postValue(expense)
-            titleTotal.postValue(income - expense)
-            income = BigDecimal(0)
-            expense = BigDecimal(0)
 
-            billAdapter.submitList(allItemList)
+            setAmountBar(list)
+
+            list.forEach {
+                //Create list of Notes
+                if(listNote.isEmpty())
+                    if(it.note != EMPTY_STRING)
+                        listNote.add(it.note)
+                //Create full list
+                if(it.type != TYPE_CATEGORY)
+                    allItemList.add(it)
+            }
+            //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
+            billAdapter.submitList(allItemList.sortedByDescending { item -> item.date }.toList())
         }
 
         titleBar()
@@ -108,6 +112,8 @@ class SearchFragment : Fragment() {
         initRecView()
 
         buttonDelete()
+
+        initAutoCompleteEditText()
     }
 
     private fun titleAmount() {
@@ -147,13 +153,38 @@ class SearchFragment : Fragment() {
                 deleteItem = false
                 listDeleteItems.clear()
             }
-            billAdapter.submitList(allItemList.toMutableList())
+            billAdapter.submitList(allItemList.sortedByDescending { item -> item.date }.toList())
         }
     }
 
     private fun searchViews(){
         imageRoll()
 
+        noteView()
+
+    }
+
+    private fun noteView() {
+        binding.edSearchNote.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                return@OnEditorActionListener true
+            }
+            false
+        })
+    }
+
+    private fun performSearch() {
+        val listSortsNote = ArrayList<BillsItem>()
+        if (binding.edSearchNote.text.toString() != EMPTY_STRING) {
+            allItemList.forEach {
+                if (it.note == binding.edSearchNote.text.toString())
+                    listSortsNote += it
+            }
+            billAdapter.submitList(listSortsNote.sortedByDescending { item -> item.date }.toList())
+
+            setAmountBar(listSortsNote)
+        }
     }
 
     private fun imageRoll(){
@@ -223,6 +254,29 @@ class SearchFragment : Fragment() {
         }
     }
 
+    private fun setAmountBar(list: List<BillsItem>){
+        list.forEach {
+            //Create list of Notes
+            if(it.note != EMPTY_STRING)
+                listNote.add(it.note)
+            //Create full list
+            if(it.type != TYPE_CATEGORY)
+            //Create amount for title amountTextView
+            when (it.type) {
+                TYPE_INCOME ->
+                    income += BigDecimal(it.amount.replace(",", ""))
+                TYPE_EXPENSES ->
+                    expense += BigDecimal(it.amount.replace(",", ""))
+            }
+        }
+
+        titleIncome.postValue(income)
+        titleExpense.postValue(expense)
+        titleTotal.postValue(income - expense)
+        income = BigDecimal(0)
+        expense = BigDecimal(0)
+    }
+
     @SuppressLint("SetTextI18n")
     private fun resizeText() {
         //Resize text in views if value is huge
@@ -238,6 +292,18 @@ class SearchFragment : Fragment() {
             binding.tvSearchExpenseNum.textSize = 18F
             binding.tvSearchTotalNum.textSize = 18F
         }
+    }
+
+    private fun initAutoCompleteEditText(){
+        listNote.forEach {
+            Log.w("TAG", it.toString())
+        }
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            listNote
+        )
+        binding.edSearchNote.setAdapter(adapter)
     }
 
     override fun onDestroyView() {
