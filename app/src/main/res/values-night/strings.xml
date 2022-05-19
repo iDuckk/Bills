@@ -43,5 +43,8 @@
     <string name="search_amount_separete">..-..</string>
     <string name="amount_max">Max.</string>
     <string name="title_period">Period</string>
+    <string name="search_choose_category">Choose category</string>
+    <string name="search_cancel">Cancel</string>
+    <string name="ChooseCategoryDialog_error_null">ChooseCategoryDialog: Activity cannot be null</string>
 
 </resources>
