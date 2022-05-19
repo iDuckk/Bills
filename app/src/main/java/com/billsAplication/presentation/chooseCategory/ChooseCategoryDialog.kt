@@ -20,7 +20,7 @@ class ChooseCategoryDialog: DialogFragment() {
     private var getCategoryList = arrayOf<String>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        //get list of categories
+        // get list of categories
         getCategoryList = requireArguments().getStringArray(KEY_CATEGORY_LIST_FRAGMENT) as Array<String>
         //get boolean list of chosen categories
         checkedItems = requireArguments().getBooleanArray(KEY_CHOSEN_CATEGORY_LIST_FRAGMENT)!!
