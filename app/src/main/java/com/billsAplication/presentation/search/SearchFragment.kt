@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSearchBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
+import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +47,11 @@ class SearchFragment : Fragment() {
     private val UPDATE_TYPE_SEARCH = 103
     private val BILL_ITEM_KEY = "bill_item_key"
     private val ADD_BILL_KEY = "add_bill_key"
+    private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
+    private val KEY_CATEGORY_LIST_FRAGMENT = "key_category_from_fragment"
+    private val KEY_CHOSEN_CATEGORY_LIST_FRAGMENT = "key_CHOSEN_category_from_fragment"
+    private val KEY_CATEGORY_ITEMS_DIALOG = "key_category_from_dialog"
+    private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val listNote: ArrayList<String> = ArrayList()
@@ -55,11 +62,13 @@ class SearchFragment : Fragment() {
     private var titleIncome = MutableLiveData<BigDecimal>()
     private var titleExpense = MutableLiveData<BigDecimal>()
     private var titleTotal = MutableLiveData<BigDecimal>()
-    private var checkNoteObserve = true
     private var imageRoll = false
     private var deleteItem = false
     private var allItemList = ArrayList<BillsItem>()
     private var listDeleteItems = ArrayList<BillsItem>()
+    private var categoryList = arrayOf<String>()
+    private var chosenItemsCategory = booleanArrayOf()
+
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -86,17 +95,20 @@ class SearchFragment : Fragment() {
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.GONE
 
-        viewModel.list.observe(requireActivity()){ list ->
+        viewModel.list.observe(requireActivity()) { list ->
 
             setAmountBar(list)
 
             list.forEach {
                 //Create list of Notes
-                if(listNote.isEmpty())
-                    if(it.note != EMPTY_STRING)
+                if (listNote.isEmpty())
+                    if (it.note != EMPTY_STRING)
                         listNote.add(it.note)
+                //Create Category list
+                if (it.type == TYPE_CATEGORY)
+                    categoryList += it.category
                 //Create full list
-                if(it.type != TYPE_CATEGORY)
+                if (it.type != TYPE_CATEGORY)
                     allItemList.add(it)
             }
             //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
@@ -141,7 +153,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun buttonDelete() {
-        binding.bSearchDelete.setOnClickListener{
+        binding.bSearchDelete.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 if (listDeleteItems.isNotEmpty()) {
                     listDeleteItems.forEach {
@@ -157,11 +169,70 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun searchViews(){
+    private fun searchViews() {
         imageRoll()
 
         noteView()
 
+        categoryView()
+
+    }
+
+    private fun categoryView() {
+        binding.etSearchCategory.setOnFocusChangeListener { view, b ->
+            if (binding.etSearchCategory.isFocused) {
+                setChosenItemsDialog() // Set list chosen items
+                val dialog = ChooseCategoryDialog()
+                val args = Bundle()
+                //sent list to Dialog
+                args.putStringArray(KEY_CATEGORY_LIST_FRAGMENT, categoryList)
+                //sent boolean list of chosen item
+                args.putBooleanArray(KEY_CHOSEN_CATEGORY_LIST_FRAGMENT, chosenItemsCategory)
+                dialog.arguments = args
+                //Show dialog
+                dialog.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
+                //Receive chosen items from Dialog
+                dialog.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM) { requestKey, bundle ->
+                    val list = bundle.getStringArray(KEY_CATEGORY_ITEMS_DIALOG) //get chosen Items
+                    binding.etSearchCategory.setText(categoriesString(list))
+                }
+                binding.etSearchCategory.clearFocus()
+            }
+        }
+    }
+
+    private fun setChosenItemsDialog(){
+        var chosenCategoryList = arrayOf<String>()
+        var booleanList = booleanArrayOf()
+        //Set it none of item is chosen
+        if(binding.etSearchCategory.text.isNullOrEmpty())
+            categoryList.forEach { booleanList += false }
+        else{
+        // get list of chosen categories from Edittext
+            chosenCategoryList = binding.etSearchCategory.text.split(", ").toTypedArray()
+        //Set chosen items
+            categoryList.forEach { item ->
+                if(chosenCategoryList.find { it == item } == item)
+                    booleanList += true
+                else
+                    booleanList += false
+            }
+        }
+        chosenItemsCategory = booleanList
+    }
+
+    private fun categoriesString(list: Array<String>?): String {
+        var categories = ""
+        if (list?.size == 1) {    //If one item
+            categories += list.first()
+        } else {
+            list?.forEach {
+                categories += it
+                if (list.last() != it)   //if it not last item add ', '
+                    categories += ", "
+            }
+        }
+        return categories
     }
 
     private fun noteView() {
@@ -187,14 +258,13 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun imageRoll(){
+    private fun imageRoll() {
         binding.imRollViews.setOnClickListener {
-            if(imageRoll) {
+            if (imageRoll) {
                 binding.imRollViews.setImageResource(R.drawable.ic_arrow_up)
                 imageRoll = false
                 binding.cardViewSearch.visibility = View.VISIBLE
-            }
-            else {
+            } else {
                 binding.imRollViews.setImageResource(R.drawable.ic_arrow_down)
                 imageRoll = true
                 binding.cardViewSearch.visibility = View.GONE
@@ -211,7 +281,11 @@ class SearchFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun initRecView() {
         with(binding.recViewBillSearch) {
-            layoutManager = LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false)
+            layoutManager = LinearLayoutManager(
+                context,
+                androidx.recyclerview.widget.LinearLayoutManager.VERTICAL,
+                false
+            )
             adapter = billAdapter
             binding.recViewBillSearch.itemAnimator = null
         }
@@ -238,14 +312,14 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun setViewsVisibility(b: Boolean){
-        if(b) {
+    private fun setViewsVisibility(b: Boolean) {
+        if (b) {
             binding.bSearchDelete.visibility = View.GONE
             binding.cardViewSearch.visibility = View.VISIBLE
             binding.cardViewSearchBar.visibility = View.VISIBLE
             binding.cardViewRollImage.visibility = View.VISIBLE
             binding.cardViewSearchBudget.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.bSearchDelete.visibility = View.VISIBLE
             binding.cardViewSearch.visibility = View.GONE
             binding.cardViewSearchBar.visibility = View.GONE
@@ -254,20 +328,20 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun setAmountBar(list: List<BillsItem>){
+    private fun setAmountBar(list: List<BillsItem>) {
         list.forEach {
             //Create list of Notes
-            if(it.note != EMPTY_STRING)
+            if (it.note != EMPTY_STRING)
                 listNote.add(it.note)
             //Create full list
-            if(it.type != TYPE_CATEGORY)
+            if (it.type != TYPE_CATEGORY)
             //Create amount for title amountTextView
-            when (it.type) {
-                TYPE_INCOME ->
-                    income += BigDecimal(it.amount.replace(",", ""))
-                TYPE_EXPENSES ->
-                    expense += BigDecimal(it.amount.replace(",", ""))
-            }
+                when (it.type) {
+                    TYPE_INCOME ->
+                        income += BigDecimal(it.amount.replace(",", ""))
+                    TYPE_EXPENSES ->
+                        expense += BigDecimal(it.amount.replace(",", ""))
+                }
         }
 
         titleIncome.postValue(income)
@@ -294,7 +368,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun initAutoCompleteEditText(){
+    private fun initAutoCompleteEditText() {
         listNote.forEach {
             Log.w("TAG", it.toString())
         }

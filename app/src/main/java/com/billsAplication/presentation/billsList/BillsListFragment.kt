@@ -54,6 +54,7 @@ class BillsListFragment : Fragment() {
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_FULL_LIST_SORT = 101
+    private val NONE = "None"
 
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
@@ -141,7 +142,6 @@ class BillsListFragment : Fragment() {
         var incomeList = ArrayList<BillsItem>()
         var expenseList = ArrayList<BillsItem>()
         //income list
-        //binding.cardViewFilter.visibility = View.VISIBLE
         binding.checkBoxIncome.setOnClickListener {
             //Set Default value spinner
             binding.spinnerFilter.setSelection(0)
@@ -225,7 +225,7 @@ class BillsListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun spinnerCategory() {
         val listCategory = ArrayList<String>()
-        listCategory.add("None") //Default value without it doesn't work
+        listCategory.add(NONE) //Default value without it doesn't work
 
         //create Category List
         viewModel.listCategory.observe(requireActivity()) { list ->
@@ -233,7 +233,7 @@ class BillsListFragment : Fragment() {
             //According that we add items again
             if(listCategory.isNotEmpty()){
                 listCategory.clear()
-                listCategory.add("None")
+                listCategory.add(NONE)
             }
             list.forEach { item ->
                     listCategory += item.category
@@ -259,7 +259,7 @@ class BillsListFragment : Fragment() {
                 id: Long
             ) {//parent.getItemAtPosition(position).toString()
                 // Display the selected item text on text view
-                if(parent.getItemAtPosition(position).toString() != "None") {
+                if(parent.getItemAtPosition(position).toString() != NONE) {
                     if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
                         setDescentSorting(spinnerItemList(TYPE_INCOME, parent.getItemAtPosition(position).toString()))
                     else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
