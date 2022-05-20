@@ -112,7 +112,7 @@ class SearchFragment : Fragment() {
                     allItemList.add(it)
             }
             //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
-            billAdapter.submitList(allItemList.sortedByDescending { item -> item.date }.toList())
+            setListAdapter(allItemList)
         }
 
         titleBar()
@@ -165,7 +165,7 @@ class SearchFragment : Fragment() {
                 deleteItem = false
                 listDeleteItems.clear()
             }
-            billAdapter.submitList(allItemList.sortedByDescending { item -> item.date }.toList())
+            setListAdapter(allItemList)
         }
     }
 
@@ -195,24 +195,50 @@ class SearchFragment : Fragment() {
                 dialog.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM) { requestKey, bundle ->
                     val list = bundle.getStringArray(KEY_CATEGORY_ITEMS_DIALOG) //get chosen Items
                     binding.etSearchCategory.setText(categoriesString(list))
+                    //Set List
+                    createListCategorySorting(list)
                 }
                 binding.etSearchCategory.clearFocus()
             }
         }
     }
 
-    private fun setChosenItemsDialog(){
+    private fun createListCategorySorting(list: Array<String>?) {
+        val listSortsCategory = ArrayList<BillsItem>()
+        //Get list Category sorting
+        if (list!!.isNotEmpty()) {
+            allItemList.forEach { item ->
+                list.forEach {
+                    if (item.category == it //Only Category list
+                        || (item.category == it //If NoteView IsNotEmpty
+                                && binding.edSearchNote.text.isNotEmpty()
+                                && item.note == binding.edSearchNote.text.toString())
+                    )
+                        listSortsCategory += item
+                }
+            }
+            setListAdapter(listSortsCategory)
+        } else {
+            if(binding.edSearchNote.text.isEmpty()) {
+                setListAdapter(allItemList)
+            }else{
+                performSearch()
+            }
+        }
+    }
+
+    private fun setChosenItemsDialog() {
         var chosenCategoryList = arrayOf<String>()
         var booleanList = booleanArrayOf()
         //Set it none of item is chosen
-        if(binding.etSearchCategory.text.isNullOrEmpty())
+        if (binding.etSearchCategory.text.isNullOrEmpty())
             categoryList.forEach { booleanList += false }
-        else{
-        // get list of chosen categories from Edittext
+        else {
+            // get list of chosen categories from Edittext
             chosenCategoryList = binding.etSearchCategory.text.split(", ").toTypedArray()
-        //Set chosen items
+            //Set chosen items
             categoryList.forEach { item ->
-                if(chosenCategoryList.find { it == item } == item)
+                if (chosenCategoryList.find { it == item } == item)
                     booleanList += true
                 else
                     booleanList += false
@@ -252,10 +278,14 @@ class SearchFragment : Fragment() {
                 if (it.note == binding.edSearchNote.text.toString())
                     listSortsNote += it
             }
-            billAdapter.submitList(listSortsNote.sortedByDescending { item -> item.date }.toList())
-
-            setAmountBar(listSortsNote)
+            setListAdapter(listSortsNote)
         }
+    }
+
+    private fun setListAdapter(listSortsCategory: ArrayList<BillsItem>) {
+        billAdapter.submitList(listSortsCategory.sortedByDescending { item -> item.date }
+            .toList())
+        setAmountBar(listSortsCategory)
     }
 
     private fun imageRoll() {
