@@ -122,18 +122,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
 
-            <EditText
+            <com.cottacush.android.currencyedittext.CurrencyEditText
                 android:id="@+id/et_search_amount_Min"
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/default_background"
-                android:textCursorDrawable="@drawable/color_cursor"
                 android:layout_marginTop="5sp"
+                android:backgroundTint="@color/default_background"
                 android:gravity="center"
+                android:cursorVisible="false"
                 android:hint="@string/amount_min"
-                android:inputType="textPersonName"
+                android:inputType="number"
+                android:maxLength="20"
                 android:maxLines="1"
                 android:minHeight="48sp"
+                android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintBottom_toTopOf="@+id/et_search_period"
                 app:layout_constraintEnd_toStartOf="@+id/tv_search_separete"
                 app:layout_constraintStart_toStartOf="@+id/et_search_category"
@@ -151,17 +153,19 @@
                 app:layout_constraintStart_toEndOf="@+id/et_search_amount_Min"
                 app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
 
-            <EditText
+            <com.cottacush.android.currencyedittext.CurrencyEditText
                 android:id="@+id/et_search_amount_Max"
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/default_background"
-                android:textCursorDrawable="@drawable/color_cursor"
                 android:gravity="center"
+                android:cursorVisible="false"
                 android:hint="@string/amount_max"
-                android:inputType="textPersonName"
+                android:inputType="number"
+                android:maxLength="20"
                 android:maxLines="1"
                 android:minHeight="48sp"
+                android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_search_separete"
                 app:layout_constraintEnd_toEndOf="@+id/et_search_category"
                 app:layout_constraintStart_toEndOf="@+id/tv_search_separete"
