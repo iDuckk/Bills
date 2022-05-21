@@ -184,7 +184,29 @@ class SearchFragment : Fragment() {
     }
 
     private fun amountMin() {
-        resizeEditTextMin()
+        binding.etSearchAmountMin.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                return@OnEditorActionListener true
+            }
+            false
+        })
+
+        binding.etSearchAmountMin.addTextChangedListener ( object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //Resize text in views if value is huge
+                if (binding.etSearchAmountMin.text!!.length > 13
+                ) {
+                    binding.etSearchAmountMin.textSize = 12F
+                } else {
+                    binding.etSearchAmountMin.textSize = 18F
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {}
+        })
     }
 
     private fun categoryView() {
@@ -208,29 +230,6 @@ class SearchFragment : Fragment() {
                     performSearch()
                 }
                 binding.etSearchCategory.clearFocus()
-            }
-        }
-    }
-
-    private fun createListCategorySorting(list: Array<String>?) { //TODO DELETE IT
-        val listSortsCategory = ArrayList<BillsItem>()
-        //Get list Category sorting
-        if (list!!.isNotEmpty()) {
-            allItemList.forEach { item ->
-                list.forEach {
-                    if (item.category == it //Only Category list //If NoteView IsNotEmpty
-                        && (binding.edSearchNote.text.isNotEmpty()
-                        && item.note == binding.edSearchNote.text.toString())
-                    )
-                        listSortsCategory += item
-                }
-            }
-            setListAdapter(listSortsCategory)
-        } else {
-            if(binding.edSearchNote.text.isEmpty()) {
-                setListAdapter(allItemList)
-            }else{
-                performSearch()
             }
         }
     }
@@ -311,10 +310,42 @@ class SearchFragment : Fragment() {
         }else if (binding.edSearchNote.text.isEmpty()
             && binding.etSearchCategory.text.isEmpty()
             && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Only Min List
-            allItemList.forEach { item -> //TODO Button DONE
+            allItemList.forEach { item ->
                     if (item.amount.replace(",", "").toInt()
                         > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
                         list += item
+            }
+        }else if (binding.edSearchNote.text.isNotEmpty()
+            && binding.etSearchCategory.text.isEmpty()
+            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Note
+            allItemList.forEach { item ->
+                if (item.note == binding.edSearchNote.text.toString()
+                    && item.amount.replace(",", "").toInt()
+                    > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
+                    list += item
+            }
+        }else if (binding.edSearchNote.text.isEmpty()
+            && binding.etSearchCategory.text.isNotEmpty()
+            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Category
+            allItemList.forEach { item ->
+                listCategory.forEach {
+                    if (item.category == it
+                        && item.amount.replace(",", "").toInt()
+                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
+                        list += item
+                }
+            }
+        }else if (binding.edSearchNote.text.isNotEmpty()
+            && binding.etSearchCategory.text.isNotEmpty()
+            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Category, Note
+            allItemList.forEach { item ->
+                listCategory.forEach {
+                    if (item.note == binding.edSearchNote.text.toString()
+                        && item.category == it
+                        && item.amount.replace(",", "").toInt()
+                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
+                        list += item
+                }
             }
         }else if (binding.edSearchNote.text.isEmpty()   //Whole Views Empty
             && binding.etSearchCategory.text.isEmpty()
@@ -441,25 +472,6 @@ class SearchFragment : Fragment() {
             binding.tvSearchExpenseNum.textSize = 18F
             binding.tvSearchTotalNum.textSize = 18F
         }
-    }
-
-    private fun resizeEditTextMin(){
-        binding.etSearchAmountMin.addTextChangedListener ( object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                //Resize text in views if value is huge
-                if (binding.etSearchAmountMin.text!!.length > 13
-                ) {
-                    binding.etSearchAmountMin.textSize = 12F
-                } else {
-                    binding.etSearchAmountMin.textSize = 18F
-                }
-            }
-
-            override fun afterTextChanged(p0: Editable?) {}
-
-        })
     }
 
     private fun initAutoCompleteEditText() {
