@@ -3,6 +3,8 @@ package com.billsAplication.presentation.search
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.RequiresApi
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.MutableLiveData
@@ -176,6 +179,12 @@ class SearchFragment : Fragment() {
 
         categoryView()
 
+        amountMin()
+
+    }
+
+    private fun amountMin() {
+        resizeEditTextMin()
     }
 
     private fun categoryView() {
@@ -196,23 +205,22 @@ class SearchFragment : Fragment() {
                     val list = bundle.getStringArray(KEY_CATEGORY_ITEMS_DIALOG) //get chosen Items
                     binding.etSearchCategory.setText(categoriesString(list))
                     //Set List
-                    createListCategorySorting(list)
+                    performSearch()
                 }
                 binding.etSearchCategory.clearFocus()
             }
         }
     }
 
-    private fun createListCategorySorting(list: Array<String>?) {
+    private fun createListCategorySorting(list: Array<String>?) { //TODO DELETE IT
         val listSortsCategory = ArrayList<BillsItem>()
         //Get list Category sorting
         if (list!!.isNotEmpty()) {
             allItemList.forEach { item ->
                 list.forEach {
-                    if (item.category == it //Only Category list
-                        || (item.category == it //If NoteView IsNotEmpty
-                                && binding.edSearchNote.text.isNotEmpty()
-                                && item.note == binding.edSearchNote.text.toString())
+                    if (item.category == it //Only Category list //If NoteView IsNotEmpty
+                        && (binding.edSearchNote.text.isNotEmpty()
+                        && item.note == binding.edSearchNote.text.toString())
                     )
                         listSortsCategory += item
                 }
@@ -272,15 +280,52 @@ class SearchFragment : Fragment() {
     }
 
     private fun performSearch() {
-        val listSortsNote = ArrayList<BillsItem>()
-        if (binding.edSearchNote.text.toString() != EMPTY_STRING) {
+        val list = ArrayList<BillsItem>()
+        val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
+        if (binding.edSearchNote.text.isNotEmpty() //Only Note List
+            && binding.etSearchCategory.text.isEmpty()
+            && binding.etSearchAmountMin.text!!.isEmpty()) {
             allItemList.forEach {
                 if (it.note == binding.edSearchNote.text.toString())
-                    listSortsNote += it
+                    list += it
             }
-            setListAdapter(listSortsNote)
+        }else if (binding.edSearchNote.text.isNotEmpty()
+            && binding.etSearchCategory.text.isNotEmpty()
+            && binding.etSearchAmountMin.text!!.isEmpty()){ //Note, Category
+            allItemList.forEach { item ->
+                listCategory.forEach {
+                    if (item.category == it
+                        && item.note == binding.edSearchNote.text.toString())
+                        list += item
+                }
+            }
+        }else if (binding.edSearchNote.text.isEmpty()
+            && binding.etSearchCategory.text.isNotEmpty()
+            && binding.etSearchAmountMin.text!!.isEmpty()){ //Only Category List
+            allItemList.forEach { item ->
+                listCategory.forEach {
+                    if (item.category == it)
+                        list += item
+                }
+            }
+        }else if (binding.edSearchNote.text.isEmpty()
+            && binding.etSearchCategory.text.isEmpty()
+            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Only Min List
+            allItemList.forEach { item -> //TODO Button DONE
+                    if (item.amount.replace(",", "").toInt()
+                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
+                        list += item
+            }
+        }else if (binding.edSearchNote.text.isEmpty()   //Whole Views Empty
+            && binding.etSearchCategory.text.isEmpty()
+            && binding.etSearchAmountMin.text!!.isEmpty()) {
+            list.addAll(allItemList)
         }
+
+        setListAdapter(list)
     }
+
+
 
     private fun setListAdapter(listSortsCategory: ArrayList<BillsItem>) {
         billAdapter.submitList(listSortsCategory.sortedByDescending { item -> item.date }
@@ -396,6 +441,25 @@ class SearchFragment : Fragment() {
             binding.tvSearchExpenseNum.textSize = 18F
             binding.tvSearchTotalNum.textSize = 18F
         }
+    }
+
+    private fun resizeEditTextMin(){
+        binding.etSearchAmountMin.addTextChangedListener ( object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //Resize text in views if value is huge
+                if (binding.etSearchAmountMin.text!!.length > 13
+                ) {
+                    binding.etSearchAmountMin.textSize = 12F
+                } else {
+                    binding.etSearchAmountMin.textSize = 18F
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {}
+
+        })
     }
 
     private fun initAutoCompleteEditText() {
