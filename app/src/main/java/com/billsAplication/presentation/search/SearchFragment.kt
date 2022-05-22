@@ -181,6 +181,34 @@ class SearchFragment : Fragment() {
 
         amountMin()
 
+        amountMax()
+
+    }
+
+    private fun amountMax() {
+        binding.etSearchAmountMax.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                return@OnEditorActionListener true
+            }
+            false
+        })
+
+        binding.etSearchAmountMax.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //Resize text in views if value is huge
+                if (binding.etSearchAmountMax.text!!.length > 13
+                ) {
+                    binding.etSearchAmountMax.textSize = 12F
+                } else {
+                    binding.etSearchAmountMax.textSize = 18F
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {}
+        })
     }
 
     private fun amountMin() {
@@ -192,7 +220,7 @@ class SearchFragment : Fragment() {
             false
         })
 
-        binding.etSearchAmountMin.addTextChangedListener ( object : TextWatcher {
+        binding.etSearchAmountMin.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -279,84 +307,39 @@ class SearchFragment : Fragment() {
     }
 
     private fun performSearch() {
-        val list = ArrayList<BillsItem>()
+        val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
         val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
-        if (binding.edSearchNote.text.isNotEmpty() //Only Note List
-            && binding.etSearchCategory.text.isEmpty()
-            && binding.etSearchAmountMin.text!!.isEmpty()) {
+        //List Note sorting
+        if (binding.edSearchNote.text.isNotEmpty())
             allItemList.forEach {
-                if (it.note == binding.edSearchNote.text.toString())
-                    list += it
+                if (it.note != binding.edSearchNote.text.toString())
+                    list.remove(it)
             }
-        }else if (binding.edSearchNote.text.isNotEmpty()
-            && binding.etSearchCategory.text.isNotEmpty()
-            && binding.etSearchAmountMin.text!!.isEmpty()){ //Note, Category
+        // List Category
+        if(binding.etSearchCategory.text.isNotEmpty())
             allItemList.forEach { item ->
                 listCategory.forEach {
-                    if (item.category == it
-                        && item.note == binding.edSearchNote.text.toString())
-                        list += item
+                    if (item.category != it)
+                        list.remove(item)
                 }
             }
-        }else if (binding.edSearchNote.text.isEmpty()
-            && binding.etSearchCategory.text.isNotEmpty()
-            && binding.etSearchAmountMin.text!!.isEmpty()){ //Only Category List
-            allItemList.forEach { item ->
-                listCategory.forEach {
-                    if (item.category == it)
-                        list += item
-                }
-            }
-        }else if (binding.edSearchNote.text.isEmpty()
-            && binding.etSearchCategory.text.isEmpty()
-            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Only Min List
+        //  List Min View
+        if (binding.etSearchAmountMin.text!!.isNotEmpty())
             allItemList.forEach { item ->
                     if (item.amount.replace(",", "").toInt()
-                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
-                        list += item
+                        < binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
+                        list.remove(item)
             }
-        }else if (binding.edSearchNote.text.isNotEmpty()
-            && binding.etSearchCategory.text.isEmpty()
-            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Note
+        //  List Max View
+        if (binding.etSearchAmountMax.text!!.isNotEmpty())
             allItemList.forEach { item ->
-                if (item.note == binding.edSearchNote.text.toString()
-                    && item.amount.replace(",", "").toInt()
-                    > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
-                    list += item
+                if (item.amount.replace(",", "").toInt()
+                    > binding.etSearchAmountMax.text.toString().replace(",", "").toInt())
+                    list.remove(item)
             }
-        }else if (binding.edSearchNote.text.isEmpty()
-            && binding.etSearchCategory.text.isNotEmpty()
-            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Category
-            allItemList.forEach { item ->
-                listCategory.forEach {
-                    if (item.category == it
-                        && item.amount.replace(",", "").toInt()
-                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
-                        list += item
-                }
-            }
-        }else if (binding.edSearchNote.text.isNotEmpty()
-            && binding.etSearchCategory.text.isNotEmpty()
-            && binding.etSearchAmountMin.text!!.isNotEmpty()){ //Min, Category, Note
-            allItemList.forEach { item ->
-                listCategory.forEach {
-                    if (item.note == binding.edSearchNote.text.toString()
-                        && item.category == it
-                        && item.amount.replace(",", "").toInt()
-                        > binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
-                        list += item
-                }
-            }
-        }else if (binding.edSearchNote.text.isEmpty()   //Whole Views Empty
-            && binding.etSearchCategory.text.isEmpty()
-            && binding.etSearchAmountMin.text!!.isEmpty()) {
-            list.addAll(allItemList)
-        }
 
         setListAdapter(list)
     }
-
-
 
     private fun setListAdapter(listSortsCategory: ArrayList<BillsItem>) {
         billAdapter.submitList(listSortsCategory.sortedByDescending { item -> item.date }
