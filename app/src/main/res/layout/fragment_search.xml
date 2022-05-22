@@ -160,6 +160,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/default_background"
                 android:gravity="center"
+                android:imeOptions="actionSearch"
                 android:cursorVisible="false"
                 android:hint="@string/amount_max"
                 android:inputType="number"
