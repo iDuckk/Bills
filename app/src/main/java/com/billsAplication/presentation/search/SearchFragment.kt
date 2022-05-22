@@ -341,7 +341,6 @@ class SearchFragment : Fragment() {
         setListAdapter(list)
     }
 
-
     private fun setListAdapter(listSortsCategory: ArrayList<BillsItem>) {
         billAdapter.submitList(listSortsCategory.sortedByDescending { item -> item.date }
             .toList())
