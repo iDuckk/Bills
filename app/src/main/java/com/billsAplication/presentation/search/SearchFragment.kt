@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.RequiresApi
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.MutableLiveData
@@ -25,6 +24,7 @@ import com.billsAplication.databinding.FragmentSearchBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
+import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +59,11 @@ class SearchFragment : Fragment() {
     private val TYPE_INCOME = 1
     private val listNote: ArrayList<String> = ArrayList()
     private val EMPTY_STRING = ""
+    private val KEY_MONTH_LIST_FRAGMENT = "key_month_from_fragment"
+    private val KEY_MONTH_ITEMS_DIALOG = "key_month_from_dialog"
+    private val KEY_CHOSEN_MONTH_LIST_FRAGMENT = "key_CHOSEN_month_from_fragment"
+    private val REQUESTKEY_MONTH_ITEM = "RequestKey_MONTH_item"
+    private val TAG_DIALOG_MONTH = "Dialog Month"
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
@@ -70,7 +75,9 @@ class SearchFragment : Fragment() {
     private var allItemList = ArrayList<BillsItem>()
     private var listDeleteItems = ArrayList<BillsItem>()
     private var categoryList = arrayOf<String>()
+    private var monthList = arrayOf<String>()
     private var chosenItemsCategory = booleanArrayOf()
+    private var chosenItemsMonth = booleanArrayOf()
 
 
     private val component by lazy {
@@ -113,6 +120,9 @@ class SearchFragment : Fragment() {
                 //Create full list
                 if (it.type != TYPE_CATEGORY)
                     allItemList.add(it)
+                //Create Month list
+                if (it.month != EMPTY_STRING)
+                    monthList += it.month
             }
             //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
             setListAdapter(allItemList)
@@ -183,6 +193,34 @@ class SearchFragment : Fragment() {
 
         amountMax()
 
+        periodVew()
+
+    }
+
+    private fun periodVew() {
+        binding.etSearchPeriod.setOnFocusChangeListener { view, b ->
+            if (binding.etSearchPeriod.isFocused) {
+                monthList = monthList.distinct().toTypedArray() //Delete repeated Items
+                setChosenMonthItemsDialog() // Set list chosen items
+                val dialog = ChooseMonthDialog()
+                val args = Bundle()
+                //sent list to Dialog
+                args.putStringArray(KEY_MONTH_LIST_FRAGMENT, monthList)
+                //sent boolean list of chosen item
+                args.putBooleanArray(KEY_CHOSEN_MONTH_LIST_FRAGMENT, chosenItemsMonth)
+                dialog.arguments = args
+                //Show dialog
+                dialog.show(requireActivity().supportFragmentManager, TAG_DIALOG_MONTH)
+                //Receive chosen items from Dialog
+                dialog.setFragmentResultListener(REQUESTKEY_MONTH_ITEM) { requestKey, bundle ->
+                    val list = bundle.getStringArray(KEY_MONTH_ITEMS_DIALOG) //get chosen Items
+                    binding.etSearchPeriod.setText(categoriesString(list))
+                    //Set List
+                    performSearch() //TODO Add perfomence
+                }
+                binding.etSearchPeriod.clearFocus()
+            }
+        }
     }
 
     private fun amountMax() {
@@ -240,7 +278,7 @@ class SearchFragment : Fragment() {
     private fun categoryView() {
         binding.etSearchCategory.setOnFocusChangeListener { view, b ->
             if (binding.etSearchCategory.isFocused) {
-                setChosenItemsDialog() // Set list chosen items
+                setChosenCategoryItemsDialog() // Set list chosen items
                 val dialog = ChooseCategoryDialog()
                 val args = Bundle()
                 //sent list to Dialog
@@ -262,7 +300,27 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun setChosenItemsDialog() {
+    private fun setChosenMonthItemsDialog() {
+        var chosenCategoryList = arrayOf<String>()
+        var booleanList = booleanArrayOf()
+        //Set it none of item is chosen
+        if (binding.etSearchPeriod.text.isNullOrEmpty())
+            monthList.forEach { booleanList += false }
+        else {
+            // get list of chosen months from Edittext
+            chosenCategoryList = binding.etSearchPeriod.text.split(", ").toTypedArray()
+            //Set chosen items
+            monthList.forEach { item ->
+                if (chosenCategoryList.find { it == item } == item)
+                    booleanList += true
+                else
+                    booleanList += false
+            }
+        }
+        chosenItemsMonth = booleanList
+    }
+
+    private fun setChosenCategoryItemsDialog() {
         var chosenCategoryList = arrayOf<String>()
         var booleanList = booleanArrayOf()
         //Set it none of item is chosen
@@ -309,6 +367,7 @@ class SearchFragment : Fragment() {
     private fun performSearch() {
         val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
         val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
+        val listPeriod = binding.etSearchPeriod.text.split(", ").toTypedArray()
         //List Note sorting
         if (binding.edSearchNote.text.isNotEmpty())
             allItemList.forEach {
@@ -318,33 +377,37 @@ class SearchFragment : Fragment() {
         // List Category
         if(binding.etSearchCategory.text.isNotEmpty())
             allItemList.forEach { item ->
-                listCategory.forEach {
-                    if (item.category != it)
-                        list.remove(item)
-                }
+                if(!listCategory.contains(item.category))
+                    list.remove(item)
             }
-        //  List Min View
+        // List Min View
         if (binding.etSearchAmountMin.text!!.isNotEmpty())
             allItemList.forEach { item ->
                     if (item.amount.replace(",", "").toInt()
                         < binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
                         list.remove(item)
             }
-        //  List Max View
+        // List Max View
         if (binding.etSearchAmountMax.text!!.isNotEmpty())
             allItemList.forEach { item ->
                 if (item.amount.replace(",", "").toInt()
                     > binding.etSearchAmountMax.text.toString().replace(",", "").toInt())
                     list.remove(item)
             }
+        //  List Period View
+        if(binding.etSearchPeriod.text.isNotEmpty())
+            allItemList.forEach { item ->
+                if(!listPeriod.contains(item.month))
+                    list.remove(item)
+            }
 
         setListAdapter(list)
     }
 
-    private fun setListAdapter(listSortsCategory: ArrayList<BillsItem>) {
-        billAdapter.submitList(listSortsCategory.sortedByDescending { item -> item.date }
+    private fun setListAdapter(list: ArrayList<BillsItem>) {
+        billAdapter.submitList(list.sortedByDescending { item -> item.date }
             .toList())
-        setAmountBar(listSortsCategory)
+        setAmountBar(list)
     }
 
     private fun imageRoll() {
