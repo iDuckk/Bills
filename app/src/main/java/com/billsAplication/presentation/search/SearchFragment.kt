@@ -197,6 +197,43 @@ class SearchFragment : Fragment() {
 
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun chipGroup(){
+        if(imageRoll){
+            //Chip of note
+            if(binding.edSearchNote.text.isNotEmpty()) {
+                binding.chipNote.visibility = View.VISIBLE
+                binding.chipNote.text = binding.edSearchNote.text
+            }
+            //chip of category
+            if(binding.etSearchCategory.text.isNotEmpty()) {
+                binding.chipCategory.visibility = View.VISIBLE
+                binding.chipCategory.text = binding.etSearchCategory.text
+            }
+            //Chip of min
+            if(binding.etSearchAmountMin.text!!.isNotEmpty()) {
+                binding.chipMin.visibility = View.VISIBLE
+                binding.chipMin.text = getString(R.string.amount_min) + binding.etSearchAmountMin.text
+            }
+            //Chip of max
+            if(binding.etSearchAmountMax.text!!.isNotEmpty()) {
+                binding.chipMax.visibility = View.VISIBLE
+                binding.chipMax.text = getString(R.string.amount_max) + binding.etSearchAmountMax.text
+            }
+            //chip of period
+            if(binding.etSearchPeriod.text.isNotEmpty()) {
+                binding.chipPeriod.visibility = View.VISIBLE
+                binding.chipPeriod.text = binding.etSearchPeriod.text
+            }
+        }else{
+            binding.chipNote.visibility = View.GONE
+            binding.chipCategory.visibility = View.GONE
+            binding.chipMin.visibility = View.GONE
+            binding.chipMax.visibility = View.GONE
+            binding.chipPeriod.visibility = View.GONE
+        }
+    }
+
     private fun periodVew() {
         binding.etSearchPeriod.setOnFocusChangeListener { view, b ->
             if (binding.etSearchPeriod.isFocused) {
@@ -216,7 +253,7 @@ class SearchFragment : Fragment() {
                     val list = bundle.getStringArray(KEY_MONTH_ITEMS_DIALOG) //get chosen Items
                     binding.etSearchPeriod.setText(categoriesString(list))
                     //Set List
-                    performSearch() //TODO Add perfomence
+                    performSearch()
                 }
                 binding.etSearchPeriod.clearFocus()
             }
@@ -421,6 +458,7 @@ class SearchFragment : Fragment() {
                 imageRoll = true
                 binding.cardViewSearch.visibility = View.GONE
             }
+            chipGroup()
         }
     }
 
