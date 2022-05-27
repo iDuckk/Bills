@@ -1,15 +1,18 @@
 package com.billsAplication.presentation.billsList
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -25,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.util.*
 import javax.inject.Inject
 
 
@@ -55,6 +59,7 @@ class BillsListFragment : Fragment() {
     private val TYPE_INCOME = 1
     private val TYPE_FULL_LIST_SORT = 101
     private val NONE = "None"
+    private val EMPTY_STRING = ""
 
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
@@ -100,9 +105,9 @@ class BillsListFragment : Fragment() {
 
         searchButton()
 
-        initRecView()
+        initRecView() //TODO SCROll and Return to star of List
 
-        setNewList(binding.tvMonth.text.toString()) //TODO change sorting list, cause we have to see first of all last added items
+        setNewList(binding.tvMonth.text.toString())
     }
 
     private fun searchButton(){
@@ -209,17 +214,18 @@ class BillsListFragment : Fragment() {
     }
     //Sort list after submit if ArrayList
     private fun setDescentSorting(list: ArrayList<BillsItem>) {
-        if (!binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> item.date }.toList())
+        if (binding.checkBoxDecDate.isChecked)
+            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date) }.toList())
         else
-            billAdapter.submitList(list.sortedByDescending { item -> item.date }.toList())
+            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }.toList())
+
     }
     //Sort list after submit if ViewModel.list.value!!
     private fun setDescentSorting(list: List<BillsItem>) {
-        if (!binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> item.date }.toList())
+        if (binding.checkBoxDecDate.isChecked)
+            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date) }.toList())
         else
-            billAdapter.submitList(list.sortedByDescending { item -> item.date }.toList())
+            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }.toList())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -240,15 +246,35 @@ class BillsListFragment : Fragment() {
             }
         }
 
-        val spinnerAdapter = ArrayAdapter<String>(
+        val spinnerAdapter = object: ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_spinner_item,
             listCategory
-        ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        ){
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val view: TextView = super.getDropDownView(
+                    position,
+                    convertView,
+                    parent
+                ) as TextView
+                // set item text size
+                view.setTextSize(TypedValue.COMPLEX_UNIT_SP,16F)
+                // set spinner item padding
+                view.setPadding(
+                    0, // left
+                    3.toDp(context), // top
+                    0, // right
+                    0 // bottom
+                )
+                return view
+            }
         }
 
-        binding.spinnerFilter.adapter = spinnerAdapter
+         binding.spinnerFilter.adapter = spinnerAdapter
 
         // Set an on item selected listener for spinner object
         binding.spinnerFilter.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
@@ -258,6 +284,8 @@ class BillsListFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {//parent.getItemAtPosition(position).toString()
+                //SetText SIZE
+                (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
                 if(parent.getItemAtPosition(position).toString() != NONE) {
                     if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
@@ -304,7 +332,7 @@ class BillsListFragment : Fragment() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
             if(binding.cardViewFilter.isVisible) {
-                billAdapter.submitList(viewModel.list.value?.sortedBy { it.date }?.toList())
+                billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date) }?.toList())
                 binding.cardViewFilter.visibility = View.GONE
 
             }else{
@@ -413,7 +441,7 @@ class BillsListFragment : Fragment() {
         //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(requireActivity()) {
-            billAdapter.submitList(it.sortedBy { item -> item.date }.toList())
+            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date) }.toList())
             //Create amount for title amountTextView
             it.forEach { item ->
                 when (item.type) {
@@ -430,6 +458,20 @@ class BillsListFragment : Fragment() {
             expense = BigDecimal(0)
 
         }
+    }
+
+    private fun sortingListValue(date: String): Long{
+        if(date != EMPTY_STRING) {
+            val day = date.dropLast(8)
+            val month = date.drop(3).dropLast(5)
+            val year = date.drop(6)
+
+            val c = Calendar.getInstance()
+            c.set(year.toInt(),month.toInt(),day.toInt())
+
+            return c.timeInMillis
+        }
+        return 0
     }
 
     private fun setDefaultSortingViews() {
@@ -456,6 +498,11 @@ class BillsListFragment : Fragment() {
                 binding.tvTotalNum.textSize = 18F
         }
     }
+
+    // Extension method to convert pixels to dp
+    fun Int.toDp(context: Context):Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,this.toFloat(),context.resources.displayMetrics
+    ).toInt()
 
     override fun onDestroyView() {
         super.onDestroyView()
