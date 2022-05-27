@@ -1,15 +1,18 @@
 package com.billsAplication.presentation.search
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
 import androidx.annotation.RequiresApi
@@ -31,6 +34,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -107,13 +112,23 @@ class SearchFragment : Fragment() {
 
         viewModel.list.observe(requireActivity()) { list ->
 
-            setAmountBar(list)
+//            val day = binding.edDateAdd.text.dropLast(8).toString()
+//            val month = binding.edDateAdd.text.drop(3).dropLast(5).toString()
+//            val year = binding.edDateAdd.text.drop(6).toString()
+//            val date = LocalDate.of(year.toInt(),month.toInt(), day.toInt())
 
             list.forEach {
+//                if(it.date != "") {
+//                    //var date = LocalDate.parse(SimpleDateFormat("dd/MM/yyyy").format(it.date))
+//                    var strDate = SimpleDateFormat("yyyy-MM-dd").format(it.date).toString()
+//
+//                    var date = LocalDate.parse(strDate)
+//                    Log.d("TAG", date.year.toString())
+//                }
+
                 //Create list of Notes
-                if (listNote.isEmpty())
-                    if (it.note != EMPTY_STRING)
-                        listNote.add(it.note)
+                if (it.note != EMPTY_STRING)
+                    listNote.add(it.note)
                 //Create Category list
                 if (it.type == TYPE_CATEGORY)
                     categoryList += it.category
@@ -124,8 +139,10 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
+
+            setAmountBar(list)
             //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
-            setListAdapter(allItemList)
+//            setListAdapter(allItemList)
         }
 
         titleBar()
@@ -139,6 +156,7 @@ class SearchFragment : Fragment() {
         buttonDelete()
 
         initAutoCompleteEditText()
+
     }
 
     private fun titleAmount() {
@@ -198,34 +216,36 @@ class SearchFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun chipGroup(){
-        if(imageRoll){
+    private fun chipGroup() {
+        if (imageRoll) {
             //Chip of note
-            if(binding.edSearchNote.text.isNotEmpty()) {
+            if (binding.edSearchNote.text.isNotEmpty()) {
                 binding.chipNote.visibility = View.VISIBLE
                 binding.chipNote.text = binding.edSearchNote.text
             }
             //chip of category
-            if(binding.etSearchCategory.text.isNotEmpty()) {
+            if (binding.etSearchCategory.text.isNotEmpty()) {
                 binding.chipCategory.visibility = View.VISIBLE
                 binding.chipCategory.text = binding.etSearchCategory.text
             }
             //Chip of min
-            if(binding.etSearchAmountMin.text!!.isNotEmpty()) {
+            if (binding.etSearchAmountMin.text!!.isNotEmpty()) {
                 binding.chipMin.visibility = View.VISIBLE
-                binding.chipMin.text = getString(R.string.amount_min) + binding.etSearchAmountMin.text
+                binding.chipMin.text =
+                    getString(R.string.amount_min) + binding.etSearchAmountMin.text
             }
             //Chip of max
-            if(binding.etSearchAmountMax.text!!.isNotEmpty()) {
+            if (binding.etSearchAmountMax.text!!.isNotEmpty()) {
                 binding.chipMax.visibility = View.VISIBLE
-                binding.chipMax.text = getString(R.string.amount_max) + binding.etSearchAmountMax.text
+                binding.chipMax.text =
+                    getString(R.string.amount_max) + binding.etSearchAmountMax.text
             }
             //chip of period
-            if(binding.etSearchPeriod.text.isNotEmpty()) {
+            if (binding.etSearchPeriod.text.isNotEmpty()) {
                 binding.chipPeriod.visibility = View.VISIBLE
                 binding.chipPeriod.text = binding.etSearchPeriod.text
             }
-        }else{
+        } else {
             binding.chipNote.visibility = View.GONE
             binding.chipCategory.visibility = View.GONE
             binding.chipMin.visibility = View.GONE
@@ -262,8 +282,12 @@ class SearchFragment : Fragment() {
 
     private fun amountMax() {
         binding.etSearchAmountMax.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_DONE
+                || event.action == KeyEvent.ACTION_DOWN
+                && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                 performSearch()
+                v.hideKeyboard()
+                v.clearFocus()
                 return@OnEditorActionListener true
             }
             false
@@ -274,12 +298,13 @@ class SearchFragment : Fragment() {
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 //Resize text in views if value is huge
-                if (binding.etSearchAmountMax.text!!.length > 13
-                ) {
-                    binding.etSearchAmountMax.textSize = 12F
-                } else {
-                    binding.etSearchAmountMax.textSize = 18F
-                }
+                if (p0?.length != 0) //This is because keyboard doesn't open in first Click
+                    if (binding.etSearchAmountMax.text!!.length > 13
+                    ) {
+                        binding.etSearchAmountMax.textSize = 12F
+                    } else {
+                        binding.etSearchAmountMax.textSize = 18F
+                    }
             }
 
             override fun afterTextChanged(p0: Editable?) {}
@@ -288,8 +313,12 @@ class SearchFragment : Fragment() {
 
     private fun amountMin() {
         binding.etSearchAmountMin.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_DONE
+                || event.action == KeyEvent.ACTION_DOWN
+                && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                 performSearch()
+                v.hideKeyboard()
+                v.clearFocus()
                 return@OnEditorActionListener true
             }
             false
@@ -298,17 +327,18 @@ class SearchFragment : Fragment() {
         binding.etSearchAmountMin.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                //Resize text in views if value is huge
-                if (binding.etSearchAmountMin.text!!.length > 13
-                ) {
-                    binding.etSearchAmountMin.textSize = 12F
-                } else {
-                    binding.etSearchAmountMin.textSize = 18F
-                }
-            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun afterTextChanged(p0: Editable?) {}
+            override fun afterTextChanged(p0: Editable?) {
+                //Resize text in views if value is huge
+                if (p0?.length != 0) //This is because keyboard doesn't open in first Click
+                    if (binding.etSearchAmountMin.text!!.length > 13
+                    ) {
+                        binding.etSearchAmountMin.textSize = 12F
+                    } else {
+                        binding.etSearchAmountMin.textSize = 18F
+                    }
+            }
         })
     }
 
@@ -393,8 +423,12 @@ class SearchFragment : Fragment() {
 
     private fun noteView() {
         binding.edSearchNote.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_DONE
+                || event.action == KeyEvent.ACTION_DOWN
+                && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                 performSearch()
+                v.hideKeyboard()
+                v.clearFocus()
                 return@OnEditorActionListener true
             }
             false
@@ -412,29 +446,31 @@ class SearchFragment : Fragment() {
                     list.remove(it)
             }
         // List Category
-        if(binding.etSearchCategory.text.isNotEmpty())
+        if (binding.etSearchCategory.text.isNotEmpty())
             allItemList.forEach { item ->
-                if(!listCategory.contains(item.category))
+                if (!listCategory.contains(item.category))
                     list.remove(item)
             }
         // List Min View
         if (binding.etSearchAmountMin.text!!.isNotEmpty())
             allItemList.forEach { item ->
-                    if (item.amount.replace(",", "").toInt()
-                        < binding.etSearchAmountMin.text.toString().replace(",", "").toInt())
-                        list.remove(item)
+                if (item.amount.replace(",", "").toInt()
+                    < binding.etSearchAmountMin.text.toString().replace(",", "").toInt()
+                )
+                    list.remove(item)
             }
         // List Max View
         if (binding.etSearchAmountMax.text!!.isNotEmpty())
             allItemList.forEach { item ->
                 if (item.amount.replace(",", "").toInt()
-                    > binding.etSearchAmountMax.text.toString().replace(",", "").toInt())
+                    > binding.etSearchAmountMax.text.toString().replace(",", "").toInt()
+                )
                     list.remove(item)
             }
         //  List Period View
-        if(binding.etSearchPeriod.text.isNotEmpty())
+        if (binding.etSearchPeriod.text.isNotEmpty())
             allItemList.forEach { item ->
-                if(!listPeriod.contains(item.month))
+                if (!listPeriod.contains(item.month))
                     list.remove(item)
             }
 
@@ -520,9 +556,6 @@ class SearchFragment : Fragment() {
 
     private fun setAmountBar(list: List<BillsItem>) {
         list.forEach {
-            //Create list of Notes
-            if (it.note != EMPTY_STRING)
-                listNote.add(it.note)
             //Create full list
             if (it.type != TYPE_CATEGORY)
             //Create amount for title amountTextView
@@ -559,15 +592,17 @@ class SearchFragment : Fragment() {
     }
 
     private fun initAutoCompleteEditText() {
-        listNote.forEach {
-            Log.w("TAG", it.toString())
-        }
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_list_item_1,
             listNote
         )
         binding.edSearchNote.setAdapter(adapter)
+    }
+
+    fun View.hideKeyboard() {
+        val inputManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
     override fun onDestroyView() {
