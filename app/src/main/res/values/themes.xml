@@ -28,4 +28,5 @@
     <style name="SmallerText" parent="TextAppearance.AppCompat.Small">
         <item name="android:textSize">11sp</item>
     </style>
+
 </resources>

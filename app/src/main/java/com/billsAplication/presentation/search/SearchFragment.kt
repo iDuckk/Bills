@@ -36,7 +36,9 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 
 class SearchFragment : Fragment() {
@@ -112,20 +114,7 @@ class SearchFragment : Fragment() {
 
         viewModel.list.observe(requireActivity()) { list ->
 
-//            val day = binding.edDateAdd.text.dropLast(8).toString()
-//            val month = binding.edDateAdd.text.drop(3).dropLast(5).toString()
-//            val year = binding.edDateAdd.text.drop(6).toString()
-//            val date = LocalDate.of(year.toInt(),month.toInt(), day.toInt())
-
             list.forEach {
-//                if(it.date != "") {
-//                    //var date = LocalDate.parse(SimpleDateFormat("dd/MM/yyyy").format(it.date))
-//                    var strDate = SimpleDateFormat("yyyy-MM-dd").format(it.date).toString()
-//
-//                    var date = LocalDate.parse(strDate)
-//                    Log.d("TAG", date.year.toString())
-//                }
-
                 //Create list of Notes
                 if (it.note != EMPTY_STRING)
                     listNote.add(it.note)
@@ -140,8 +129,8 @@ class SearchFragment : Fragment() {
                     monthList += it.month
             }
 
-            setAmountBar(list)
-            //TODO Думаю надо получить номер дня типо от 1990 года и по нему сортить
+//            setAmountBar(list)
+
 //            setListAdapter(allItemList)
         }
 
@@ -478,9 +467,23 @@ class SearchFragment : Fragment() {
     }
 
     private fun setListAdapter(list: ArrayList<BillsItem>) {
-        billAdapter.submitList(list.sortedByDescending { item -> item.date }
+        billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }
             .toList())
         setAmountBar(list)
+    }
+
+    private fun sortingListValue(date: String): Long{
+        if(date != EMPTY_STRING) {
+            val day = date.dropLast(8)
+            val month = date.drop(3).dropLast(5)
+            val year = date.drop(6)
+
+            val c = Calendar.getInstance()
+            c.set(year.toInt(),month.toInt(),day.toInt())
+
+            return c.timeInMillis
+        }
+        return 0
     }
 
     private fun imageRoll() {
