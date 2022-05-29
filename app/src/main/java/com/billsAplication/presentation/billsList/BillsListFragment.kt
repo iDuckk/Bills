@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -48,6 +49,7 @@ class BillsListFragment : Fragment() {
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
     private var deleteItem = false
+    private var visibilityFIlterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
     private var titleIncome = MutableLiveData<BigDecimal>()
     private var titleExpense = MutableLiveData<BigDecimal>()
@@ -92,8 +94,8 @@ class BillsListFragment : Fragment() {
         (activity as MainActivity)
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
-
-        binding.cardViewFilter.visibility = View.GONE
+        //Use height instead Gone - destroys view? spinner again resize first item
+        binding.cardViewFilter.layoutParams.height = 1
 
         titleAmount()
 
@@ -105,7 +107,10 @@ class BillsListFragment : Fragment() {
 
         searchButton()
 
-        initRecView() //TODO SCROll and Return to star of List
+        initRecView()
+        //TODO Visibility of REcV AddItem
+        //TODO Return to star of List
+        //TODO После возврата из шоплист в этот фрагмет выдает Нул есксепшн
 
         setNewList(binding.tvMonth.text.toString())
     }
@@ -285,6 +290,7 @@ class BillsListFragment : Fragment() {
                 id: Long
             ) {//parent.getItemAtPosition(position).toString()
                 //SetText SIZE
+                if(binding.spinnerFilter.getChildAt(0) != null)
                 (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
                 if(parent.getItemAtPosition(position).toString() != NONE) {
@@ -307,6 +313,7 @@ class BillsListFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
             }
         }
+
     }
     //Get list if Spinner chosen a Category
     @RequiresApi(Build.VERSION_CODES.O)
@@ -331,13 +338,16 @@ class BillsListFragment : Fragment() {
     private fun titleBar() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
-            if(binding.cardViewFilter.isVisible) {
+            if(visibilityFIlterCard) {
                 billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date) }?.toList())
-                binding.cardViewFilter.visibility = View.GONE
-
-            }else{
+                binding.cardViewFilter.layoutParams.height = 1
+                binding.cardViewFilter.requestLayout()
+                visibilityFIlterCard = false
                 setDefaultSortingViews()
-                binding.cardViewFilter.visibility = View.VISIBLE
+            }else{
+                binding.cardViewFilter.layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                binding.cardViewFilter.requestLayout()
+                visibilityFIlterCard = true
             }
         }
         //Set month`s text in bar
@@ -479,7 +489,6 @@ class BillsListFragment : Fragment() {
         binding.checkBoxExpense.isChecked = false
         binding.checkBoxDecDate.isChecked = false
         binding.spinnerFilter.setSelection(0)
-        binding.cardViewFilter.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
