@@ -111,11 +111,9 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-        //TODO После возврата из шоплист в этот фрагмет выдает Нул есксепшн
+        //TODO После возврата из шоплист в этот фрагмет выдает Нул есксепшн Я bindingVew вызываю из слушателя viewModel.list.value!! Это нуль
         //TODO После нажатия лонгКлик листенера в Ресйкл вью, Филтер кард не открывается
         //TODO Paddinп spining and dialogCategory -> category EdText
-        //TODO Размер месяца на гл страницы, чтобы стрелки были статичны
-        //TODO При переключении месяца сбросить ФИЛЬТР
 
         setNewList(binding.tvMonth.text.toString())
     }
@@ -316,14 +314,9 @@ class BillsListFragment : Fragment() {
         binding.imBillsFilter.setOnClickListener{
             if(visibilityFIlterCard) {
                 //Cause without remove List, it scrolls down to hte end
-                if(billAdapter.currentList.isNotEmpty())
-                    billAdapter.submitList(null)
+                billAdapter.submitList(null)
                 billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date + item.time) }?.toList())
-                //Set small size card view
-                binding.cardViewFilter.layoutParams.height = 1
-                binding.cardViewFilter.requestLayout()
-                visibilityFIlterCard = false
-                setDefaultSortingViews()
+                invisibilityFilterCard()
             }else{
                 //Resize cardView
                 binding.cardViewFilter.layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
@@ -337,6 +330,7 @@ class BillsListFragment : Fragment() {
             viewModel.currentDate
             binding.tvMonth.text = viewModel.currentDate()
             viewModel.defaultMonth()
+            invisibilityFilterCard()
             //set a new list
             setNewList(binding.tvMonth.text.toString())
         }
@@ -344,6 +338,7 @@ class BillsListFragment : Fragment() {
         binding.imBackMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+            invisibilityFilterCard()
             //set a new list
             setNewList(binding.tvMonth.text.toString())
         }
@@ -351,6 +346,7 @@ class BillsListFragment : Fragment() {
         binding.imNextMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
+            invisibilityFilterCard()
             //set a new list
             setNewList(binding.tvMonth.text.toString())
         }
@@ -360,6 +356,14 @@ class BillsListFragment : Fragment() {
                 R.id.action_billsListFragment_to_bookmarksFragment,
             )
         }
+    }
+
+    private fun invisibilityFilterCard(){
+        //Set small size card view
+        binding.cardViewFilter.layoutParams.height = 1
+        binding.cardViewFilter.requestLayout()
+        visibilityFIlterCard = false
+        setDefaultSortingViews()
     }
 
     private fun titleAmount() {
