@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,9 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.*
+import androidx.core.view.children
+import androidx.core.view.isEmpty
+import androidx.core.view.isNotEmpty
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -108,9 +111,11 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-        //TODO Visibility of REcV AddItem
-        //TODO Return to star of List
         //TODO После возврата из шоплист в этот фрагмет выдает Нул есксепшн
+        //TODO После нажатия лонгКлик листенера в Ресйкл вью, Филтер кард не открывается
+        //TODO Paddinп spining and dialogCategory -> category EdText
+        //TODO Размер месяца на гл страницы, чтобы стрелки были статичны
+        //TODO При переключении месяца сбросить ФИЛЬТР
 
         setNewList(binding.tvMonth.text.toString())
     }
@@ -149,55 +154,13 @@ class BillsListFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun filterBar(){
-        var incomeList = ArrayList<BillsItem>()
-        var expenseList = ArrayList<BillsItem>()
         //income list
         binding.checkBoxIncome.setOnClickListener {
-            //Set Default value spinner
-            binding.spinnerFilter.setSelection(0)
-
-            if(binding.checkBoxIncome.isChecked){
-                incomeList = getSortList(TYPE_INCOME)
-
-                if(binding.checkBoxExpense.isChecked) {
-                    val fullList = ArrayList<BillsItem>()
-                    fullList.addAll(incomeList)
-                    fullList.addAll(expenseList)
-                    setDescentSorting(fullList)
-                }else
-                    setDescentSorting(incomeList)
-            }else {
-                if(!binding.checkBoxExpense.isChecked) {
-                    setDescentSorting(viewModel.list.value!!)
-                }
-                else
-                    setDescentSorting(expenseList)
-                incomeList.clear()
-            }
+            filterList(binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition).toString())
         }
         //Expense list
         binding.checkBoxExpense.setOnClickListener {
-            //Set Default value spinner
-            binding.spinnerFilter.setSelection(0)
-
-            if(binding.checkBoxExpense.isChecked){
-                expenseList = getSortList(TYPE_EXPENSES)
-
-                if (binding.checkBoxIncome.isChecked) {
-                    val fullList = ArrayList<BillsItem>()
-                    fullList.addAll( expenseList)
-                    fullList.addAll(incomeList)
-                    setDescentSorting(fullList)
-                }else
-                    setDescentSorting(expenseList)
-            }else {
-                if (!binding.checkBoxIncome.isChecked) {
-                    setDescentSorting(viewModel.list.value!!)
-                }else {
-                    setDescentSorting(incomeList)
-                }
-                expenseList.clear()
-            }
+            filterList(binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition).toString())
         }
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
@@ -207,6 +170,7 @@ class BillsListFragment : Fragment() {
         spinnerCategory()
 
     }
+
     //Get list Type (Income or Expense)
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getSortList(type : Int): ArrayList<BillsItem> {
@@ -219,18 +183,24 @@ class BillsListFragment : Fragment() {
     }
     //Sort list after submit if ArrayList
     private fun setDescentSorting(list: ArrayList<BillsItem>) {
+        //Cause without remove List, it scrolls down to hte end
+            billAdapter.submitList(null)
         if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date) }.toList())
+            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date + item.time) }.toList())
         else
-            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }.toList())
-
+            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
     }
     //Sort list after submit if ViewModel.list.value!!
     private fun setDescentSorting(list: List<BillsItem>) {
+        //Cause without remove List, it scrolls down to hte end
+            billAdapter.submitList(null)
         if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date) }.toList())
+            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date + item.time) }
+                .toList())
         else
-            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }.toList())
+            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }
+                .toList())
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -293,21 +263,7 @@ class BillsListFragment : Fragment() {
                 if(binding.spinnerFilter.getChildAt(0) != null)
                 (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
-                if(parent.getItemAtPosition(position).toString() != NONE) {
-                    if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
-                        setDescentSorting(spinnerItemList(TYPE_INCOME, parent.getItemAtPosition(position).toString()))
-                    else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
-                        setDescentSorting(spinnerItemList(TYPE_EXPENSES, parent.getItemAtPosition(position).toString()))
-                    else
-                        setDescentSorting(spinnerItemList(TYPE_FULL_LIST_SORT, parent.getItemAtPosition(position).toString()))
-                } else {
-                    if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
-                        setDescentSorting(getSortList(TYPE_INCOME))
-                    else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
-                        setDescentSorting(getSortList(TYPE_EXPENSES))
-                    else
-                        setDescentSorting(viewModel.list.value!!)
-                }
+                filterList(parent.getItemAtPosition(position).toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
@@ -315,6 +271,26 @@ class BillsListFragment : Fragment() {
         }
 
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun filterList(value: String){
+        if(value != NONE) {
+            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
+                setDescentSorting(spinnerItemList(TYPE_INCOME, value))
+            else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
+                setDescentSorting(spinnerItemList(TYPE_EXPENSES, value))
+            else
+                setDescentSorting(spinnerItemList(TYPE_FULL_LIST_SORT, value))
+        } else {
+            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
+                setDescentSorting(getSortList(TYPE_INCOME))
+            else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
+                setDescentSorting(getSortList(TYPE_EXPENSES))
+            else
+                setDescentSorting(viewModel.list.value!!)
+        }
+    }
+
     //Get list if Spinner chosen a Category
     @RequiresApi(Build.VERSION_CODES.O)
     private fun spinnerItemList(type: Int, value: String): ArrayList<BillsItem>{
@@ -339,12 +315,17 @@ class BillsListFragment : Fragment() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
             if(visibilityFIlterCard) {
-                billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date) }?.toList())
+                //Cause without remove List, it scrolls down to hte end
+                if(billAdapter.currentList.isNotEmpty())
+                    billAdapter.submitList(null)
+                billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date + item.time) }?.toList())
+                //Set small size card view
                 binding.cardViewFilter.layoutParams.height = 1
                 binding.cardViewFilter.requestLayout()
                 visibilityFIlterCard = false
                 setDefaultSortingViews()
             }else{
+                //Resize cardView
                 binding.cardViewFilter.layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
                 binding.cardViewFilter.requestLayout()
                 visibilityFIlterCard = true
@@ -451,7 +432,8 @@ class BillsListFragment : Fragment() {
         //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(requireActivity()) {
-            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date) }.toList())
+            //Set list to Adapter
+            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
             //Create amount for title amountTextView
             it.forEach { item ->
                 when (item.type) {
@@ -466,18 +448,19 @@ class BillsListFragment : Fragment() {
             titleTotal.postValue(income - expense)
             income = BigDecimal(0)
             expense = BigDecimal(0)
-
         }
     }
 
     private fun sortingListValue(date: String): Long{
-        if(date != EMPTY_STRING) {
-            val day = date.dropLast(8)
-            val month = date.drop(3).dropLast(5)
-            val year = date.drop(6)
+        if(date != EMPTY_STRING) {  // 27/04/202211:59 AM
+            val day = date.dropLast(16)
+            val month = date.drop(3).dropLast(13)
+            val year = date.drop(6).dropLast(8)
+            val hour = date.drop(10).dropLast(6)
+            val minute = date.drop(13).dropLast(3)
 
             val c = Calendar.getInstance()
-            c.set(year.toInt(),month.toInt(),day.toInt())
+            c.set(year.toInt(),month.toInt(),day.toInt(), hour.toInt(), minute.toInt())
 
             return c.timeInMillis
         }

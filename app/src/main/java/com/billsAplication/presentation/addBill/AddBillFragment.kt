@@ -131,6 +131,8 @@ class AddBillFragment : Fragment() {
 
         //Set Bottom bar - invisible
         (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
+        //Set recView invisible
+        binding.recViewPhoto.visibility = View.GONE
 
         //Set Currency of amount EditText - Default currency
         binding.tvCurrancy.text = DecimalFormat().currency!!.currencyCode
@@ -185,6 +187,9 @@ class AddBillFragment : Fragment() {
                 binding.imAttach.isEnabled = true
             }
             countPhoto--
+            //Set RecView invisible
+            if(countPhoto == 0)
+            binding.recViewPhoto.visibility = View.GONE
             //if type is Edit
             binding.bAddSave.isEnabled = true
         }
@@ -707,7 +712,9 @@ class AddBillFragment : Fragment() {
             imageList.add(ImageItem(
                 Base64.getEncoder().encodeToString(loadImage(data?.data)!!.toByteArray()),
                 ID_IMAGE))
-            ID_IMAGE++
+            ID_IMAGE++ // Amount of images
+            //Set RecView visible
+            binding.recViewPhoto.visibility = View.VISIBLE
             imageAdapter.submitList(imageList.toMutableList())
             //if type is Edit
             binding.bAddSave.isEnabled = true
@@ -716,7 +723,9 @@ class AddBillFragment : Fragment() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             //Decode String to Bytes than Save image's bytes in array
             imageList.add(ImageItem(Base64.getEncoder().encodeToString(photoFile!!.readBytes()), ID_IMAGE))
-            ID_IMAGE++
+            ID_IMAGE++ // Amount of images
+            //Set RecView visible
+            binding.recViewPhoto.visibility = View.VISIBLE
             imageAdapter.submitList(imageList.toMutableList())
             //delete File, cause we may do not save Image... It was like a buffer
             CoroutineScope(IO).launch {
