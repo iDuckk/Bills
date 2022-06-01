@@ -147,8 +147,9 @@
 
             <TextView
                 android:id="@+id/tv_month"
-                android:layout_width="wrap_content"
+                android:layout_width="150sp"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="@string/month"
                 app:layout_constraintBottom_toBottomOf="@+id/im_backMonth"
                 app:layout_constraintStart_toEndOf="@+id/im_backMonth"
