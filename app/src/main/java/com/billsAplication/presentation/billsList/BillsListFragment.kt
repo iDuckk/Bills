@@ -112,7 +112,6 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-        //TODO После нажатия лонгКлик листенера в Ресйкл вью, Филтер кард не открывается
         //TODO Paddinп spining and dialogCategory -> category EdText
 
         setNewList(binding.tvMonth.text.toString())
@@ -413,7 +412,7 @@ class BillsListFragment : Fragment() {
 
         billAdapter.onLongClickListenerBillItem = {
             listDeleteItems = it
-            binding.cardViewFilter.visibility = View.GONE
+            invisibilityFilterCard()
         }
         //Highlight item
         billAdapter.isHighlight.observe(requireActivity()) {
@@ -431,6 +430,8 @@ class BillsListFragment : Fragment() {
                 binding.cardViewBudget.visibility = View.VISIBLE
                 (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
                     View.VISIBLE
+                //set a new list
+                setNewList(binding.tvMonth.text.toString())
             }
         }
     }
