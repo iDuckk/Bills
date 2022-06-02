@@ -111,7 +111,7 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-        //TODO После возврата из шоплист в этот фрагмет выдает Нул есксепшн Я bindingVew вызываю из слушателя viewModel.list.value!! Это нуль
+
         //TODO После нажатия лонгКлик листенера в Ресйкл вью, Филтер кард не открывается
         //TODO Paddinп spining and dialogCategory -> category EdText
 
@@ -162,7 +162,10 @@ class BillsListFragment : Fragment() {
         }
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
-            setDescentSorting(billAdapter.currentList)
+                if (viewModel.list.value != null)
+                    setDescentSorting(viewModel.list.value!!)
+                else
+                    setNewList(binding.tvMonth.text.toString())
         }
         //Set Spinner
         spinnerCategory()
@@ -284,8 +287,12 @@ class BillsListFragment : Fragment() {
                 setDescentSorting(getSortList(TYPE_INCOME))
             else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
                 setDescentSorting(getSortList(TYPE_EXPENSES))
-            else
-                setDescentSorting(viewModel.list.value!!)
+            else {
+                if (viewModel.list.value != null)
+                    setDescentSorting(viewModel.list.value!!)
+                else
+                    setNewList(binding.tvMonth.text.toString())
+            }
         }
     }
 
