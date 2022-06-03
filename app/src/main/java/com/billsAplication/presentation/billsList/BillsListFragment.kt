@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +13,6 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
-import androidx.core.view.isEmpty
-import androidx.core.view.isNotEmpty
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -52,7 +48,7 @@ class BillsListFragment : Fragment() {
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
     private var deleteItem = false
-    private var visibilityFIlterCard = false
+    private var visibilityFilterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
     private var titleIncome = MutableLiveData<BigDecimal>()
     private var titleExpense = MutableLiveData<BigDecimal>()
@@ -97,8 +93,6 @@ class BillsListFragment : Fragment() {
         (activity as MainActivity)
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
-        //Use height instead Gone - destroys view? spinner again resize first item
-        binding.cardViewFilter.layoutParams.height = 1
 
         titleAmount()
 
@@ -111,8 +105,6 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-
-        //TODO Paddinп spining and dialogCategory -> category EdText
 
         setNewList(binding.tvMonth.text.toString())
     }
@@ -151,6 +143,8 @@ class BillsListFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun filterBar(){
+        //Use height instead Gone - destroys view? spinner again resize first item
+        invisibilityFilterCard()
         //income list
         binding.checkBoxIncome.setOnClickListener {
             filterList(binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition).toString())
@@ -289,8 +283,9 @@ class BillsListFragment : Fragment() {
             else {
                 if (viewModel.list.value != null)
                     setDescentSorting(viewModel.list.value!!)
-                else
+                else {
                     setNewList(binding.tvMonth.text.toString())
+                }
             }
         }
     }
@@ -318,7 +313,7 @@ class BillsListFragment : Fragment() {
     private fun titleBar() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
-            if(visibilityFIlterCard) {
+            if(visibilityFilterCard) {
                 //Cause without remove List, it scrolls down to hte end
                 billAdapter.submitList(null)
                 billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date + item.time) }?.toList())
@@ -327,7 +322,8 @@ class BillsListFragment : Fragment() {
                 //Resize cardView
                 binding.cardViewFilter.layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
                 binding.cardViewFilter.requestLayout()
-                visibilityFIlterCard = true
+                visibilityFilterCard = true
+                setDefaultSortingViews()
             }
         }
         //Set month`s text in bar
@@ -365,11 +361,11 @@ class BillsListFragment : Fragment() {
     }
 
     private fun invisibilityFilterCard(){
+        setDefaultSortingViews()
         //Set small size card view
         binding.cardViewFilter.layoutParams.height = 1
         binding.cardViewFilter.requestLayout()
-        visibilityFIlterCard = false
-        setDefaultSortingViews()
+        visibilityFilterCard = false
     }
 
     private fun titleAmount() {
