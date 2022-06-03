@@ -46,5 +46,6 @@
     <string name="search_choose_category">Choose category</string>
     <string name="search_cancel">Cancel</string>
     <string name="ChooseCategoryDialog_error_null">ChooseCategoryDialog: Activity cannot be null</string>
+    <string name="type_new_category">Type new Category</string>
 
 </resources>
