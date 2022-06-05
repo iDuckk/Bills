@@ -1,15 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.analytics.AnalyticsFragment"
     android:id="@+id/analyticsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_analyticsBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="analytics" />
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginBottom="1sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardView_analyticsGraph">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/im_backMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_previous_month"
+                android:src="@drawable/ic__navigate_before"
+                android:layout_marginStart="10sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_month"/>
+
+            <ImageView
+                android:id="@+id/im_nextMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_next_month"
+                android:src="@drawable/ic_navigate_next"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_month"
+                app:layout_constraintStart_toEndOf="@+id/tv_month"
+                app:layout_constraintTop_toTopOf="@+id/tv_month" />
+
+            <TextView
+                android:id="@+id/tv_month"
+                android:layout_width="150sp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/month"
+                app:layout_constraintBottom_toBottomOf="@+id/im_backMonth"
+                app:layout_constraintStart_toEndOf="@+id/im_backMonth"
+                app:layout_constraintTop_toTopOf="@+id/im_backMonth"
+                app:layout_constraintEnd_toStartOf="@+id/im_nextMonth"/>
+
+            <TextView
+                android:id="@+id/tv_income"
+                android:layout_width="75sp"
+                android:layout_height="30sp"
+                android:background="@drawable/textview_border_income"
+                android:text="@string/bills_list_income"
+                android:layout_marginEnd="10sp"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_expense"
+                android:layout_width="75sp"
+                android:layout_height="30sp"
+                android:background="@drawable/textview_border_expense"
+                android:text="@string/bill_list_expense"
+                android:layout_marginEnd="1sp"
+                android:gravity="center"
+                app:layout_constraintEnd_toStartOf="@+id/tv_income"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_analyticsGraph"
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_analyticsBar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pieChart"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
