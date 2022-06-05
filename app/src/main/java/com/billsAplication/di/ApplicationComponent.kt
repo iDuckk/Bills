@@ -3,6 +3,7 @@ package com.billsAplication.di
 import android.app.Application
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.addBill.AddBillFragment
+import com.billsAplication.presentation.analytics.AnalyticsFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.bookmarks.BookmarksFragment
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
@@ -23,6 +24,8 @@ interface ApplicationComponent {
     fun inject(fragment: BookmarksFragment)
 
     fun inject(fragment: SearchFragment)
+
+    fun inject(fragment: AnalyticsFragment)
 
     @Component.Factory
     interface Factory{
