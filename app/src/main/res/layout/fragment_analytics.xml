@@ -15,14 +15,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/cardView_analyticsGraph">
+        app:layout_constraintBottom_toTopOf="@+id/scroll_an">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/im_backMonth"
+                android:id="@+id/im_backMonth_analytics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/description_previous_month"
@@ -31,28 +31,28 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/tv_month"/>
+                app:layout_constraintEnd_toStartOf="@+id/tv_month_analytics"/>
 
             <ImageView
-                android:id="@+id/im_nextMonth"
+                android:id="@+id/im_nextMonth_analytics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/description_next_month"
                 android:src="@drawable/ic_navigate_next"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_month"
-                app:layout_constraintStart_toEndOf="@+id/tv_month"
-                app:layout_constraintTop_toTopOf="@+id/tv_month" />
+                app:layout_constraintBottom_toBottomOf="@+id/tv_month_analytics"
+                app:layout_constraintStart_toEndOf="@+id/tv_month_analytics"
+                app:layout_constraintTop_toTopOf="@+id/tv_month_analytics" />
 
             <TextView
-                android:id="@+id/tv_month"
+                android:id="@+id/tv_month_analytics"
                 android:layout_width="150sp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/month"
-                app:layout_constraintBottom_toBottomOf="@+id/im_backMonth"
-                app:layout_constraintStart_toEndOf="@+id/im_backMonth"
-                app:layout_constraintTop_toTopOf="@+id/im_backMonth"
-                app:layout_constraintEnd_toStartOf="@+id/im_nextMonth"/>
+                app:layout_constraintBottom_toBottomOf="@+id/im_backMonth_analytics"
+                app:layout_constraintStart_toEndOf="@+id/im_backMonth_analytics"
+                app:layout_constraintTop_toTopOf="@+id/im_backMonth_analytics"
+                app:layout_constraintEnd_toStartOf="@+id/im_nextMonth_analytics"/>
 
             <TextView
                 android:id="@+id/tv_income"
@@ -83,30 +83,69 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView_analyticsGraph"
+    <ScrollView
+        android:id="@+id/scroll_an"
         android:layout_width="match_parent"
         android:layout_height="0sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView_analyticsBar">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardViewPieChar"
+                    android:layout_width="match_parent"
+                    android:layout_height="400sp"
+                    android:layout_marginBottom="5sp"
+                    app:layout_constraintBottom_toTopOf="@+id/cardViewRecAn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" >
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieChart"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/pieChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
 
-    </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardViewRecAn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardViewPieChar">
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recViewAnalytics"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:listitem="@layout/bill_item" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

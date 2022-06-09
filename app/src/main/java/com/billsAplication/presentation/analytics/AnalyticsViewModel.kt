@@ -32,6 +32,11 @@ class AnalyticsViewModel @Inject constructor(
         currentDate = currentDate()
     }
 
+    fun defaultMonth(){
+        changeMonth = 0
+        changeYear = 0
+    }
+
     fun getMonth(month: String) {
         list =  getMonth.invoke(month)
     }
