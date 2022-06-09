@@ -47,5 +47,6 @@
     <string name="search_cancel">Cancel</string>
     <string name="ChooseCategoryDialog_error_null">ChooseCategoryDialog: Activity cannot be null</string>
     <string name="type_new_category">Type new Category</string>
+    <string name="no_values_analytics">No values</string>
 
 </resources>
