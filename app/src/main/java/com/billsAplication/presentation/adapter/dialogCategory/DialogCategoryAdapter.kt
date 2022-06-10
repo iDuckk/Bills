@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.adapter
+package com.billsAplication.presentation.adapter.dialogCategory
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.CategoryItemBinding
-import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.model.BillsItem
 import javax.inject.Inject
 
-class DialogCategoryAdapter  @Inject constructor(): ListAdapter<BillsItem, DialogCategoryViewHolder>(DialogCategoryCallback()) {
+class DialogCategoryAdapter  @Inject constructor(): ListAdapter<BillsItem, DialogCategoryViewHolder>(
+    DialogCategoryCallback()
+) {
 
     var onClickListenerDelete: ((item : BillsItem) -> Unit)? = null
     var onClickListenerGetItem: ((item : BillsItem) -> Unit)? = null

@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSearchBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.BillsAdapter
+import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
@@ -34,8 +33,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList

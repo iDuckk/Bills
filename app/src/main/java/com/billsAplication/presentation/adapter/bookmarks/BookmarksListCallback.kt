@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.adapter
+package com.billsAplication.presentation.adapter.bookmarks
 
 import androidx.recyclerview.widget.DiffUtil
 import com.billsAplication.domain.model.BillsItem

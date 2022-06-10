@@ -18,7 +18,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAnalyticsBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.BillsAdapter
+import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.ColorsPie
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend

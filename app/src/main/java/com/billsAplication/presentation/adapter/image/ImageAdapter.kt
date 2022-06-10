@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.adapter
+package com.billsAplication.presentation.adapter.image
 
 import android.graphics.BitmapFactory
 import android.os.Build

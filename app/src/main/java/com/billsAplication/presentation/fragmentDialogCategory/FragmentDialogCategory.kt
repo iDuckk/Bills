@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.databinding.FragmentDialogCategoryBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.DialogCategoryAdapter
+import com.billsAplication.presentation.adapter.dialogCategory.DialogCategoryAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
