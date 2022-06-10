@@ -13,8 +13,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBookmarksBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.BillsAdapter
-import com.billsAplication.presentation.adapter.BookmarksAdapter
+import com.billsAplication.presentation.adapter.bookmarks.BookmarksAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope

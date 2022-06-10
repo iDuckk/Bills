@@ -3,7 +3,6 @@ package com.billsAplication.presentation.billsList
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
@@ -11,11 +10,8 @@ import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
 import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
 import com.billsAplication.domain.billsUseCases.GetTypeUseCase
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.BillsAdapter
-import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @RequiresApi(Build.VERSION_CODES.O)
 @ApplicationScope

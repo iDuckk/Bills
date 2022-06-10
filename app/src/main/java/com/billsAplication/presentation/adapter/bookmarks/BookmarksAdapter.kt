@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.adapter
+package com.billsAplication.presentation.adapter.bookmarks
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -15,7 +15,9 @@ import com.billsAplication.domain.model.BillsItem
 import javax.inject.Inject
 
 
-class BookmarksAdapter  @Inject constructor(): ListAdapter<BillsItem, BookmarksViewHolder>(BookmarksListCallback()) {
+class BookmarksAdapter  @Inject constructor(): ListAdapter<BillsItem, BookmarksViewHolder>(
+    BookmarksListCallback()
+) {
 
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1

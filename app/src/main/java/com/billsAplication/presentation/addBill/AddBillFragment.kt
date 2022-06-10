@@ -34,6 +34,10 @@ import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.ImageItem
 import com.billsAplication.presentation.adapter.*
+import com.billsAplication.presentation.adapter.image.ImageAdapter
+import com.billsAplication.presentation.adapter.image.onClickListenerDeleteImage
+import com.billsAplication.presentation.adapter.image.onClickListenerItem
+import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.CreateImageFile
@@ -465,8 +469,10 @@ class AddBillFragment : Fragment() {
                 ID_IMAGE++
             )
         )
-        if (!imageList.isNullOrEmpty())
+        if (imageList.isNotEmpty()) {
+            binding.recViewPhoto.visibility = View.VISIBLE
             imageAdapter.submitList(imageList.toMutableList())
+        }
     }
 
     private fun setBookmarkImage() {

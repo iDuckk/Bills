@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.adapter
+package com.billsAplication.presentation.adapter.dialogCategory
 
 import androidx.recyclerview.widget.RecyclerView
 import com.billsAplication.databinding.CategoryItemBinding
