@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,14 +13,12 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAnalyticsBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.BillsAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.ColorsPie
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend
@@ -32,7 +29,6 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
@@ -72,7 +68,7 @@ class AnalyticsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAnalyticsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -88,14 +84,6 @@ class AnalyticsFragment : Fragment() {
         initRecView()
 
         firstEntrance()
-
-        //TODO Когда переходишь в Аналитикс, а потом возвр в АддЛист и добавляешь в Избранное то НулПОинтЭкс.
-        // Когда просто сохраняешь вылетает
-
-        //TODO Когда возврвщаещься из АДДБИЛ стрефлкой, выбирается май мексяц
-        // Любой возврат выкидывает ошибку
-
-        //TODO Уменьшить размер диалог окна Категории в АддИтем
 
     }
 
@@ -134,7 +122,7 @@ class AnalyticsFragment : Fragment() {
         viewModel.list.observe(requireActivity()) { item ->
             wholeList.addAll(item)
             //create Lists
-            item.forEach {
+            viewModel.list.value?.forEach {
                 //Get list of Category
                 if(it.type == type && it.category.isNotEmpty()) {
                     //total amount
@@ -149,8 +137,10 @@ class AnalyticsFragment : Fragment() {
                 }
             }
             //Set data for Pie
-            setDataToPieChart()
+            if (_binding != null)
+                setDataToPieChart()
         }
+        viewModel.list.removeObservers(this)
     }
 
     @SuppressLint("ResourceAsColor")
