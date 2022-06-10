@@ -1,9 +1,14 @@
 package com.billsAplication.presentation.fragmentDialogCategory
 
+import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -71,10 +76,44 @@ class FragmentDialogCategory : DialogFragment() {
                         )
                     )
                 }
+                binding.edDialogCategoryAdd.hideKeyboard()
                 binding.edDialogCategoryAdd.setText("")
                 binding.edDialogCategoryAdd.clearFocus()
             }
         }
+
+        binding.edDialogCategoryAdd.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE
+                || event.action == KeyEvent.ACTION_DOWN
+                && event.keyCode == KeyEvent.KEYCODE_ENTER
+            ) {
+                val text = binding.edDialogCategoryAdd.text.toString()
+
+                if(text.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        viewModel.addCategory(
+                            BillsItem(
+                                0,
+                                2,
+                                "",
+                                "",
+                                "",
+                                text,
+                                "",
+                                "",
+                                "",
+                                false, "", "", "", "", ""
+                            )
+                        )
+                    }
+                    v.hideKeyboard()
+                    v.text = ""
+                    v.clearFocus()
+                }
+                return@OnEditorActionListener true
+            }
+            false
+        })
 
         viewModel.getCategoryType()
 
@@ -88,6 +127,11 @@ class FragmentDialogCategory : DialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun View.hideKeyboard() {
+        val inputManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
     private fun initRecView(){

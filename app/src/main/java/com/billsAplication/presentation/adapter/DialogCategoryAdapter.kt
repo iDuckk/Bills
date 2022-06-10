@@ -3,6 +3,7 @@ package com.billsAplication.presentation.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.CategoryItemBinding
 import com.billsAplication.di.ApplicationScope
@@ -34,11 +35,15 @@ class DialogCategoryAdapter  @Inject constructor(): ListAdapter<BillsItem, Dialo
         }
 
         holder.tv_Category.setOnLongClickListener(){
-            holder.im_Delete.visibility = View.VISIBLE
+            if(holder.im_Delete.isVisible)
+                holder.im_Delete.visibility = View.GONE
+            else
+                holder.im_Delete.visibility = View.VISIBLE
             true
         }
 
         holder.im_Delete.setOnClickListener {
+            holder.im_Delete.visibility = View.GONE
             onClickListenerDelete?.invoke(item)
         }
 
