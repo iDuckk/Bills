@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +13,26 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
+import com.billsAplication.domain.model.ShopListItem
+import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 
 class ShopListFragment : Fragment() {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding: FragmentShopListBinding get() = _binding!!
+
+//    @Inject
+//    lateinit var noteAdapter: ShopListAdapter
+
+    var noteAdapter = ShopListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +51,23 @@ class ShopListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         addButtons()
+
+        initRecView()
+
+        val list = ArrayList<ShopListItem>()
+        list.add(ShopListItem("asdfasdf", 1))
+        list.add(ShopListItem("asdfasdf", 2))
+        list.add(ShopListItem("asdfasdf", 3))
+        list.add(ShopListItem("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf", 4))
+        noteAdapter.submitList(list.toList())
+    }
+
+    private fun initRecView() {
+        with(binding.recViewShopList) {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            adapter = noteAdapter
+            itemAnimator = null
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
