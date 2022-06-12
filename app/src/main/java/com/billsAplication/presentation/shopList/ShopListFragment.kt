@@ -14,14 +14,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
-import com.billsAplication.domain.model.ShopListItem
-import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 class ShopListFragment : Fragment() {
@@ -29,12 +28,20 @@ class ShopListFragment : Fragment() {
     private var _binding: FragmentShopListBinding? = null
     private val binding: FragmentShopListBinding get() = _binding!!
 
-//    @Inject
-//    lateinit var noteAdapter: ShopListAdapter
+    @Inject
+    lateinit var viewModel: NoteViewModel
+    @Inject
+    lateinit var noteAdapter: ShopListAdapter
 
-    var noteAdapter = ShopListAdapter()
+
+    private val TYPE_NOTE = 3
+
+    private val component by lazy {
+        (requireActivity().application as BillsApplication).component
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
     }
 
@@ -52,14 +59,34 @@ class ShopListFragment : Fragment() {
 
         addButtons()
 
+        buttonKeyboard()
+
         initRecView()
 
-        val list = ArrayList<ShopListItem>()
-        list.add(ShopListItem("asdfasdf", 1))
-        list.add(ShopListItem("asdfasdf", 2))
-        list.add(ShopListItem("asdfasdf", 3))
-        list.add(ShopListItem("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf", 4))
-        noteAdapter.submitList(list.toList())
+        viewModel.list.observe(viewLifecycleOwner){
+            noteAdapter.submitList(it.toList())
+        }
+    }
+
+    private fun buttonKeyboard() {
+        binding.buttonAddNoteKeyboard.setOnClickListener {
+
+        }
+    }
+
+    private fun newItem(noteTxt: String): BillsItem {
+        return BillsItem(
+            0,
+            TYPE_NOTE,
+            "",
+            "",
+            "",
+            "",
+            "",
+            noteTxt,
+            "",
+            false, "", "", "", "", ""
+        )
     }
 
     private fun initRecView() {

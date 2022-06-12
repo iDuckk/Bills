@@ -1,23 +1,15 @@
 package com.billsAplication.presentation.adapter.shopList
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
-import com.billsAplication.R
-import com.billsAplication.databinding.BookmarksItemBinding
 import com.billsAplication.databinding.NoteItemBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.domain.model.ShopListItem
 import javax.inject.Inject
 
 
-class ShopListAdapter  @Inject constructor(): ListAdapter<ShopListItem, ShopListViewHolder>(
+class ShopListAdapter  @Inject constructor(): ListAdapter<BillsItem, ShopListViewHolder>(
     ShopListCallback()
 ) {
 

@@ -84,7 +84,6 @@ class AddBillFragment : Fragment() {
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
-    private var checkNoteObserve = true
     private var ID_IMAGE = 0
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
@@ -640,7 +639,7 @@ class AddBillFragment : Fragment() {
             val list: MutableList<String> = ArrayList()
             //Create list of Notes
             viewModel.getAll()
-            viewModel.list.observe(requireActivity()) { item ->
+            viewModel.list.observe(viewLifecycleOwner) { item ->
                 item.forEach {
                     if(it.note != EMPTY_STRING)
                     list.add(it.note)
@@ -650,12 +649,7 @@ class AddBillFragment : Fragment() {
                     android.R.layout.simple_list_item_1,
                     list.distinct()
                 )
-                if(checkNoteObserve) { //Throw Null Exception when we leave Fragments
-                    binding.edAddNote.setAdapter(adapter)
-                    checkNoteObserve = false
-                }
-
-                viewModel.list.removeObservers(this)
+                binding.edAddNote.setAdapter(adapter)
             }
     }
 
