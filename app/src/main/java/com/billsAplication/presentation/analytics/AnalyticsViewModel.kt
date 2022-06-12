@@ -13,9 +13,7 @@ import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 class AnalyticsViewModel @Inject constructor(
-    private val getAllDatabase : GetAllDataListUseCase,
     private val getMonth : GetMonthListUseCase,
-    private val getTypeUseCase: GetTypeUseCase
 ) : ViewModel() {
 
     private var date = LocalDate.now()

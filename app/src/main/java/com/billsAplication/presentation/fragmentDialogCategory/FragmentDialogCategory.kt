@@ -117,7 +117,7 @@ class FragmentDialogCategory : DialogFragment() {
 
         viewModel.getCategoryType()
 
-        viewModel.list.observe(requireActivity()){
+        viewModel.list.observe(viewLifecycleOwner){
             dialogAdapter.submitList(it.toMutableList())
         }
 

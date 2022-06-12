@@ -203,7 +203,7 @@ class BillsListFragment : Fragment() {
         listCategory.add(NONE) //Default value without it doesn't work
 
         //create Category List
-        viewModel.listCategory.observe(requireActivity()) { list ->
+        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
             //Because Observer in ViewModel, and it doesn't destroy.
             //According that we add items again
             if(listCategory.isNotEmpty()){
@@ -370,21 +370,21 @@ class BillsListFragment : Fragment() {
 
     private fun titleAmount() {
         //Set title Total
-        titleTotal.observe(requireActivity()) {
+        titleTotal.observe(viewLifecycleOwner) {
             if (_binding != null) {
                 binding.tvTotalNum.text = "%,.2f".format(it)
                 resizeText()
             }
         }
         //Set title Expense
-        titleExpense.observe(requireActivity()) {
+        titleExpense.observe(viewLifecycleOwner) {
             if (_binding != null) {
                 binding.tvExpenseNum.text = "%,.2f".format(it)
                 resizeText()
             }
         }
         //Set title Income
-        titleIncome.observe(requireActivity()) {
+        titleIncome.observe(viewLifecycleOwner) {
             if (_binding != null) {
                 binding.tvIncomeNum.text = "%,.2f".format(it)
                 resizeText()
@@ -411,7 +411,7 @@ class BillsListFragment : Fragment() {
             invisibilityFilterCard()
         }
         //Highlight item
-        billAdapter.isHighlight.observe(requireActivity()) {
+        billAdapter.isHighlight.observe(viewLifecycleOwner) {
             deleteItem = it
             if (it) {
                 deleteItem = it
@@ -439,7 +439,7 @@ class BillsListFragment : Fragment() {
         viewModel.list.removeObservers(this)
         //set a new list
         viewModel.getMonth(month)
-        viewModel.list.observe(requireActivity()) {
+        viewModel.list.observe(viewLifecycleOwner) {
             //Set list to Adapter
             billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
             //Create amount for title amountTextView

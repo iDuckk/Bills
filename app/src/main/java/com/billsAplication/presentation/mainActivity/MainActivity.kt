@@ -16,6 +16,13 @@ import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+/*
+    TYPE_EXPENSES = 0
+    TYPE_INCOME = 1
+    TYPE_CATEGORY = 2
+    TYPE_NOTE = 3
+ */
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,17 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         initBottomNavigation()
 
-//    val repo = BillsListRepositoryImpl(application)
-//    val item : BillsItem
-//    item = BillsItem( 0, 0, "June", "23.06.2022", "13:15", "Food",100.0, "Lenta", "0", "0")
-//        CoroutineScope(IO).launch {
-//            repo.addItem(item)
-            //repo.deleteItem(BillsItem( 112, 2, "3", "1", "2", "3",1.0, "2", "3", "1"))
-//        }
-//        val ITEMS : LiveData<List<BillsItem>> = repo.getAllDataList()
-//        ITEMS.observe(this) {
-//            Log.d("TAG", " MainActivity: $it")
-//        }
     }
 
     fun initBottomNavigation(){

@@ -86,7 +86,7 @@ class BookmarksFragment : Fragment() {
 
         initRecView()
 
-        viewModel.list.observe(requireActivity()){
+        viewModel.list.observe(viewLifecycleOwner){
             bookmarkAdapter.submitList(it)
         }
 
@@ -114,7 +114,7 @@ class BookmarksFragment : Fragment() {
             listDeleteItems = it
         }
         //Highlight item
-        bookmarkAdapter.isHighlight.observe(requireActivity()) {
+        bookmarkAdapter.isHighlight.observe(viewLifecycleOwner) {
             deleteItem = it
             if (it) {
                 deleteItem = it

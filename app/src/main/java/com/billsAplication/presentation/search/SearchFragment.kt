@@ -50,7 +50,6 @@ class SearchFragment : Fragment() {
     lateinit var billAdapter: BillsAdapter
 
     private val bundle = Bundle()
-    private val TYPE_CATEGORY = 2
     private val UPDATE_TYPE_SEARCH = 103
     private val BILL_ITEM_KEY = "bill_item_key"
     private val ADD_BILL_KEY = "add_bill_key"
@@ -61,6 +60,7 @@ class SearchFragment : Fragment() {
     private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+    private val TYPE_CATEGORY = 2
     private val listNote: ArrayList<String> = ArrayList()
     private val EMPTY_STRING = ""
     private val KEY_MONTH_LIST_FRAGMENT = "key_month_from_fragment"
@@ -125,6 +125,7 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
+            //TODO Exception "100.8" String is not correct
 
 //            setAmountBar(list)
 
@@ -527,7 +528,7 @@ class SearchFragment : Fragment() {
             setViewsVisibility(false)
         }
         //Highlight item
-        billAdapter.isHighlight.observe(requireActivity()) {
+        billAdapter.isHighlight.observe(viewLifecycleOwner) {
             deleteItem = it
             if (it) {
                 deleteItem = it

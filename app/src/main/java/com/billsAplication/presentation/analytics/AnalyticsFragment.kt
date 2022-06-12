@@ -119,7 +119,7 @@ class AnalyticsFragment : Fragment() {
         //if list has old values
         listSet.clear()
         wholeList.clear()
-        viewModel.list.observe(requireActivity()) { item ->
+        viewModel.list.observe(viewLifecycleOwner) { item ->
             wholeList.addAll(item)
             //create Lists
             viewModel.list.value?.forEach {
@@ -137,8 +137,7 @@ class AnalyticsFragment : Fragment() {
                 }
             }
             //Set data for Pie
-            if (_binding != null)
-                setDataToPieChart()
+        setDataToPieChart()
         }
         viewModel.list.removeObservers(this)
     }
