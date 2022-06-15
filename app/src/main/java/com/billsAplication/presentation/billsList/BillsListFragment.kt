@@ -109,7 +109,7 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-//TODO Когда нажимаешь след или пред месяц, потом жмешь текущий меся и при пререходе обратно в этот фрагмент, возвращается не тот месяц.
+
         setNewList(binding.tvMonth.text.toString())
     }
 
@@ -329,7 +329,7 @@ class BillsListFragment : Fragment() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
             if(visibilityFilterCard) {
-                //Cause without remove List, it scrolls down to hte end
+                //Cause without remove List, it scrolls down to the end
                 billAdapter.submitList(null)
                 billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date + item.time) }?.toList())
                 invisibilityFilterCard()
@@ -344,7 +344,7 @@ class BillsListFragment : Fragment() {
         //Set month`s text in bar
         binding.tvMonth.text = viewModel.currentDate
         binding.tvMonth.setOnClickListener {
-            viewModel.currentDate
+            viewModel.currentDate = viewModel.currentDate()
             binding.tvMonth.text = viewModel.currentDate()
             viewModel.defaultMonth()
             invisibilityFilterCard()

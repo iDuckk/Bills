@@ -20,6 +20,8 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
     private val TYPE_CATEGORY = 2
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+    private val TYPE_NOTE = 3
+
 
     private var isClicked = false //If selected item for adapter
 
@@ -61,7 +63,7 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
                 holderBill.im_ifExist.visibility = View.VISIBLE
         else holderBill.im_ifExist.visibility = View.GONE
 
-        if(item.type != TYPE_CATEGORY) {
+        if(item.type != TYPE_CATEGORY && item.type != TYPE_NOTE) {
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2)
             holderBill.tv_Time.text = item.time
@@ -76,7 +78,7 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
                 holderBill.tv_Item_Expense.visibility = View.VISIBLE
                 holderBill.tv_Item_Expense.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
                 holderBill.tv_Item_Income.visibility = View.GONE
-            }else Log.e("TAG", "BillsAdapter: Not found type of bill")
+            }else Log.e("TAG", holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType))
         }
 
         holderBill.itemView.setOnClickListener {

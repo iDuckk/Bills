@@ -54,5 +54,6 @@
     <string name="type_note">Type note...</string>
     <string name="b_delete_note">delete</string>
     <string name="b_save_note">save</string>
+    <string name="attention_billsAdapter_notfoundType">BillsAdapter: Not found type of bill</string>
 
 </resources>
