@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -94,6 +96,8 @@ class BillsListFragment : Fragment() {
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
 
+        onBackPressed()
+
         titleAmount()
 
         titleBar()
@@ -105,8 +109,19 @@ class BillsListFragment : Fragment() {
         searchButton()
 
         initRecView()
-
+//TODO Когда нажимаешь след или пред месяц, потом жмешь текущий меся и при пререходе обратно в этот фрагмент, возвращается не тот месяц.
         setNewList(binding.tvMonth.text.toString())
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    //Do nothing
+                }
+            }
+        )
     }
 
     private fun searchButton(){

@@ -73,6 +73,7 @@ class AddBillFragment : Fragment() {
     private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSE = 0
     private val TYPE_INCOME = 1
+    private val TYPE_NOTE = 3
     private val DATE = 0
     private val TIME = 1
     private val CATEGORY = 2
@@ -641,7 +642,7 @@ class AddBillFragment : Fragment() {
             viewModel.getAll()
             viewModel.list.observe(viewLifecycleOwner) { item ->
                 item.forEach {
-                    if(it.note != EMPTY_STRING)
+                    if(it.note != EMPTY_STRING && it.type != TYPE_NOTE)
                     list.add(it.note)
                 }
                 val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
