@@ -112,27 +112,26 @@ class SearchFragment : Fragment() {
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.GONE
 
-        viewModel.list.observe(requireActivity()) { list ->
+        viewModel.list.observe(viewLifecycleOwner) { list ->
 
             list.forEach {
                 //Create list of Notes
                 if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
                     listNote.add(it.note)
                 //Create Category list
-                if (it.type == TYPE_CATEGORY)
+                if (it.type == TYPE_CATEGORY && it.type != TYPE_NOTE)
                     categoryList += it.category
                 //Create full list
-                if (it.type != TYPE_CATEGORY)
+                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
                     allItemList.add(it)
                 //Create Month list
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
-            //TODO Exception "100.8" String is not correct
-            //TODO Fix autoComplete repeating words
+
+            initAutoCompleteEditText()
 
 //            setAmountBar(list)
-
 //            setListAdapter(allItemList)
         }
 
@@ -145,8 +144,6 @@ class SearchFragment : Fragment() {
         initRecView()
 
         buttonDelete()
-
-        initAutoCompleteEditText()
 
     }
 
@@ -445,16 +442,16 @@ class SearchFragment : Fragment() {
         // List Min View
         if (binding.etSearchAmountMin.text!!.isNotEmpty())
             allItemList.forEach { item ->
-                if (item.amount.replace(",", "").toInt()
-                    < binding.etSearchAmountMin.text.toString().replace(",", "").toInt()
+                if (item.amount.replace(",", "")
+                    < binding.etSearchAmountMin.text.toString().replace(",", "")
                 )
                     list.remove(item)
             }
         // List Max View
         if (binding.etSearchAmountMax.text!!.isNotEmpty())
             allItemList.forEach { item ->
-                if (item.amount.replace(",", "").toInt()
-                    > binding.etSearchAmountMax.text.toString().replace(",", "").toInt()
+                if (item.amount.replace(",", "")
+                    > binding.etSearchAmountMax.text.toString().replace(",", "")
                 )
                     list.remove(item)
             }
@@ -600,7 +597,7 @@ class SearchFragment : Fragment() {
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_list_item_1,
-            listNote
+            listNote.distinct()
         )
         binding.edSearchNote.setAdapter(adapter)
     }
