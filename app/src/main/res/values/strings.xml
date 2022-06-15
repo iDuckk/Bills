@@ -55,4 +55,7 @@
     <string name="add_note_with_microphone">Add note with microphone</string>
     <string name="choose_type_of_add_note">Choose type of add note</string>
     <string name="add_note_with_keyboard">add note with keyboard</string>
+    <string name="type_note">Type note...</string>
+    <string name="b_delete_note">delete</string>
+    <string name="b_save_note">save</string>
 </resources>

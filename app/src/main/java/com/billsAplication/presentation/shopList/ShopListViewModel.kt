@@ -9,9 +9,7 @@ import com.billsAplication.domain.billsUseCases.UpdateBillItemUseCase
 import com.billsAplication.domain.model.BillsItem
 import javax.inject.Inject
 
-class NoteViewModel @Inject constructor(
-    private val update: UpdateBillItemUseCase,
-    private val delete : DeleteBillItemUseCase,
+class ShopListViewModel @Inject constructor(
     private val getTypeList: GetTypeUseCase
 ) : ViewModel() {
 
@@ -25,14 +23,6 @@ class NoteViewModel @Inject constructor(
 
     fun getNoteList() {
         list =  getTypeList.invoke(TYPE_NOTE)
-    }
-
-    suspend fun updateNotesList(billItem : BillsItem){
-        update.invoke(billItem)
-    }
-
-    suspend fun delete(item: BillsItem){
-        delete.invoke(item)
     }
 
 }

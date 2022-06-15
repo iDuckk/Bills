@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,7 @@ import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.math.log
 
 
 class SearchFragment : Fragment() {
@@ -61,6 +63,7 @@ class SearchFragment : Fragment() {
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_CATEGORY = 2
+    private val TYPE_NOTE = 3
     private val listNote: ArrayList<String> = ArrayList()
     private val EMPTY_STRING = ""
     private val KEY_MONTH_LIST_FRAGMENT = "key_month_from_fragment"
@@ -113,7 +116,7 @@ class SearchFragment : Fragment() {
 
             list.forEach {
                 //Create list of Notes
-                if (it.note != EMPTY_STRING)
+                if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
                     listNote.add(it.note)
                 //Create Category list
                 if (it.type == TYPE_CATEGORY)
@@ -126,6 +129,7 @@ class SearchFragment : Fragment() {
                     monthList += it.month
             }
             //TODO Exception "100.8" String is not correct
+            //TODO Fix autoComplete repeating words
 
 //            setAmountBar(list)
 

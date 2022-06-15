@@ -33,7 +33,20 @@
         android:id="@+id/shopListFragment"
         android:name="com.billsAplication.presentation.shopList.ShopListFragment"
         android:label="fragment_shop_list"
-        tools:layout="@layout/fragment_shop_list" />
+        tools:layout="@layout/fragment_shop_list" >
+        <action
+            android:id="@+id/action_shopListFragment_to_addNoteFragment"
+            app:destination="@id/addNoteFragment" />
+        <argument
+            android:name="mode"
+            app:argType="integer" />
+        <argument
+            android:name="item_note"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_shopListFragment_to_billsListFragment"
+            app:destination="@id/billsListFragment" />
+    </fragment>
     <fragment
         android:id="@+id/analyticsFragment"
         android:name="com.billsAplication.presentation.analytics.AnalyticsFragment"
@@ -99,5 +112,14 @@
             app:argType="com.billsAplication.domain.model.BillsItem"
             app:nullable="true"
             android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/addNoteFragment"
+        android:name="com.billsAplication.presentation.addNote.AddNoteFragment"
+        android:label="fragment_add_note"
+        tools:layout="@layout/fragment_add_note" >
+        <action
+            android:id="@+id/action_addNoteFragment_to_shopListFragment"
+            app:destination="@id/shopListFragment" />
     </fragment>
 </navigation>
