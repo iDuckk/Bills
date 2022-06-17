@@ -40,10 +40,10 @@
         android:clickable="true"
         android:contentDescription="@string/add_note_with_microphone"
         android:src="@drawable/ic_mic"
-        app:layout_constraintBottom_toTopOf="@id/button_addNote"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="25sp"
-        android:layout_marginBottom="5sp"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_addNote"
+        android:layout_marginEnd="5sp"
+        android:layout_marginBottom="24sp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_addNote_keyboard"
@@ -52,9 +52,9 @@
         android:clickable="true"
         android:contentDescription="@string/add_note_with_keyboard"
         android:src="@drawable/ic_keyboard"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/button_addNote"
-        android:layout_marginEnd="5sp"
-        android:layout_marginBottom="24sp"/>
+        app:layout_constraintBottom_toTopOf="@id/button_addNote"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="25sp"
+        android:layout_marginBottom="5sp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
