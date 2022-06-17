@@ -1,30 +1,43 @@
 package com.billsAplication.presentation.shopList
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
-import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
-import com.billsAplication.presentation.addNote.AddNoteFragment
+import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.mToast
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import java.util.*
 import javax.inject.Inject
 
 
@@ -39,12 +52,19 @@ class ShopListFragment : Fragment() {
     @Inject
     lateinit var noteAdapter: ShopListAdapter
 
+    @Inject
+    lateinit var mToast: mToast
 
     private val TYPE_NOTE = 3
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
     private val CREATE_TYPE = 10
     private val UPDATE_TYPE = 20
+    private val RECORD_AOUDIO_REQUEST = 110
+    private val COLOR_NOTE_PRIMARY = ""
+    lateinit var dialogRecording: AlertDialog
+
+    private var speechRecognizer: SpeechRecognizer? = null
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -53,6 +73,7 @@ class ShopListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
+        dialogRecording()
     }
 
     override fun onCreateView(
@@ -73,10 +94,85 @@ class ShopListFragment : Fragment() {
 
         buttonKeyboard()
 
+        buttonSpeechToText()
+
         initRecView()
 
         viewModel.list.observe(viewLifecycleOwner) {
             noteAdapter.submitList(it.toList())
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("ClickableViewAccessibility")
+    private fun buttonSpeechToText() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext());
+
+        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        }
+
+        speechRecognizerListener()
+
+        binding.buttonAddNoteMicro.setOnTouchListener { view, motionEvent ->
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+                //Stop recording
+                speechRecognizer?.stopListening()
+                //ColorState of buttons
+                setEnabledViewsFOrRec(true)
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                //Get permission
+                recordPermission()
+                //ColorState of buttons
+                setEnabledViewsFOrRec(false)
+                //Start recording
+                speechRecognizer?.startListening(speechRecognizerIntent)
+                return@setOnTouchListener true
+            }
+            false
+        }
+    }
+
+    private fun speechRecognizerListener() {
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(bundle: Bundle) {}
+            override fun onBeginningOfSpeech() {
+//                Log.d("TAG", "Beginning")
+            }
+
+            override fun onRmsChanged(v: Float) {}
+            override fun onBufferReceived(bytes: ByteArray) {}
+            override fun onEndOfSpeech() {}
+            override fun onError(i: Int) {}
+            override fun onResults(bundle: Bundle) {
+                val data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+//                Log.d("TAG", data!![0])
+                CoroutineScope(Main).launch {
+                    viewModel.add(data!![0], COLOR_NOTE_PRIMARY)
+
+                }
+            }
+
+            override fun onPartialResults(bundle: Bundle) {}
+            override fun onEvent(i: Int, bundle: Bundle) {}
+        })
+    }
+
+    private fun recordPermission(){
+        if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            checkPermission()
+        }
+    }
+
+    private fun checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(android.Manifest.permission.RECORD_AUDIO),
+                RECORD_AOUDIO_REQUEST
+            )
         }
     }
 
@@ -142,7 +238,6 @@ class ShopListFragment : Fragment() {
                         requireContext()
                             .getColorFromAttr(com.google.android.material.R.attr.colorSecondary)
                     )
-
                 binding.buttonAddNoteMicro.visibility = View.GONE
                 binding.buttonAddNoteKeyboard.visibility = View.GONE
                 binding.buttonAddNote.size = FloatingActionButton.SIZE_AUTO
@@ -151,6 +246,41 @@ class ShopListFragment : Fragment() {
             }
 
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun setEnabledViewsFOrRec(enabled: Boolean){
+        if(enabled){
+            val colorState = ColorStateList
+                .valueOf(
+                    requireContext()
+                        .getColorFromAttr(com.google.android.material.R.attr.colorSecondary)
+                )
+            binding.buttonAddNote.visibility = View.VISIBLE
+            binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
+            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .visibility = View.VISIBLE
+            binding.buttonAddNoteMicro.backgroundTintList = colorState
+            dialogRecording.hide()
+        }else{
+            val colorState = ColorStateList
+                .valueOf(
+                    requireContext().getColor(R.color.default_background)
+                    )
+            binding.buttonAddNote.visibility = View.INVISIBLE
+            binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
+            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .visibility = View.INVISIBLE
+            binding.buttonAddNoteMicro.backgroundTintList = colorState
+            dialogRecording.show()
+        }
+    }
+
+    private fun dialogRecording(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        dialogRecording =  builder
+            .setMessage(getString(R.string.title_dialog_rec_listener))
+            .create()
     }
 
     @ColorInt
@@ -165,6 +295,7 @@ class ShopListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        speechRecognizer?.destroy()
         _binding = null
     }
 }

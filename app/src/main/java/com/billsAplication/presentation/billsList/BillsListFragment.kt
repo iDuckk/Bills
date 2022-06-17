@@ -91,7 +91,10 @@ class BillsListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+//TODO ПОсле нажатия на куррент месяц в сёрч не появляется центральный круг
+//TODO ОнбэкПресс AddBillIten
+//TODO Стрелки мясяца слишеоб близки
+        //TODO popBackStack
         (activity as MainActivity)
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
@@ -118,7 +121,7 @@ class BillsListFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    //Do nothing
+                    requireActivity().supportFragmentManager.clearBackStack("")
                 }
             }
         )

@@ -33,7 +33,6 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.ImageItem
-import com.billsAplication.presentation.adapter.*
 import com.billsAplication.presentation.adapter.image.ImageAdapter
 import com.billsAplication.presentation.adapter.image.onClickListenerDeleteImage
 import com.billsAplication.presentation.adapter.image.onClickListenerItem
@@ -144,7 +143,9 @@ class AddBillFragment : Fragment() {
         initAutoCompleteEditText()
 
         imageListeners()
-
+//TODO если камера запущена , не запускать еще
+        //TODO растянуто фото
+        //TODO Вылеет когда с фото добавляешь
         initRecViewImage()
 
         textViewListeners()

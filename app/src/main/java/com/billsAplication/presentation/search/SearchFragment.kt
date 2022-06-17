@@ -95,7 +95,7 @@ class SearchFragment : Fragment() {
         component.inject(this)
         super.onCreate(savedInstanceState)
     }
-
+//TODO Сделать категорию достать из общего кол-во, а не только категорий
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
