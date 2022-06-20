@@ -120,11 +120,12 @@ class AnalyticsFragment : Fragment() {
         listSet.clear()
         wholeList.clear()
         viewModel.list.observe(viewLifecycleOwner) { item ->
-            wholeList.addAll(item)
             //create Lists
             viewModel.list.value?.forEach {
                 //Get list of Category
                 if(it.type == type && it.category.isNotEmpty()) {
+                    //list for chosen Items
+                    wholeList.add(it)
                     //total amount
                     wholeAmountPie += BigDecimal(it.amount.replace(",", ""))
 
@@ -175,11 +176,11 @@ class AnalyticsFragment : Fragment() {
             binding.tvIncome.setBackgroundResource(R.drawable.textview_border_income)
             binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
             binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
-            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
+//            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
             binding.tvExpense.isEnabled = false
             binding.tvIncome.isEnabled = true
             //set centre title of pieChart
-            binding.pieChart.centerText = getString(R.string.bill_list_expense)
+//            binding.pieChart.centerText = getString(R.string.bill_list_expense)
             setListMonth()
         }
 
@@ -189,11 +190,11 @@ class AnalyticsFragment : Fragment() {
             binding.tvIncome.setBackgroundResource(R.drawable.textview_fullbackground_income)
             binding.tvIncome.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
             binding.tvExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
-            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_income))
+//            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_income))
             binding.tvExpense.isEnabled = true
             binding.tvIncome.isEnabled = false
             //set centre title of pieChart
-            binding.pieChart.centerText = getString(R.string.bills_list_income)
+//            binding.pieChart.centerText = getString(R.string.bills_list_income)
             setListMonth()
         }
 
@@ -202,10 +203,30 @@ class AnalyticsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setListMonth() {
         billAdapter.submitList(null)
-        if (!binding.tvExpense.isEnabled)
+        if (!binding.tvExpense.isEnabled) {
             getList(TYPE_EXPENSES)
-        else
+            if(wholeList.isNotEmpty()) {
+                binding.pieChart.setHoleColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_expense
+                    )
+                )
+                binding.pieChart.centerText = getString(R.string.bill_list_expense)
+            }
+        }
+        else {
             getList(TYPE_INCOME)
+            if(wholeList.isNotEmpty()) {
+                binding.pieChart.setHoleColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_income
+                    )
+                )
+                binding.pieChart.centerText = getString(R.string.bills_list_income)
+            }
+        }
     }
     @RequiresApi(Build.VERSION_CODES.O)
     private fun initPieChart() {

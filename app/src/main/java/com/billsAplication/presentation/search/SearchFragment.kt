@@ -95,7 +95,7 @@ class SearchFragment : Fragment() {
         component.inject(this)
         super.onCreate(savedInstanceState)
     }
-//TODO Сделать категорию достать из общего кол-во, а не только категорий
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -119,7 +119,7 @@ class SearchFragment : Fragment() {
                 if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
                     listNote.add(it.note)
                 //Create Category list
-                if (it.type == TYPE_CATEGORY && it.type != TYPE_NOTE)
+                if (it.category != EMPTY_STRING && it.type != TYPE_NOTE)
                     categoryList += it.category
                 //Create full list
                 if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
@@ -129,6 +129,7 @@ class SearchFragment : Fragment() {
                     monthList += it.month
             }
 
+            categoryList = categoryList.distinct().toTypedArray()
             initAutoCompleteEditText()
 
 //            setAmountBar(list)
