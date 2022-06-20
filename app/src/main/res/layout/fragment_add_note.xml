@@ -125,93 +125,91 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layOutNote"
-        android:layout_width="match_parent"
-        android:layout_height="0sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewColorNote">
-
-        <ScrollView
-            android:id="@+id/scrollNote"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layOutNote"
             android:layout_width="match_parent"
             android:layout_height="0sp"
-            android:layout_marginBottom="10sp"
-            android:fadeScrollbars="false"
-            app:layout_constraintBottom_toTopOf="@+id/b_cancel_note"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/cardViewColorNote">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <ScrollView
+                android:id="@+id/scrollNote"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="0sp"
+                android:layout_marginBottom="10sp"
+                android:fadeScrollbars="false"
+                app:layout_constraintBottom_toTopOf="@+id/b_cancel_note"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <EditText
-                    android:id="@+id/et_addNote"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5sp"
-                    android:layout_marginEnd="5sp"
-                    android:textColorHighlight="@color/default_background"
-                    android:backgroundTint="@color/default_background"
-                    android:hint="@string/type_note"
-                    android:inputType="textMultiLine"
-                    android:minHeight="48dp"
-                    android:scrollbarSize="40sp"
-                    android:textCursorDrawable="@drawable/color_cursor"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_height="wrap_content">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
+                    <EditText
+                        android:id="@+id/et_addNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5sp"
+                        android:layout_marginEnd="5sp"
+                        android:backgroundTint="@color/default_background"
+                        android:hint="@string/type_note"
+                        android:inputType="textMultiLine"
+                        android:minHeight="48dp"
+                        android:scrollbarSize="40sp"
+                        android:textColorHighlight="@color/default_background"
+                        android:textCursorDrawable="@drawable/color_cursor"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/b_add_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/text_income"
-            android:text="@string/b_save_note"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/b_cancel_note"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/b_cancel_note" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </ScrollView>
 
-        <Button
-            android:id="@+id/b_cancel_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="43dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/default_background"
-            android:text="@string/search_cancel"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/b_delete_note"
-            app:layout_constraintStart_toEndOf="@+id/b_add_note"
-            app:layout_constraintTop_toBottomOf="@+id/scrollNote" />
+            <Button
+                android:id="@+id/b_add_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/text_income"
+                android:text="@string/b_save_note"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/b_cancel_note"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/b_cancel_note" />
 
-        <Button
-            android:id="@+id/b_delete_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="43dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/text_expense"
-            android:text="@string/b_delete_note"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/b_cancel_note"
-            app:layout_constraintTop_toTopOf="@+id/b_cancel_note" />
+            <Button
+                android:id="@+id/b_cancel_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/default_background"
+                android:text="@string/search_cancel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/b_delete_note"
+                app:layout_constraintStart_toEndOf="@+id/b_add_note"
+                app:layout_constraintTop_toBottomOf="@+id/scrollNote" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <Button
+                android:id="@+id/b_delete_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/text_expense"
+                android:text="@string/b_delete_note"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/b_cancel_note"
+                app:layout_constraintTop_toTopOf="@+id/b_cancel_note" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

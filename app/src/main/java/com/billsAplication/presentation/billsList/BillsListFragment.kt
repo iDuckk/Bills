@@ -91,10 +91,7 @@ class BillsListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//TODO ПОсле нажатия на куррент месяц в сёрч не появляется центральный круг
-//TODO ОнбэкПресс AddBillIten
-//TODO Стрелки мясяца слишеоб близки
-        //TODO popBackStack
+
         (activity as MainActivity)
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
@@ -252,10 +249,10 @@ class BillsListFragment : Fragment() {
                 view.setTextSize(TypedValue.COMPLEX_UNIT_SP,16F)
                 // set spinner item padding
                 view.setPadding(
-                    0, // left
+                    5.toDp(context), // left
                     3.toDp(context), // top
-                    0, // right
-                    0 // bottom
+                    5.toDp(context), // right
+                    3.toDp(context) // bottom
                 )
                 return view
             }

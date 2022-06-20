@@ -45,7 +45,7 @@
 
             <TextView
                 android:id="@+id/tv_month_analytics"
-                android:layout_width="150sp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/month"
