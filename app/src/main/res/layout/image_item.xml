@@ -7,34 +7,48 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/im_photoPreview"
+        app:layout_constraintEnd_toEndOf="@+id/im_photoPreview"
+        app:layout_constraintTop_toTopOf="@+id/im_photoPreview"
+        android:background="@color/background_cv_filter"
+        android:elevation="2sp">
+
+        <ImageView
+            android:id="@+id/im_delete"
+            android:layout_width="25sp"
+            android:layout_height="25sp"
+            android:layout_marginEnd="3sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_close"/>
+
+        <ImageView
+            android:id="@+id/im_save"
+            android:layout_width="25sp"
+            android:layout_height="25sp"
+            android:layout_marginStart="3sp"
+            android:src="@drawable/ic_save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/im_photoPreview"
             android:layout_width="120sp"
-            android:layout_height="wrap_content"
+            android:layout_height="180sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:src="@drawable/ic_add_a_photo"/>
-
-        <ImageView
-            android:id="@+id/im_delete"
-            android:layout_width="20sp"
-            android:layout_height="20sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:src="@drawable/ic_close"/>
-
-        <ImageView
-            android:id="@+id/im_save"
-            android:layout_width="20sp"
-            android:layout_height="20sp"
-            android:src="@drawable/ic_save"
-            app:layout_constraintBottom_toBottomOf="@+id/im_delete"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/im_delete" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

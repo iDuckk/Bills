@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.adapter.image
 
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.databinding.ImageItemBinding
 import com.billsAplication.domain.model.ImageItem
+import com.bumptech.glide.Glide
 import java.util.*
 import javax.inject.Inject
 
@@ -26,6 +28,7 @@ class ImageAdapter @Inject constructor(): ListAdapter<ImageItem, ImageViewHolder
         )
     }
 
+    @SuppressLint("NewApi")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val item = getItem(position)
@@ -43,8 +46,11 @@ class ImageAdapter @Inject constructor(): ListAdapter<ImageItem, ImageViewHolder
         }
         //Decode String to Bytes
         val decodeImage: ByteArray = Base64.getDecoder().decode(item.stringImage)
-
-        holder.im_preview.setImageBitmap(BitmapFactory.decodeByteArray(decodeImage,0, decodeImage.size))
+//        holder.im_preview.setImageBitmap(BitmapFactory.decodeByteArray(decodeImage,0, decodeImage.size))
+        Glide
+            .with(holder.itemView.context)
+            .load(decodeImage)
+            .into(holder.im_preview)
     }
 
 }

@@ -56,5 +56,9 @@
     <string name="b_save_note">save</string>
     <string name="attention_billsAdapter_notfoundType">BillsAdapter: Not found type of bill</string>
     <string name="title_dialog_rec_listener">Listening...</string>
+    <string name="dialog_title_save_image">Save image</string>
+    <string name="dialog_message_save_dialog">Do you want to Save image?</string>
+    <string name="dialog_title_delete_image">Delete Image</string>
+    <string name="dialog_message_delete_dialog">Do you want to Delete image?</string>
 
 </resources>
