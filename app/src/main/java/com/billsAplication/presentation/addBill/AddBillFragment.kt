@@ -3,27 +3,35 @@ package com.billsAplication.presentation.addBill
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
+import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
@@ -39,16 +47,16 @@ import com.billsAplication.presentation.adapter.image.onClickListenerItem
 import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.mainActivity.MainActivity
-import com.billsAplication.utils.CreateImageFile
-import com.billsAplication.utils.DeleteFIle
-import com.billsAplication.utils.LoadImageFromGallery
-import com.billsAplication.utils.mToast
+import com.billsAplication.utils.*
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.lang.Float.max
+import java.lang.Float.min
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -62,6 +70,7 @@ class AddBillFragment : Fragment() {
     private var _binding: FragmentAddBillBinding? = null
     private val binding : FragmentAddBillBinding get() = _binding!!
 
+    private val REQUEST_WRITE_EX_STORAGE_PERMISSION = 122
     private val REQUEST_CODE_PERMISSIONS = 100
     private val REQUEST_IMAGE_CAPTURE = 102
     private val PICK_IMAGE = 109
@@ -81,6 +90,9 @@ class AddBillFragment : Fragment() {
     private val DESCRIPTION = 5
     private val MAX_PHOTO = 5
     private val EMPTY_STRING = ""
+    private val widthPhoto = 480f
+    private val  heightPhoto = 640f
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -143,9 +155,7 @@ class AddBillFragment : Fragment() {
         initAutoCompleteEditText()
 
         imageListeners()
-//TODO если камера запущена , не запускать еще
-        //TODO растянуто фото
-        //TODO Вылеет когда с фото добавляешь
+        //TODO Zoom
         initRecViewImage()
 
         textViewListeners()
@@ -184,36 +194,29 @@ class AddBillFragment : Fragment() {
 
         }
         onClickListenerDeleteImage = {
-            imageList.remove(it)
-            imageAdapter.submitList(imageList.toMutableList())
-            //Check how many photo we added
-            if(countPhoto == MAX_PHOTO){
-                binding.imAddPhoto.isEnabled = true
-                binding.imAttach.isEnabled = true
-            }
-            countPhoto--
-            //Set RecView invisible
-            if(countPhoto == 0)
-            binding.recViewPhoto.visibility = View.GONE
-            //if type is Edit
-            binding.bAddSave.isEnabled = true
+            dialogDeleteImage(it)
         }
 
         onClickListenerSaveImage = {
-            //Decode String to Bytes
-            val byteImage = Base64.getDecoder().decode(it.stringImage)
-            //Save image on storage
-            MediaStore.Images.Media.insertImage(
-                requireActivity().contentResolver,
-                BitmapFactory.decodeByteArray(byteImage,0, byteImage.size), //To BitMap
-                SimpleDateFormat("yyyyMMdd").format(Date()) + "_${it.id}",
-                null
-            )
+            storagePermission(it)
         }
 
         onClickListenerItem = {
             onCreateDialog(it)!!.show()
         }
+    }
+
+    private fun deletePhoto(it: ImageItem) {
+        imageList.remove(it)
+        imageAdapter.submitList(imageList.toMutableList())
+        countPhoto--
+        //Check how many photo we added
+        checkAmountPhoto()
+        //Set RecView invisible
+        if (countPhoto == 0)
+            binding.recViewPhoto.visibility = View.GONE
+        //if type is Edit
+        binding.bAddSave.isEnabled = true
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -471,8 +474,10 @@ class AddBillFragment : Fragment() {
             )
         )
         if (imageList.isNotEmpty()) {
-            binding.recViewPhoto.visibility = View.VISIBLE
             imageAdapter.submitList(imageList.toMutableList())
+            binding.recViewPhoto.visibility = View.VISIBLE
+
+            checkAmountPhoto()
         }
     }
 
@@ -655,6 +660,91 @@ class AddBillFragment : Fragment() {
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun storagePermission(it: ImageItem){
+        if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            checkStoragePermission()
+        }else{
+            dialogSaveImage(it)
+        }
+    }
+
+    private fun checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_EX_STORAGE_PERMISSION
+            )
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun saveImage(it: ImageItem){
+        val resolver = requireActivity().contentResolver
+        val c = Calendar.getInstance()
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(c.time)
+        //Decode String to Bytes
+        val byteImage = Base64.getDecoder().decode(it.stringImage)
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_${timeStamp}_${c.timeInMillis}")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/BillsApplication")
+            }
+        }
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        if (uri != null) {
+            resolver.openOutputStream(uri).use {
+                it?.write(byteImage)
+                it?.flush()
+                it?.close()
+            }
+        }
+//        Save image on storage
+//        MediaStore.Images.Media.insertImage(
+//            resolver,
+//            BitmapFactory.decodeByteArray(byteImage,0, byteImage.size), //To BitMap
+//            SimpleDateFormat("yyyyMMdd").format(Date()) + "_${it.id}",
+//            null
+//        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dialogSaveImage(it: ImageItem){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog =  builder
+            .setTitle(getString(R.string.dialog_title_save_image))
+//            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setMessage(getString(R.string.dialog_message_save_dialog))
+            .setPositiveButton(getString(R.string.b_save_note)){
+                    dialog, id ->
+                saveImage(it)
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dialogDeleteImage(it: ImageItem){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog =  builder
+            .setTitle(getString(R.string.dialog_title_delete_image))
+//            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setMessage(getString(R.string.dialog_message_delete_dialog))
+            .setPositiveButton(getString(R.string.b_delete_note)){
+                    dialog, id ->
+                deletePhoto(it)
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun cameraPermission(){
 
         when{
@@ -670,6 +760,7 @@ class AddBillFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         // Create the File where the photo should go
@@ -710,10 +801,18 @@ class AddBillFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
+            val loadIm = loadImage(data?.data)!!.toByteArray()
+            //Save image as a Bitmap
+            val image = BitmapFactory.decodeByteArray(loadIm,0, loadIm.size)
+            //New scale of image
+            val matrix = Matrix()
+            matrix.postScale(widthPhoto/image.width, heightPhoto/image.height)
+            val bitmap = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true )
             //Decode String to Bytes than Save image's bytes in array
-            imageList.add(ImageItem(
-                Base64.getEncoder().encodeToString(loadImage(data?.data)!!.toByteArray()),
-                ID_IMAGE))
+            imageList.add(ImageItem(Base64.getEncoder().encodeToString(bitmap.toByteArray()), ID_IMAGE))
+//            imageList.add(ImageItem(
+//                Base64.getEncoder().encodeToString(loadImage(data?.data)!!.toByteArray()),
+//                ID_IMAGE))
             ID_IMAGE++ // Amount of images
             //Set RecView visible
             binding.recViewPhoto.visibility = View.VISIBLE
@@ -724,7 +823,20 @@ class AddBillFragment : Fragment() {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             //Decode String to Bytes than Save image's bytes in array
-            imageList.add(ImageItem(Base64.getEncoder().encodeToString(photoFile!!.readBytes()), ID_IMAGE))
+//            imageList.add(ImageItem(Base64.getEncoder().encodeToString(photoFile!!.readBytes()), ID_IMAGE))
+//            ID_IMAGE++ // Amount of images
+            //Save image as a Bitmap
+//            val image = BitmapFactory.decodeByteArray(photoFile!!.readBytes(),0, photoFile!!.readBytes().size)
+            //Use loadImage class instead just "photoFile!!.readBytes()", cause in Samsung photo rotated...
+            val loadIm = loadImage(photoFile!!.toUri())!!.toByteArray()
+            val image = BitmapFactory.decodeByteArray(loadIm,0, loadIm.size)
+            //New scale of image
+            val matrix = Matrix()
+            matrix.postScale(widthPhoto/image.width, heightPhoto/image.height)
+            val bitmap = Bitmap.createBitmap(image, 0, 0, image.width, image.height, matrix, true )
+//            val bitmap = Bitmap.createScaledBitmap(image, 480, 640, false)
+            //Save image as a String
+            imageList.add(ImageItem(Base64.getEncoder().encodeToString(bitmap.toByteArray()), ID_IMAGE))
             ID_IMAGE++ // Amount of images
             //Set RecView visible
             binding.recViewPhoto.visibility = View.VISIBLE
@@ -738,29 +850,62 @@ class AddBillFragment : Fragment() {
         }
         //Check how many photo we added
         countPhoto++
-        if(countPhoto == MAX_PHOTO){
+        checkAmountPhoto()
+    }
+
+    private fun checkAmountPhoto() {
+        countPhoto = imageList.size
+        if (countPhoto == MAX_PHOTO) {
             binding.imAddPhoto.isEnabled = false
             binding.imAttach.isEnabled = false
+        } else {
+            binding.imAddPhoto.isEnabled = true
+            binding.imAttach.isEnabled = true
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.R)
     private fun onCreateDialog(item : ImageItem): Dialog? {
+        //Get bytes
         val byteImage = Base64.getDecoder().decode(item.stringImage)
-        val bMapScaled = Bitmap.createScaledBitmap(
-            BitmapFactory.decodeByteArray(byteImage,0, byteImage.size),
-            requireContext().display!!.width,
-            requireContext().display!!.height,
-            true)
-
-        val builder: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(activity,
-            android.R.style.Theme_Material_NoActionBar_TranslucentDecor)
+        //Create View of full Image layout
         val inflater = requireActivity().layoutInflater
         val view: View = inflater.inflate(R.layout.full_image_dialog, null)
+        //Create imageView
+        val imageView = view.findViewById<ImageView>(R.id.im_fullScreen)
+        //Create dialog
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity,
+            R.style.full_screen_dialog)
         builder.setView(view)
-        view.findViewById<ImageView>(R.id.im_fullScreen)
-            .setImageBitmap(bMapScaled)
-        return builder.create()
+        Glide
+            .with(requireContext())
+            .load(byteImage)
+            .override(requireContext().display!!.width, requireContext().display!!.height)
+            .fitCenter()
+            .into(imageView)
+        //Zooming image
+        scaleGestureDetector = ScaleGestureDetector(requireContext(), ScaleListener(imageView))
+        imageView.setOnTouchListener { view, motionEvent ->
+            scaleGestureDetector.onTouchEvent(motionEvent)
+            true
+        }
+
+        return builder.create().apply {
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.addFlags(FLAG_FULLSCREEN)
+        }
+    }
+    //Fun for zooming image
+    private inner class ScaleListener(val imageView: ImageView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        var scaleFactor = 1.0f
+        override fun onScale(scaleGestureDetector: ScaleGestureDetector): Boolean {
+            scaleFactor *= scaleGestureDetector.scaleFactor
+            scaleFactor = max(0.1f, min(scaleFactor, 10.0f))
+            imageView.scaleX = scaleFactor
+            imageView.scaleY = scaleFactor
+            return true
+        }
     }
     //Set expense type after join to fragment
     private fun setTypeExpense(){
