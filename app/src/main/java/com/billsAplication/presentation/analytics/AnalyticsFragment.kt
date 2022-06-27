@@ -205,7 +205,6 @@ class AnalyticsFragment : Fragment() {
         billAdapter.submitList(null)
         if (!binding.tvExpense.isEnabled) {
             getList(TYPE_EXPENSES)
-            if(wholeList.isNotEmpty()) {
                 binding.pieChart.setHoleColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -213,11 +212,9 @@ class AnalyticsFragment : Fragment() {
                     )
                 )
                 binding.pieChart.centerText = getString(R.string.bill_list_expense)
-            }
         }
         else {
             getList(TYPE_INCOME)
-            if(wholeList.isNotEmpty()) {
                 binding.pieChart.setHoleColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -225,7 +222,6 @@ class AnalyticsFragment : Fragment() {
                     )
                 )
                 binding.pieChart.centerText = getString(R.string.bills_list_income)
-            }
         }
     }
     @RequiresApi(Build.VERSION_CODES.O)
