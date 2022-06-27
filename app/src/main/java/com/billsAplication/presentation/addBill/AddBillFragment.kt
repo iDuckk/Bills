@@ -23,6 +23,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
@@ -49,6 +50,7 @@ import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCat
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.bumptech.glide.Glide
+import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -92,7 +94,6 @@ class AddBillFragment : Fragment() {
     private val EMPTY_STRING = ""
     private val widthPhoto = 480f
     private val  heightPhoto = 640f
-    private lateinit var scaleGestureDetector: ScaleGestureDetector
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -155,7 +156,7 @@ class AddBillFragment : Fragment() {
         initAutoCompleteEditText()
 
         imageListeners()
-        //TODO Zoom
+
         initRecViewImage()
 
         textViewListeners()
@@ -873,40 +874,26 @@ class AddBillFragment : Fragment() {
         val inflater = requireActivity().layoutInflater
         val view: View = inflater.inflate(R.layout.full_image_dialog, null)
         //Create imageView
-        val imageView = view.findViewById<ImageView>(R.id.im_fullScreen)
+        val imageView = view.findViewById<PhotoView>(R.id.im_fullScreen)
         //Create dialog
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity,
             R.style.full_screen_dialog)
+        //Set layout
         builder.setView(view)
+        //set Image
         Glide
             .with(requireContext())
             .load(byteImage)
             .override(requireContext().display!!.width, requireContext().display!!.height)
             .fitCenter()
             .into(imageView)
-        //Zooming image
-        scaleGestureDetector = ScaleGestureDetector(requireContext(), ScaleListener(imageView))
-        imageView.setOnTouchListener { view, motionEvent ->
-            scaleGestureDetector.onTouchEvent(motionEvent)
-            true
-        }
 
         return builder.create().apply {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window?.addFlags(FLAG_FULLSCREEN)
         }
     }
-    //Fun for zooming image
-    private inner class ScaleListener(val imageView: ImageView) : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        var scaleFactor = 1.0f
-        override fun onScale(scaleGestureDetector: ScaleGestureDetector): Boolean {
-            scaleFactor *= scaleGestureDetector.scaleFactor
-            scaleFactor = max(0.1f, min(scaleFactor, 10.0f))
-            imageView.scaleX = scaleFactor
-            imageView.scaleY = scaleFactor
-            return true
-        }
-    }
+
     //Set expense type after join to fragment
     private fun setTypeExpense(){
         binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
