@@ -146,6 +146,31 @@ class SearchFragment : Fragment() {
 
         buttonDelete()
 
+        imClearViews()
+
+    }
+
+    private fun imClearViews() {
+        binding.removeSearchNote.setOnClickListener {
+            binding.edSearchNote.setText(EMPTY_STRING)
+            performSearch()
+        }
+        binding.removeSearchCategory.setOnClickListener {
+            binding.etSearchCategory.setText(EMPTY_STRING)
+            performSearch()
+        }
+        binding.removeSearchMin.setOnClickListener {
+            binding.etSearchAmountMin.setText(EMPTY_STRING)
+            performSearch()
+        }
+        binding.removeSearchMax.setOnClickListener {
+            binding.etSearchAmountMax.setText(EMPTY_STRING)
+            performSearch()
+        }
+        binding.removeSearchPeriod.setOnClickListener {
+            binding.etSearchPeriod.setText(EMPTY_STRING)
+            performSearch()
+        }
     }
 
     private fun titleAmount() {
@@ -267,6 +292,18 @@ class SearchFragment : Fragment() {
                 binding.etSearchPeriod.clearFocus()
             }
         }
+
+        //Hide remove line Image
+        binding.etSearchPeriod.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                if(p0?.length != 0)
+                    binding.removeSearchPeriod.visibility = View.VISIBLE
+                else
+                    binding.removeSearchPeriod.visibility = View.GONE
+
+            } })
     }
 
     private fun amountMax() {
@@ -294,6 +331,11 @@ class SearchFragment : Fragment() {
                     } else {
                         binding.etSearchAmountMax.textSize = 18F
                     }
+                //Hide remove line Image
+                if(p0?.length != 0)
+                    binding.removeSearchMax.visibility = View.VISIBLE
+                else
+                    binding.removeSearchMax.visibility = View.GONE
             }
 
             override fun afterTextChanged(p0: Editable?) {}
@@ -327,6 +369,13 @@ class SearchFragment : Fragment() {
                     } else {
                         binding.etSearchAmountMin.textSize = 18F
                     }
+                //Hide remove line Image
+                if(p0?.length != 0)
+                    binding.removeSearchMin.visibility = View.VISIBLE
+                else
+                    binding.removeSearchMin.visibility = View.GONE
+
+
             }
         })
     }
@@ -354,6 +403,17 @@ class SearchFragment : Fragment() {
                 binding.etSearchCategory.clearFocus()
             }
         }
+        //Hide remove line Image
+        binding.etSearchCategory.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                if(p0?.length != 0)
+                    binding.removeSearchCategory.visibility = View.VISIBLE
+                else
+                    binding.removeSearchCategory.visibility = View.GONE
+
+            } })
     }
 
     private fun setChosenMonthItemsDialog() {
@@ -422,6 +482,17 @@ class SearchFragment : Fragment() {
             }
             false
         })
+        //Hide remove line Image
+        binding.edSearchNote.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {
+                if(p0?.length != 0)
+                    binding.removeSearchNote.visibility = View.VISIBLE
+                    else
+                    binding.removeSearchNote.visibility = View.GONE
+
+            } })
     }
 
     private fun performSearch() {
