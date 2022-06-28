@@ -54,6 +54,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <ImageView
+                android:id="@+id/remove_search_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2sp"
+                android:visibility="gone"
+                android:src="@drawable/ic_remove_line"
+                app:layout_constraintEnd_toEndOf="@+id/ed_search_note"
+                app:layout_constraintTop_toTopOf="@+id/ed_search_note"
+                app:layout_constraintBottom_toBottomOf="@+id/ed_search_note"/>
+
             <AutoCompleteTextView
                 android:id="@+id/ed_search_note"
                 android:layout_width="0sp"
@@ -72,6 +83,17 @@
                 app:layout_constraintStart_toStartOf="@+id/et_search_category"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:hint="Note" />
+
+            <ImageView
+                android:id="@+id/remove_search_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2sp"
+                android:visibility="gone"
+                android:src="@drawable/ic_remove_line"
+                app:layout_constraintEnd_toEndOf="@+id/et_search_category"
+                app:layout_constraintTop_toTopOf="@+id/et_search_category"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_category"/>
 
             <EditText
                 android:id="@+id/et_search_category"
@@ -122,6 +144,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
 
+            <ImageView
+                android:id="@+id/remove_search_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2sp"
+                android:visibility="gone"
+                android:src="@drawable/ic_remove_line"
+                app:layout_constraintEnd_toEndOf="@+id/et_search_amount_Min"
+                app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_amount_Min"/>
+
             <com.cottacush.android.currencyedittext.CurrencyEditText
                 android:id="@+id/et_search_amount_Min"
                 android:layout_width="0sp"
@@ -154,6 +187,17 @@
                 app:layout_constraintStart_toEndOf="@+id/et_search_amount_Min"
                 app:layout_constraintTop_toTopOf="@+id/et_search_amount_Min" />
 
+            <ImageView
+                android:id="@+id/remove_search_max"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2sp"
+                android:visibility="gone"
+                android:src="@drawable/ic_remove_line"
+                app:layout_constraintEnd_toEndOf="@+id/et_search_amount_Max"
+                app:layout_constraintTop_toTopOf="@+id/et_search_amount_Max"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_amount_Max"/>
+
             <com.cottacush.android.currencyedittext.CurrencyEditText
                 android:id="@+id/et_search_amount_Max"
                 android:layout_width="0sp"
@@ -182,6 +226,17 @@
                 app:layout_constraintBottom_toBottomOf="@+id/et_search_period"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/et_search_period" />
+
+            <ImageView
+                android:id="@+id/remove_search_period"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2sp"
+                android:visibility="gone"
+                android:src="@drawable/ic_remove_line"
+                app:layout_constraintEnd_toEndOf="@+id/et_search_period"
+                app:layout_constraintTop_toTopOf="@+id/et_search_period"
+                app:layout_constraintBottom_toBottomOf="@+id/et_search_period"/>
 
             <EditText
                 android:id="@+id/et_search_period"
