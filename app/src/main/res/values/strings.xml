@@ -64,4 +64,5 @@
     <string name="dialog_message_save_dialog">Do you want to Save image?</string>
     <string name="dialog_title_delete_image">Delete Image</string>
     <string name="dialog_message_delete_dialog">Do you want to Delete image?</string>
+    <string name="themes_title">Themes:</string>
 </resources>
