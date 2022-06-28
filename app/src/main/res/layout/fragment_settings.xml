@@ -1,15 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.settings.SettingsFragment"
     android:id="@+id/settingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/tv_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/themes_title"
+        android:layout_marginStart="10sp"
+        android:layout_marginTop="5sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-</FrameLayout>
+    <ImageView
+        android:id="@+id/im_light_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_light_theme"
+        app:layout_constraintBottom_toBottomOf="@+id/switchTheme"
+        app:layout_constraintStart_toStartOf="@+id/tv_theme"
+        app:layout_constraintTop_toTopOf="@+id/switchTheme" />
+
+    <Switch
+        android:id="@+id/switchTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_theme"
+        app:layout_constraintStart_toEndOf="@+id/im_light_theme"
+        app:layout_constraintTop_toBottomOf="@+id/tv_theme"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <ImageView
+        android:id="@+id/im_night_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10sp"
+        android:src="@drawable/ic_night_theme"
+        app:layout_constraintBottom_toBottomOf="@+id/switchTheme"
+        app:layout_constraintStart_toEndOf="@+id/switchTheme"
+        app:layout_constraintTop_toTopOf="@+id/switchTheme" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="?actionBarSize" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
