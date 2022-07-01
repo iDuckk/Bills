@@ -7,19 +7,25 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="text_income">#3CA1F1</color>
-    <color name="text_expense">#E83E3E</color>
+    <color name="text_income">#448AFF</color>
+    <color name="text_expense">#FF5252</color>
     <color name="default_background">#8A8A8A</color>
     <color name="background_cv_filter">#728A8A8A</color>
     <color name="line_scroll">#83AAAAAA</color>
-
-<!--Note colors-->
-    <color name="plum">#DDA0DD</color>
-    <color name="light_coral">#F08080</color>
-    <color name="khaki">#F0E68C</color>
-    <color name="andy_brown">#F4A460</color>
-    <color name="sky_blue">#87CEEB</color>
-    <color name="green_yellow">#00FA9A</color>
-
+<!--  Theme colors  -->
+    <color name="springGreen">#02EEA2</color>
+    <color name="mediumSpringGreen">#00FF7F</color>
+    <color name="bottomNav">#212121</color>
+    <color name="main_background">#232323</color>
+    <color name="background_barviews_colordark">#252525</color>
+    <color name="back_for_border">#424242</color>
+    <color name="shop_item_text">#616161</color>
+<!--    Note colors-->
+    <color name="deep_purple_a100">#B388FF</color>
+    <color name="red_a100">#FF8A80</color>
+    <color name="yellow_600">#FDD835</color>
+    <color name="orange_600">#FB8C00</color>
+    <color name="blue_a100">#82B1FF</color>
+    <color name="green_a200">#69F0AE</color>
 
 </resources>

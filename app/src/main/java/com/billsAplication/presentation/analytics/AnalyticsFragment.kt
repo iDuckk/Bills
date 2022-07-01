@@ -78,7 +78,9 @@ class AnalyticsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initPieChart()
-
+//TODO PieChart Select когда мы вибираем элемент, а потом меняем месяц, то элемент все еще выделен. Select lustener перенести в отдельную функцию...
+// и убрать типа фокус с него. АнСелект
+//TODO Вынести проценты за чарт
         titleBar()
 
         initRecView()
@@ -92,7 +94,7 @@ class AnalyticsFragment : Fragment() {
         //SetColor state
         binding.tvExpense.setBackgroundResource(R.drawable.textview_fullbackground_expense)
         binding.tvIncome.setBackgroundResource(R.drawable.textview_border_income)
-        binding.tvExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
         binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
         binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
         binding.tvExpense.isEnabled = false
@@ -174,7 +176,7 @@ class AnalyticsFragment : Fragment() {
             //SetColor state
             binding.tvExpense.setBackgroundResource(R.drawable.textview_fullbackground_expense)
             binding.tvIncome.setBackgroundResource(R.drawable.textview_border_income)
-            binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
 //            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
             binding.tvExpense.isEnabled = false
@@ -188,7 +190,7 @@ class AnalyticsFragment : Fragment() {
             //SetColor state
             binding.tvExpense.setBackgroundResource(R.drawable.textview_border_expense)
             binding.tvIncome.setBackgroundResource(R.drawable.textview_fullbackground_income)
-            binding.tvIncome.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.tvIncome.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             binding.tvExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
 //            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_income))
             binding.tvExpense.isEnabled = true
@@ -244,6 +246,7 @@ class AnalyticsFragment : Fragment() {
             legend.formSize = 12f
             legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
             legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            legend.textColor =requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)
 
             setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
@@ -300,7 +303,7 @@ class AnalyticsFragment : Fragment() {
         if(listSet.isNullOrEmpty()){
             binding.pieChart.centerText = getString(R.string.no_values_analytics)
             binding.pieChart.setCenterTextColor(requireContext().getColor(R.color.default_background))
-            binding.pieChart.setHoleColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.pieChart.setHoleColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
 
         }else{
             binding.pieChart.setCenterTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))

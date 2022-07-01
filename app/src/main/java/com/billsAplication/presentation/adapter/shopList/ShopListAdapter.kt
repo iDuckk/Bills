@@ -2,7 +2,6 @@ package com.billsAplication.presentation.adapter.shopList
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.AttrRes
@@ -45,13 +44,13 @@ class ShopListAdapter  @Inject constructor(): ListAdapter<BillsItem, ShopListVie
         val item = getItem(position)
 
         when(item.description){
-            COLOR_NOTE_BLUE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.sky_blue))
-            COLOR_NOTE_RED -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.light_coral))
-            COLOR_NOTE_YELLOW -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.khaki))
-            COLOR_NOTE_GREEN -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.green_yellow))
-            COLOR_NOTE_ORANGE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.andy_brown))
-            COLOR_NOTE_PURPLE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.plum))
-            COLOR_NOTE_PRIMARY -> holder.itemView.setBackgroundColor(holder.itemView.context.getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            COLOR_NOTE_BLUE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.blue_a100))
+            COLOR_NOTE_RED -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.red_a100))
+            COLOR_NOTE_YELLOW -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.yellow_600))
+            COLOR_NOTE_GREEN -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.green_a200))
+            COLOR_NOTE_ORANGE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.orange_600))
+            COLOR_NOTE_PURPLE -> holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.deep_purple_a100))
+            COLOR_NOTE_PRIMARY -> holder.itemView.setBackgroundColor(holder.itemView.context.getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
         }
 
         holder.tv_note.text = item.note

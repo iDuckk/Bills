@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/title_note"
+        android:textColor="@color/shop_item_text"
         android:layout_margin="5sp"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"

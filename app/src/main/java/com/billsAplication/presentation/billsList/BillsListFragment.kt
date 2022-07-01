@@ -96,8 +96,10 @@ class BillsListFragment : Fragment() {
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
 
-        onBackPressed()
+        binding.cardViewFilter.visibility = View.VISIBLE
 
+        onBackPressed()
+        //TODO Сделать нормально BackPressed
         titleAmount()
 
         titleBar()
@@ -337,6 +339,7 @@ class BillsListFragment : Fragment() {
                 //Resize cardView
                 binding.cardViewFilter.layoutParams.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
                 binding.cardViewFilter.requestLayout()
+                binding.cardViewFilter.visibility = View.VISIBLE
                 visibilityFilterCard = true
                 setDefaultSortingViews()
             }
@@ -380,6 +383,7 @@ class BillsListFragment : Fragment() {
         //Set small size card view
         binding.cardViewFilter.layoutParams.height = 1
         binding.cardViewFilter.requestLayout()
+        binding.cardViewFilter.visibility = View.INVISIBLE
         visibilityFilterCard = false
     }
 

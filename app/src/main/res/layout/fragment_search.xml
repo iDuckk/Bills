@@ -300,6 +300,7 @@
                     android:id="@+id/chip_note"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:chipBackgroundColor="?colorBackgroundFloating"
                     tools:hint="@string/title_note"
                     android:visibility="gone"
                     style="@style/ThinnerChip"/>
@@ -308,6 +309,7 @@
                     android:id="@+id/chip_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:chipBackgroundColor="?colorBackgroundFloating"
                     tools:hint="@string/title_category"
                     android:visibility="gone"
                     style="@style/ThinnerChip"/>
@@ -316,6 +318,7 @@
                     android:id="@+id/chip_min"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:chipBackgroundColor="?colorBackgroundFloating"
                     android:textColor="@color/text_income"
                     tools:hint="@string/amount_min"
                     android:visibility="gone"
@@ -325,6 +328,7 @@
                     android:id="@+id/chip_max"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:chipBackgroundColor="?colorBackgroundFloating"
                     tools:hint="@string/amount_max"
                     android:textColor="@color/text_expense"
                     android:visibility="gone"
@@ -334,6 +338,7 @@
                     android:id="@+id/chip_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:chipBackgroundColor="?colorBackgroundFloating"
                     tools:hint="@string/title_period"
                     android:visibility="gone"
                     style="@style/ThinnerChip"/>
@@ -434,6 +439,8 @@
         android:id="@+id/recViewBill_search"
         android:layout_width="match_parent"
         android:layout_height="0sp"
+        android:background="?colorOnPrimary"
+        android:layout_marginTop="5sp"
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/thumb_drawable"
         app:fastScrollHorizontalTrackDrawable="@drawable/line_drawable"
