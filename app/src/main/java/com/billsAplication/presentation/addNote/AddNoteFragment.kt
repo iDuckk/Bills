@@ -2,16 +2,11 @@ package com.billsAplication.presentation.addNote
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -19,10 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddNoteBinding
-import com.billsAplication.databinding.FragmentSearchBinding
-import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.mainActivity.MainActivity
-import com.billsAplication.presentation.search.SearchViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -88,31 +80,31 @@ class AddNoteFragment : Fragment() {
     @SuppressLint("ResourceAsColor")
     private fun noteColors() {
         binding.noteColorBlue.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.sky_blue))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue_a100))
             COLOR_NOTE = COLOR_NOTE_BLUE
         }
         binding.noteColorRed.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_coral))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red_a100))
             COLOR_NOTE = COLOR_NOTE_RED
         }
         binding.noteColorYellow.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.khaki))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.yellow_600))
             COLOR_NOTE = COLOR_NOTE_YELLOW
         }
         binding.noteColorGreen.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green_yellow))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green_a200))
             COLOR_NOTE = COLOR_NOTE_GREEN
         }
         binding.noteColorOrange.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.andy_brown))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange_600))
             COLOR_NOTE = COLOR_NOTE_ORANGE
         }
         binding.noteColorPurple.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.plum))
+            binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.deep_purple_a100))
             COLOR_NOTE = COLOR_NOTE_PURPLE
         }
         binding.noteColorOnPrimary.setOnClickListener {
-            binding.scrollNote.setBackgroundColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.scrollNote.setBackgroundColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             COLOR_NOTE = COLOR_NOTE_PRIMARY
         }
     }
@@ -178,13 +170,13 @@ class AddNoteFragment : Fragment() {
 
     private fun setColorNote(colorNote: String){
         when(colorNote){
-            COLOR_NOTE_BLUE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.sky_blue))
-            COLOR_NOTE_RED -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_coral))
-            COLOR_NOTE_YELLOW -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.khaki))
-            COLOR_NOTE_GREEN -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green_yellow))
-            COLOR_NOTE_ORANGE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.andy_brown))
-            COLOR_NOTE_PURPLE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.plum))
-            COLOR_NOTE_PRIMARY -> binding.scrollNote.setBackgroundColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            COLOR_NOTE_BLUE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue_a100))
+            COLOR_NOTE_RED -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red_a100))
+            COLOR_NOTE_YELLOW -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.yellow_600))
+            COLOR_NOTE_GREEN -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green_a200))
+            COLOR_NOTE_ORANGE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange_600))
+            COLOR_NOTE_PURPLE -> binding.scrollNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.deep_purple_a100))
+            COLOR_NOTE_PRIMARY -> binding.scrollNote.setBackgroundColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
         }
     }
 

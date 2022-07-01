@@ -1,17 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Bills" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <!-- Primary brand color. 1 line chosen NavBottom el.-->
+        <item name="colorPrimary">@color/mediumSpringGreen</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <!--        main background-->
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <!-- Secondary brand color. 1 line Button. 2 don't know-->
+        <item name="colorSecondary">@color/springGreen</item>
+        <item name="colorSecondaryVariant">@color/mediumSpringGreen</item>
+        <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorBackgroundFloating</item>
         <!-- Customize your theme here. -->
+        <item name="colorBackgroundFloating">@color/white</item>
+        <item name="android:colorBackgroundFloating">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="ThinnerChip" parent="Widget.MaterialComponents.Chip.Action">
@@ -35,6 +39,10 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+    </style>
+
+    <style name="BottomNavColor" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="backgroundTint">@color/white</item>
     </style>
 
 </resources>

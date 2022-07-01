@@ -57,6 +57,8 @@
         android:id="@+id/recViewBookmarks"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="1sp"
+        android:background="?colorOnPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
