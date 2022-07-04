@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -32,10 +31,10 @@ import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.mToast
+import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import java.util.*
 import javax.inject.Inject
@@ -48,14 +47,13 @@ class ShopListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: ShopListViewModel
-
     @Inject
     lateinit var noteAdapter: ShopListAdapter
-
     @Inject
     lateinit var mToast: mToast
+    @Inject
+    lateinit var stateColorButton: StateColorButton
 
-    private val TYPE_NOTE = 3
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
     private val CREATE_TYPE = 10
@@ -217,34 +215,27 @@ class ShopListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.P)
     @SuppressLint("ResourceType")
     private fun addButtons() {
+        val colorState = ColorStateList
+            .valueOf(stateColorButton.colorButtons!!)
+        binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton
         binding.buttonAddNoteMicro.visibility = View.GONE
         binding.buttonAddNoteKeyboard.visibility = View.GONE
+        binding.buttonAddNoteMicro.size = FloatingActionButton.SIZE_MINI
+        binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
+        binding.buttonAddNoteMicro.backgroundTintList = colorState
+        binding.buttonAddNoteKeyboard.backgroundTintList = colorState
 
-        binding.buttonAddNote.setOnClickListener {
+        binding.buttonAddNote.mainLayout.setOnClickListener {
             if (!binding.buttonAddNoteMicro.isVisible) {
-                val colorState = ColorStateList
-                    .valueOf(
-                        requireContext()
-                            .getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)
-                    )
                 binding.buttonAddNoteMicro.visibility = View.VISIBLE
                 binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-                binding.buttonAddNote.size = FloatingActionButton.SIZE_MINI
-                binding.buttonAddNote.setImageResource(R.drawable.ic_close)
-                binding.buttonAddNote.backgroundTintList = colorState
+                binding.buttonAddNote.imageButton.setImageResource(R.drawable.ic_close)
+
             } else {
-                val colorState = ColorStateList
-                    .valueOf(
-                        requireContext()
-                            .getColorFromAttr(com.google.android.material.R.attr.colorSecondary)
-                    )
                 binding.buttonAddNoteMicro.visibility = View.GONE
                 binding.buttonAddNoteKeyboard.visibility = View.GONE
-                binding.buttonAddNote.size = FloatingActionButton.SIZE_AUTO
-                binding.buttonAddNote.setImageResource(R.drawable.ic_add)
-                binding.buttonAddNote.backgroundTintList = colorState
+                binding.buttonAddNote.imageButton.setImageResource(R.drawable.ic_add)
             }
-
         }
     }
 
@@ -256,10 +247,10 @@ class ShopListFragment : Fragment() {
                     requireContext()
                         .getColorFromAttr(com.google.android.material.R.attr.colorSecondary)
                 )
-            binding.buttonAddNote.visibility = View.VISIBLE
+            binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
             (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
-                .visibility = View.VISIBLE
+                .isEnabled = true
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.hide()
         }else{
@@ -267,10 +258,10 @@ class ShopListFragment : Fragment() {
                 .valueOf(
                     requireContext().getColor(R.color.default_background)
                     )
-            binding.buttonAddNote.visibility = View.INVISIBLE
+            binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
             (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
-                .visibility = View.INVISIBLE
+                .isEnabled = false
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.show()
         }
