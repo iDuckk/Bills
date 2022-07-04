@@ -12,7 +12,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -25,6 +26,7 @@ import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -43,9 +45,10 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
-
     @Inject
     lateinit var billAdapter: BillsAdapter
+    @Inject
+    lateinit var stateColorButton: StateColorButton
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
@@ -100,10 +103,18 @@ class BillsListFragment : Fragment() {
 
         onBackPressed()
         //TODO Сделать нормально BackPressed
+        //TODO onBack если fullscreen dialog закрыть, так же когда удаляешь из ресВью выйти из режима
+        //TODO Качекство фото хотябы 600на800
+        //TODO Пай чарт, когда выделяешь елемени он не убирается при перекл месяца.
+        //TODO Увеличить размер Note
+        //TODO Скролл АддБилл, чтобы не только ресВью, а весь экран, кроме Бара
+        //TODO размер текста АддБилл
+        //TODO Изменить SQL, чтобы не удалялась база при изменении
+        //TODO min APi 21 change
         titleAmount()
 
         titleBar()
-
+//TODO Сменить цыет навигашна если менятеся кнопка цветом
         filterBar()
 
         addButton()
@@ -136,7 +147,7 @@ class BillsListFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun addButton() {
-        binding.buttonAddBill.setOnClickListener {
+        binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {
                 CoroutineScope(Main).launch {
                     if (listDeleteItems.isNotEmpty()) {
@@ -394,6 +405,7 @@ class BillsListFragment : Fragment() {
                 binding.tvTotalNum.text = "%,.2f".format(it)
                 resizeText()
             }
+            setBackColorAddButton()
         }
         //Set title Expense
         titleExpense.observe(viewLifecycleOwner) {
@@ -408,6 +420,57 @@ class BillsListFragment : Fragment() {
                 binding.tvIncomeNum.text = "%,.2f".format(it)
                 resizeText()
             }
+        }
+
+        setBackColorAddButton()
+    }
+
+    private fun setBackColorAddButton(){
+        if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
+            //set color of icon nav bottom income
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
+            //set color of text nav bottom income
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
+            //set background income
+            binding.buttonAddBill.relativeLayout.background =
+                requireActivity().getDrawable(R.drawable.double_color_button_income)
+            //Send color for ShopList
+            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
+        }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) < BigDecimal(0)) {
+            //set color of icon nav bottom expenses
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            //set color of text nav bottom expenses
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            //set background expenses
+            binding.buttonAddBill.relativeLayout.background =
+                requireActivity().getDrawable(R.drawable.double_color_button_expenses)
+            //Send color for ShopList
+            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
+        }else{
+            //set color of icon nav bottom
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            //set color of text nav bottom
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            //set background
+            binding.buttonAddBill.relativeLayout.background =
+                requireActivity().getDrawable(R.drawable.double_color_button)
+            //Send color for ShopList
+            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
         }
     }
 
@@ -434,13 +497,13 @@ class BillsListFragment : Fragment() {
             deleteItem = it
             if (it) {
                 deleteItem = it
-                binding.buttonAddBill.setImageResource(R.drawable.ic_delete_forever)
+                binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_delete_forever)
                 binding.cardViewBar.visibility = View.GONE
                 binding.cardViewBudget.visibility = View.GONE
                 (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
                     View.GONE
             } else {
-                binding.buttonAddBill.setImageResource(R.drawable.ic_add)
+                binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_add)
                 binding.cardViewBar.visibility = View.VISIBLE
                 binding.cardViewBudget.visibility = View.VISIBLE
                 (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
@@ -516,6 +579,15 @@ class BillsListFragment : Fragment() {
                 binding.tvExpenseNum.textSize = 18F
                 binding.tvTotalNum.textSize = 18F
         }
+    }
+
+    @ColorInt
+    fun Context.getColorFromAttr(@AttrRes attrColor: Int
+    ): Int {
+        val typedArray = theme.obtainStyledAttributes(intArrayOf(attrColor))
+        val textColor = typedArray.getColor(0, 0)
+        typedArray.recycle()
+        return textColor
     }
 
     // Extension method to convert pixels to dp

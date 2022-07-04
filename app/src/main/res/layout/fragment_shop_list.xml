@@ -21,42 +21,39 @@
         app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/note_item" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <include
         android:id="@+id/button_addNote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:elevation="0sp"
-        android:stateListAnimator="@null"
+        layout="@layout/float_button_gradient"
+        android:layout_width="56sp"
+        android:layout_height="56sp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:contentDescription="@string/choose_type_of_add_note"
-        android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="24sp"
-        android:layout_marginBottom="24sp"/>
+        android:layout_marginBottom="24sp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_addNote_micro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="5sp"
         android:clickable="true"
         android:contentDescription="@string/add_note_with_microphone"
         android:src="@drawable/ic_mic"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_addNote"
-        android:layout_marginEnd="5sp"
-        android:layout_marginBottom="24sp"/>
+        app:layout_constraintTop_toTopOf="@+id/button_addNote" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_addNote_keyboard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5sp"
         android:clickable="true"
         android:contentDescription="@string/add_note_with_keyboard"
         android:src="@drawable/ic_keyboard"
         app:layout_constraintBottom_toTopOf="@id/button_addNote"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="25sp"
-        android:layout_marginBottom="5sp"/>
+        app:layout_constraintStart_toStartOf="@+id/button_addNote" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

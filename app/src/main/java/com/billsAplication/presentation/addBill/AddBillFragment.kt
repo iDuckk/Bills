@@ -23,11 +23,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -57,8 +55,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.lang.Float.max
-import java.lang.Float.min
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -154,7 +150,7 @@ class AddBillFragment : Fragment() {
         binding.tvCurrancy.text = DecimalFormat().currency!!.currencyCode
 
         initAutoCompleteEditText()
-
+//TODO CurrencyEditText.monetaryDecimalSeparator потому что на рус локэйшн пробел вместо запятой.
         imageListeners()
 
         initRecViewImage()
