@@ -105,14 +105,10 @@ class BillsListFragment : Fragment() {
         //TODO Сделать нормально BackPressed
         //TODO onBack если fullscreen dialog закрыть, так же когда удаляешь из ресВью выйти из режима
         //TODO Пай чарт, когда выделяешь елемени он не убирается при перекл месяца.
-        //TODO Скролл АддБилл, чтобы не только ресВью, а весь экран, кроме Бара
-        //TODO размер текста АддБилл
-        //TODO Изменить SQL, чтобы не удалялась база при изменении
-        //TODO min APi 21 change
         titleAmount()
         //TODO оповещение, если есть Note типа значка на Bottom Nav
         titleBar()
-//TODO Сменить цыет навигашна если менятеся кнопка цветом
+
         filterBar()
 
         addButton()
