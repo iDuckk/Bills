@@ -88,8 +88,8 @@ class AddBillFragment : Fragment() {
     private val DESCRIPTION = 5
     private val MAX_PHOTO = 5
     private val EMPTY_STRING = ""
-    private val widthPhoto = 480f
-    private val  heightPhoto = 640f
+    private val widthPhoto = 600f
+    private val  heightPhoto = 800f
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
