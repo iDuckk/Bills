@@ -14,6 +14,7 @@
         android:id="@+id/tv_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="?actionBarSize"
         android:hint="@string/title_note"
         android:textColor="@color/shop_item_text"
         android:layout_margin="5sp"
