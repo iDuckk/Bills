@@ -107,6 +107,7 @@ class BillsListFragment : Fragment() {
         //TODO Пай чарт, когда выделяешь елемени он не убирается при перекл месяца.
         titleAmount()
         //TODO оповещение, если есть Note типа значка на Bottom Nav
+        //TODO меняешь тему, поменять и цвет нав боттом
         titleBar()
 
         filterBar()
