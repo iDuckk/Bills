@@ -3,6 +3,7 @@ package com.billsAplication.presentation.analytics
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -205,6 +206,8 @@ class AnalyticsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setListMonth() {
         billAdapter.submitList(null)
+        binding.pieChart.onTouchListener.setLastHighlighted(null)
+        binding.pieChart.highlightValues(null)
         if (!binding.tvExpense.isEnabled) {
             getList(TYPE_EXPENSES)
                 binding.pieChart.setHoleColor(
@@ -238,6 +241,7 @@ class AnalyticsFragment : Fragment() {
             //adding padding
             setExtraOffsets(20f, 0f, 20f, 20f)
             isRotationEnabled = false
+            minAngleForSlices = 10f
             //Legend
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
             legend.isWordWrapEnabled = true
@@ -281,17 +285,27 @@ class AnalyticsFragment : Fragment() {
         }
 
         val dataSet = PieDataSet(dataEntries, "")
+        // Value lines
+        dataSet.valueLinePart1Length = 0.8f
+        dataSet.valueLinePart2Length = 0f
+//        dataSet.valueLineWidth = 1f
+//        dataSet.valueLinePart1OffsetPercentage = 115f  // Line starts outside of chart
+        dataSet.isUsingSliceColorAsValueLineColor = true
+        // Value text appearance
+        dataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE //percent
+//        dataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE //label
+        dataSet.valueTextSize = 11f
+//        dataSet.valueTypeface = Typeface.DEFAULT_BOLD
+        dataSet.valueTextColor = requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)
         val data = PieData(dataSet)
-
         // In Percentage
         data.setValueFormatter(PercentFormatter(binding.pieChart))//sent pieChar is important
         dataSet.sliceSpace = 3f
         dataSet.colors = colors
         binding.pieChart.data = data
-        data.setValueTextSize(11f)
+//        data.setValueTextSize(20f)
         binding.pieChart.setExtraOffsets(5f, 5f, 5f, 5f)
         binding.pieChart.animateY(1400, Easing.EaseInOutQuad)
-
         //create hole in center
         binding.pieChart.holeRadius = 30f
         binding.pieChart.transparentCircleRadius = 40f
@@ -303,12 +317,12 @@ class AnalyticsFragment : Fragment() {
         if(listSet.isNullOrEmpty()){
             binding.pieChart.centerText = getString(R.string.no_values_analytics)
             binding.pieChart.setCenterTextColor(requireContext().getColor(R.color.default_background))
-            binding.pieChart.setHoleColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
+            binding.pieChart.setHoleColor(
+                requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
 
         }else{
             binding.pieChart.setCenterTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
         }
-
         binding.pieChart.invalidate()
     }
 
