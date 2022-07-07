@@ -1,5 +1,6 @@
 package com.billsAplication.utils
 
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.repository.BillsListRepository
@@ -11,11 +12,17 @@ class StateColorButton @Inject constructor(){
         set(value) {
             field = value
         }
-    get() = field
+        get() = field
 
     var colorButtons: Int? = null
         set(value) {
             field = value
         }
         get() = field
+
+    var stateNavBot: ColorStateList? = null
+    set(value){
+        field = value
+    }
+    get() = field
 }
