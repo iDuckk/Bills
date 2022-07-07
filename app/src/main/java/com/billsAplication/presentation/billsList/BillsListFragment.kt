@@ -2,6 +2,7 @@ package com.billsAplication.presentation.billsList
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
@@ -107,7 +108,6 @@ class BillsListFragment : Fragment() {
         //TODO Пай чарт, когда выделяешь елемени он не убирается при перекл месяца.
         titleAmount()
         //TODO оповещение, если есть Note типа значка на Bottom Nav
-        //TODO меняешь тему, поменять и цвет нав боттом
         titleBar()
 
         filterBar()
@@ -416,8 +416,6 @@ class BillsListFragment : Fragment() {
                 resizeText()
             }
         }
-
-        setBackColorAddButton()
     }
 
     private fun setBackColorAddButton(){
@@ -433,9 +431,14 @@ class BillsListFragment : Fragment() {
             //set background income
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_income)
+//            //set color effect
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //Send color for ShopList
-            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_income)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
+            stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
         }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) < BigDecimal(0)) {
             //set color of icon nav bottom expenses
             (activity as MainActivity)
@@ -448,9 +451,14 @@ class BillsListFragment : Fragment() {
             //set background expenses
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_expenses)
+//            //set color effect
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
-            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_expenses)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
+            stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
         }else{
             //set color of icon nav bottom
             (activity as MainActivity)
@@ -463,9 +471,14 @@ class BillsListFragment : Fragment() {
             //set background
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button)
+            //set color effect
+            (activity as MainActivity)
+                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+                .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
-            stateColorButton.colorAddButton = binding.buttonAddBill.relativeLayout.background
+            stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
+            stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
         }
     }
 

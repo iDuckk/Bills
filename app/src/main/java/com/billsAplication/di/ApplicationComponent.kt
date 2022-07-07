@@ -9,6 +9,7 @@ import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.bookmarks.BookmarksFragment
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.presentation.search.SearchFragment
+import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
 import dagger.BindsInstance
 import dagger.Component
@@ -32,6 +33,8 @@ interface ApplicationComponent {
     fun inject(fragment: ShopListFragment)
 
     fun inject(fragment: AddNoteFragment)
+
+    fun inject(fragment: SettingsFragment)
 
     @Component.Factory
     interface Factory{
