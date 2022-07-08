@@ -86,8 +86,6 @@ class ShopListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onBackPressed()
-
         addButtons()
 
         buttonKeyboard()
@@ -172,18 +170,6 @@ class ShopListFragment : Fragment() {
                 RECORD_AOUDIO_REQUEST
             )
         }
-    }
-
-    private fun onBackPressed() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    requireActivity().supportFragmentManager.clearBackStack("")
-                    findNavController().navigate(R.id.action_shopListFragment_to_billsListFragment)
-                }
-            }
-        )
     }
 
     private fun buttonKeyboard() {

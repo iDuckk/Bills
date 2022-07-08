@@ -26,6 +26,7 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -150,7 +151,7 @@ class AddBillFragment : Fragment() {
         binding.tvCurrancy.text = DecimalFormat().currency!!.currencyCode
 
         initAutoCompleteEditText()
-//TODO CurrencyEditText.monetaryDecimalSeparator потому что на рус локэйшн пробел вместо запятой.
+
         imageListeners()
 
         initRecViewImage()

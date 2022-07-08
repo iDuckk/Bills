@@ -104,9 +104,7 @@ class BillsListFragment : Fragment() {
         binding.cardViewFilter.visibility = View.VISIBLE
 
         onBackPressed()
-        //TODO Сделать нормально BackPressed
-        //TODO onBack если fullscreen dialog закрыть, так же когда удаляешь из ресВью выйти из режима
-        //TODO Пай чарт, когда выделяешь елемени он не убирается при перекл месяца.
+
         titleAmount()
         //TODO оповещение, если есть Note типа значка на Bottom Nav
         titleBar()
@@ -120,17 +118,6 @@ class BillsListFragment : Fragment() {
         initRecView()
 
         setNewList(binding.tvMonth.text.toString())
-    }
-
-    private fun onBackPressed() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    requireActivity().supportFragmentManager.clearBackStack("")
-                }
-            }
-        )
     }
 
     private fun searchButton(){
@@ -521,6 +508,24 @@ class BillsListFragment : Fragment() {
                 setNewList(binding.tvMonth.text.toString())
             }
         }
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if(!deleteItem){
+                        (activity as MainActivity).finish()
+                    }else{
+                        deleteItem = false
+                        listDeleteItems.clear()
+                        billAdapter.deleteItemsAfterRemovedItemFromDB()
+                        billAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
