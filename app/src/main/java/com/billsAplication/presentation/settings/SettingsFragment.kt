@@ -60,7 +60,7 @@ class SettingsFragment : Fragment() {
                 intArrayOf(android.R.attr.state_checked),
                 intArrayOf()
             ), intArrayOf(
-                Color.BLUE,
+                requireActivity().getColor(R.color.default_background), //track unChecked
                 stateColorButton.colorButtons!!,
                 requireActivity().getColor(R.color.default_background)
             )
