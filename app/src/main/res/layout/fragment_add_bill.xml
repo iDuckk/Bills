@@ -197,6 +197,7 @@
                         android:id="@+id/ed_add_amount"
                         android:layout_width="0sp"
                         android:layout_height="wrap_content"
+                        app:localeTag="en-NG"
                         android:backgroundTint="@color/default_background"
                         android:cursorVisible="false"
                         android:maxLength="20"

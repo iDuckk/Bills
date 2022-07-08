@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -419,7 +420,7 @@ class BillsListFragment : Fragment() {
     }
 
     private fun setBackColorAddButton(){
-        if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
+        if(binding.tvTotalNum.text.toString().replace(",", "") > 0.toString()){
             //set color of icon nav bottom income
             (activity as MainActivity)
                 .findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -439,7 +440,7 @@ class BillsListFragment : Fragment() {
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_income)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
             stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-        }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) < BigDecimal(0)) {
+        }else if(binding.tvTotalNum.text.toString().replace(",", "") < 0.toString()) {
             //set color of icon nav bottom expenses
             (activity as MainActivity)
                 .findViewById<BottomNavigationView>(R.id.bottom_navigation)
