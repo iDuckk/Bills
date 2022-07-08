@@ -7,14 +7,13 @@
     android:title="@string/menu_list_bills"/>
 
     <item
+        android:id="@+id/shopListFragment"
+        android:icon="@drawable/ic_add_shop_item"
+        android:title="@string/menu_shopping_list" />
+    <item
         android:id="@+id/analyticsFragment"
         android:icon="@drawable/ic_analytics"
         android:title="@string/menu_analytics"/>
-
-    <item
-        android:id="@+id/shopListFragment"
-        android:icon="@drawable/ic_add_shop_item"
-        android:title="@string/menu_shopping_list"/>
 
     <item
         android:id="@+id/settingsFragment"
