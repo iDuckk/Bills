@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -136,6 +137,8 @@ class SearchFragment : Fragment() {
 //            setListAdapter(allItemList)
         }
 
+        onBackPressed()
+
         titleBar()
 
         titleAmount()
@@ -148,6 +151,24 @@ class SearchFragment : Fragment() {
 
         imClearViews()
 
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if(!deleteItem){
+                        (activity as MainActivity).finish()
+                    }else{
+                        deleteItem = false
+                        listDeleteItems.clear()
+                        billAdapter.deleteItemsAfterRemovedItemFromDB()
+                        billAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        )
     }
 
     private fun imClearViews() {

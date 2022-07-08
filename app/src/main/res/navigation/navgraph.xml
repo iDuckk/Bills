@@ -65,13 +65,18 @@
         <action
             android:id="@+id/action_addBillFragment_to_billsListFragment"
             app:destination="@id/billsListFragment"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:popUpTo="@id/billsListFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_addBillFragment_to_bookmarksFragment"
-            app:destination="@id/bookmarksFragment" />
+            app:destination="@id/bookmarksFragment"
+            app:popUpTo="@id/bookmarksFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_addBillFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
+            app:destination="@id/searchFragment"
+            app:popUpTo="@id/searchFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/bookmarksFragment"
@@ -120,6 +125,8 @@
         tools:layout="@layout/fragment_add_note" >
         <action
             android:id="@+id/action_addNoteFragment_to_shopListFragment"
-            app:destination="@id/shopListFragment" />
+            app:destination="@id/shopListFragment"
+            app:popUpTo="@id/shopListFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
