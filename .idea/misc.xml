@@ -39,6 +39,8 @@
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/main_background.xml" value="0.176" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/selector_item_bot_nav.xml" value="0.1615" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/selector_item_bot_nav_income.xml" value="0.1735" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/selector_switch_track.xml" value="0.1895" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/selector_switch_unchecked.xml" value="0.1895" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/state_recview_item.xml" value="0.249" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border.xml" value="0.2235" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border_expense.xml" value="0.2235" />
