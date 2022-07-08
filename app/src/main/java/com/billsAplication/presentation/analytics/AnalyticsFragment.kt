@@ -22,6 +22,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.ColorsPie
 import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -79,9 +80,7 @@ class AnalyticsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initPieChart()
-//TODO PieChart Select когда мы вибираем элемент, а потом меняем месяц, то элемент все еще выделен. Select lustener перенести в отдельную функцию...
-// и убрать типа фокус с него. АнСелект
-//TODO Вынести проценты за чарт
+
         titleBar()
 
         initRecView()
@@ -239,7 +238,7 @@ class AnalyticsFragment : Fragment() {
             setTouchEnabled(true)
             setDrawEntryLabels(false)
             //adding padding
-            setExtraOffsets(20f, 0f, 20f, 20f)
+            setExtraOffsets(20f, 20f, 20f, 20f)
             isRotationEnabled = false
             minAngleForSlices = 10f
             //Legend
@@ -252,23 +251,28 @@ class AnalyticsFragment : Fragment() {
             legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
             legend.textColor =requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)
 
-            setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
-                override fun onValueSelected(e: Entry?, h: Highlight?) {
-                    //h.x - index, h.y - value, (e as PieEntry).label
-                    //Create list categories
-                    val list = ArrayList<BillsItem>()
-                    wholeList.forEach {
-                        if(it.category == (e as PieEntry).label)
-                            list.add(it)
-                    }
+            pieChartListenerItem()
+        }
+    }
 
-//                    Log.d("TAG", (e as PieEntry).label)
-                    billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
+    private fun PieChart.pieChartListenerItem() {
+        setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                //h.x - index, h.y - value, (e as PieEntry).label
+                //Create list categories
+                val list = ArrayList<BillsItem>()
+                wholeList.forEach {
+                    if (it.category == (e as PieEntry).label)
+                        list.add(it)
                 }
 
-                override fun onNothingSelected() {}
-            })
-        }
+    //                    Log.d("TAG", (e as PieEntry).label)
+                billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }
+                    .toList())
+            }
+
+            override fun onNothingSelected() {}
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -304,7 +308,7 @@ class AnalyticsFragment : Fragment() {
         dataSet.colors = colors
         binding.pieChart.data = data
 //        data.setValueTextSize(20f)
-        binding.pieChart.setExtraOffsets(5f, 5f, 5f, 5f)
+//        binding.pieChart.setExtraOffsets(5f, 5f, 5f, 5f)
         binding.pieChart.animateY(1400, Easing.EaseInOutQuad)
         //create hole in center
         binding.pieChart.holeRadius = 30f
