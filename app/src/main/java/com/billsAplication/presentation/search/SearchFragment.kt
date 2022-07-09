@@ -159,7 +159,7 @@ class SearchFragment : Fragment() {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if(!deleteItem){
-                        (activity as MainActivity).finish()
+                        findNavController().navigate(R.id.action_searchFragment_to_billsListFragment)
                     }else{
                         deleteItem = false
                         listDeleteItems.clear()
