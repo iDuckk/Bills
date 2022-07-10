@@ -1,7 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Bills</string>
-
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="app_name">Bills</string>
     <string name="menu_list_bills">Bills</string>
     <string name="menu_analytics">Analytics</string>
     <string name="menu_shopping_list">Shopping list</string>
@@ -9,7 +8,6 @@
     <string name="bills_list_income">Income</string>
     <string name="bill_list_expense">Expense</string>
     <string name="bill_list_total">Total</string>
-    <string name="bills_list_null_0_0">0.0</string>
     <string name="month">Month</string>
     <string name="description_previous_month">previous month</string>
     <string name="description_next_month">next month</string>
@@ -22,8 +20,6 @@
     <string name="title_category">Category</string>
     <string name="title_amount">Amount</string>
     <string name="title_note">Note</string>
-    <string name="title_date">Date</string>
-    <string name="title_time">Time</string>
     <string name="title_description">Description</string>
     <string name="add_apply">Apply</string>
     <string name="take_a_photo">Take a photo</string>
@@ -36,20 +32,15 @@
     <string name="toast_fill_amount">Please fill Amount gap</string>
     <string name="toast_fill_category">Please fill Category gap</string>
     <string name="toast_fill_both_gaps">Please fill Amount and Category gaps</string>
-    <string name="Error_incorrect_typeOfBill">AddBillFragment: Incorrect type of bill</string>
     <string name="title_bookmarks">Bookmarks</string>
-    <string name="Wrong_entrence_type">AddBillFragment: Wrong type of entrance</string>
-    <string name="attention_mookmark_notfoundType">BookmarksAdapter: Not found type of bill</string>
     <string name="title_desc_date">Desc/ascent</string>
     <string name="title_search">Search</string>
     <string name="title_new_bill">New bill</string>
     <string name="amount_min">Min.</string>
-    <string name="search_amount_separete">..-..</string>
     <string name="amount_max">Max.</string>
     <string name="title_period">Period</string>
     <string name="search_choose_category">Choose category</string>
     <string name="search_cancel">Cancel</string>
-    <string name="ChooseCategoryDialog_error_null">ChooseCategoryDialog: Activity cannot be null</string>
     <string name="type_new_category">Type new Category</string>
     <string name="no_values_analytics">No values</string>
     <string name="add_note_with_microphone">Add note with microphone</string>
@@ -58,8 +49,6 @@
     <string name="type_note">Type note...</string>
     <string name="b_delete_note">delete</string>
     <string name="b_save_note">save</string>
-    <string name="attention_billsAdapter_notfoundType">BillsAdapter: Not found type of bill</string>
-    <string name="title_dialog_rec_listener">Listening...</string>
     <string name="dialog_title_save_image">Save image</string>
     <string name="dialog_message_save_dialog">Do you want to Save image?</string>
     <string name="dialog_title_delete_image">Delete Image</string>
@@ -77,4 +66,6 @@
     <string name="calendar_october">October</string>
     <string name="calendar_november">November</string>
     <string name="calendar_december">December</string>
+    <string name="title_date">Date</string>
+    <string name="title_time">Time</string>
 </resources>
