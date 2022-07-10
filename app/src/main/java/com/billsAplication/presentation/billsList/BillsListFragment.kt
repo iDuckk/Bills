@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -106,7 +107,7 @@ class BillsListFragment : Fragment() {
         onBackPressed()
 
         titleAmount()
-        //TODO оповещение, если есть Note типа значка на Bottom Nav
+        //TODO Переделать ItemBill in RecView
         titleBar()
 
         filterBar()

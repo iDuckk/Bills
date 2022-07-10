@@ -7,7 +7,7 @@
     <string name="bills_list_income">Income</string>
     <string name="bill_list_expense">Expense</string>
     <string name="bill_list_total">Total</string>
-    <string name="bills_list_null_0_0">0.0</string>
+    <string name="bills_list_null_0_0" translatable="false">0.0</string>
     <string name="month">Month</string>
     <string name="description_previous_month">previous month</string>
     <string name="description_next_month">next month</string>
@@ -32,20 +32,20 @@
     <string name="toast_fill_amount">Please fill Amount gap</string>
     <string name="toast_fill_category">Please fill Category gap</string>
     <string name="toast_fill_both_gaps">Please fill Amount and Category gaps</string>
-    <string name="Error_incorrect_typeOfBill">AddBillFragment: Incorrect type of bill</string>
+    <string name="Error_incorrect_typeOfBill" translatable="false">AddBillFragment: Incorrect type of bill</string>
     <string name="title_bookmarks">Bookmarks</string>
-    <string name="Wrong_entrence_type">AddBillFragment: Wrong type of entrance</string>
-    <string name="attention_mookmark_notfoundType">BookmarksAdapter: Not found type of bill</string>
+    <string name="Wrong_entrence_type" translatable="false">AddBillFragment: Wrong type of entrance</string>
+    <string name="attention_mookmark_notfoundType" translatable="false">BookmarksAdapter: Not found type of bill</string>
     <string name="title_desc_date">Desc/ascent</string>
     <string name="title_search">Search</string>
     <string name="title_new_bill">New bill</string>
     <string name="amount_min">Min.</string>
-    <string name="search_amount_separete">..-..</string>
+    <string name="search_amount_separete" translatable="false">..-..</string>
     <string name="amount_max">Max.</string>
     <string name="title_period">Period</string>
     <string name="search_choose_category">Choose category</string>
     <string name="search_cancel">Cancel</string>
-    <string name="ChooseCategoryDialog_error_null">ChooseCategoryDialog: Activity cannot be null</string>
+    <string name="ChooseCategoryDialog_error_null" translatable="false">ChooseCategoryDialog: Activity cannot be null</string>
     <string name="type_new_category">Type new Category</string>
     <string name="no_values_analytics">No values</string>
     <string name="add_note_with_microphone">Add note with microphone</string>
@@ -54,12 +54,24 @@
     <string name="type_note">Type note...</string>
     <string name="b_delete_note">delete</string>
     <string name="b_save_note">save</string>
-    <string name="attention_billsAdapter_notfoundType">BillsAdapter: Not found type of bill</string>
-    <string name="title_dialog_rec_listener">Listening...</string>
+    <string name="attention_billsAdapter_notfoundType" translatable="false">BillsAdapter: Not found type of bill</string>
+    <string name="title_dialog_rec_listener" translatable="false">Listening...</string>
     <string name="dialog_title_save_image">Save image</string>
     <string name="dialog_message_save_dialog">Do you want to Save image?</string>
     <string name="dialog_title_delete_image">Delete Image</string>
     <string name="dialog_message_delete_dialog">Do you want to Delete image?</string>
     <string name="themes_title">Themes:</string>
+    <string name="calendar_January">January</string>
+    <string name="calendar_february">February</string>
+    <string name="calendar_march">March</string>
+    <string name="calendar_april">April</string>
+    <string name="calendar_may">May</string>
+    <string name="calendar_june">June</string>
+    <string name="calendar_july">July</string>
+    <string name="calendar_august">August</string>
+    <string name="calendar_september">September</string>
+    <string name="calendar_october">October</string>
+    <string name="calendar_november">November</string>
+    <string name="calendar_december">December</string>
 
 </resources>
