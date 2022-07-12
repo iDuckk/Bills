@@ -1,6 +1,8 @@
 package com.billsAplication.presentation.mainActivity
 
 import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
@@ -16,7 +18,9 @@ import com.billsAplication.presentation.analytics.AnalyticsFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
+import com.billsAplication.utils.Language
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.*
 
 /*
     TYPE_EXPENSES = 0
@@ -27,6 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setLocate()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -35,9 +40,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object{
-        const val TYPE_THEME = "themeType"
-        const val LIGHT_THEME = 0
-        const val DARK_THEME = 1
+        private const val TYPE_THEME = "themeType"
+        private const val LIGHT_THEME = 0
+        private const val DARK_THEME = 1
+        private const val CURRANT_LANGUAGE_POS = "currentLanguagePos"
+        private const val DEFAULT_POS = 0
     }
 
     fun initBottomNavigation(){
@@ -54,6 +61,24 @@ class MainActivity : AppCompatActivity() {
             LIGHT_THEME -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             DARK_THEME -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
+    }
+
+    private fun setLocate(){
+        //Get statement of Language in Share preference
+        val sharedPref = this.getPreferences(MODE_PRIVATE)
+        val position = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
+        //Set Language
+        val locale = Locale(Language.values().get(position).shortName)
+        Locale.setDefault(locale)
+        val config = Configuration()
+        config.locale = locale
+        this.resources.updateConfiguration(config, this.resources.displayMetrics)
+        val refresh = Intent(
+            this,
+            MainActivity::class.java
+        )
+        //Update screen
+//        startActivity(refresh)
     }
 
     override fun onStart() {

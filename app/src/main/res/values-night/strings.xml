@@ -73,5 +73,6 @@
     <string name="calendar_october">October</string>
     <string name="calendar_november">November</string>
     <string name="calendar_december">December</string>
+    <string name="language">Language:</string>
 
 </resources>

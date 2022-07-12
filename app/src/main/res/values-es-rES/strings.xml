@@ -3,7 +3,7 @@
     <string name="app_name">Bills</string>
     <string name="menu_list_bills">Cheque</string>
     <string name="menu_analytics">Analítica</string>
-    <string name="menu_shopping_list">Las lista de compras</string>
+    <string name="menu_shopping_list">Listas de compras</string>
     <string name="menu_settings">Ajuste</string>
     <string name="bills_list_income">Ingresos</string>
     <string name="bill_list_expense">Gastos</string>
@@ -68,4 +68,5 @@
     <string name="calendar_december">Diciembre</string>
     <string name="title_date">Fecha</string>
     <string name="title_time">Tiempo</string>
+    <string name="language">Language:</string>
 </resources>
