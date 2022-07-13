@@ -2,6 +2,7 @@ package com.billsAplication.presentation.billsList
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -15,10 +16,11 @@ import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
 import com.billsAplication.domain.billsUseCases.GetTypeUseCase
 import com.billsAplication.domain.model.BillsItem
 import java.time.LocalDate
+import java.util.*
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
-@ApplicationScope
+//@ApplicationScope
 class BillsListViewModel @Inject constructor(
     private val getAllDatabase : GetAllDataListUseCase,
     private val getMonth : GetMonthListUseCase,
@@ -105,36 +107,41 @@ class BillsListViewModel @Inject constructor(
 
     fun mapMonthToSQL(month: String): String{
         when(month.dropLast(5)){
-            application.applicationContext.getString(R.string.calendar_January) -> return JANUARY + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_february) -> return FEBRUARY + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_march) -> return MARCH + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_april) -> return APRIL + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_may) -> return MAY + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_june) -> return JUNE + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_july) -> return JULY + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_august) -> return AUGUST + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_september) -> return SEPTEMBER + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_october) -> return OCTOBER + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_november) -> return NOVEMBER + month.removePrefix(month.dropLast(5))
-            application.applicationContext.getString(R.string.calendar_december) -> return DECEMBER + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_January) -> return JANUARY + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_february) -> return FEBRUARY + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_march) -> return MARCH + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_april) -> return APRIL + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_may) -> return MAY + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_june) -> return JUNE + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_july) -> return JULY + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_august) -> return AUGUST + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_september) -> return SEPTEMBER + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_october) -> return OCTOBER + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_november) -> return NOVEMBER + month.removePrefix(month.dropLast(5))
+            application.getString(R.string.calendar_december) -> return DECEMBER + month.removePrefix(month.dropLast(5))
         }
         return ""
     }
 
     fun mapMonthToTextView(month: String): String{
+        //Update resources for new language
+        val config = Configuration()
+        val locale = Locale(Locale.getDefault().language)
+        config.locale = locale
+        application.resources.updateConfiguration(Configuration(), application.resources.displayMetrics)
         when(month){
-            JANUARY -> return application.applicationContext.getString(R.string.calendar_January)
-            FEBRUARY -> return application.applicationContext.getString(R.string.calendar_february)
-            MARCH -> return application.applicationContext.getString(R.string.calendar_march)
-            APRIL -> return application.applicationContext.getString(R.string.calendar_april)
-            MAY -> return application.applicationContext.getString(R.string.calendar_may)
-            JUNE -> return application.applicationContext.getString(R.string.calendar_june)
-            JULY -> return application.applicationContext.getString(R.string.calendar_july)
-            AUGUST -> return application.applicationContext.getString(R.string.calendar_august)
-            SEPTEMBER -> return application.applicationContext.getString(R.string.calendar_september)
-            OCTOBER -> return application.applicationContext.getString(R.string.calendar_october)
-            NOVEMBER -> return application.applicationContext.getString(R.string.calendar_november)
-            DECEMBER -> return application.applicationContext.getString(R.string.calendar_december)
+            JANUARY -> return application.getString(R.string.calendar_January)
+            FEBRUARY -> return application.getString(R.string.calendar_february)
+            MARCH -> return application.getString(R.string.calendar_march)
+            APRIL -> return application.getString(R.string.calendar_april)
+            MAY -> return application.getString(R.string.calendar_may)
+            JUNE -> return application.getString(R.string.calendar_june)
+            JULY -> return application.getString(R.string.calendar_july)
+            AUGUST -> return application.getString(R.string.calendar_august)
+            SEPTEMBER -> return application.getString(R.string.calendar_september)
+            OCTOBER -> return application.getString(R.string.calendar_october)
+            NOVEMBER -> return application.getString(R.string.calendar_november)
+            DECEMBER -> return application.getString(R.string.calendar_december)
         }
         return ""
     }

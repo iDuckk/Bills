@@ -3,9 +3,12 @@ package com.billsAplication.presentation.mainActivity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.Navigation.findNavController
@@ -68,17 +71,20 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = this.getPreferences(MODE_PRIVATE)
         val position = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
         //Set Language
-        val locale = Locale(Language.values().get(position).shortName)
-        Locale.setDefault(locale)
-        val config = Configuration()
-        config.locale = locale
-        this.resources.updateConfiguration(config, this.resources.displayMetrics)
-        val refresh = Intent(
-            this,
-            MainActivity::class.java
-        )
-        //Update screen
-//        startActivity(refresh)
+        if(position != DEFAULT_POS) {
+            val locale = Locale(Language.values().get(position).shortName)
+            Locale.setDefault(locale)
+            val config = Configuration()
+            config.locale = locale
+            this.resources.updateConfiguration(config, this.resources.displayMetrics)
+        }
+        else{
+            val locale = Locale(ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0).language)
+            Locale.setDefault(locale)
+            val config = Configuration()
+            config.locale = locale
+            this.resources.updateConfiguration(config, this.resources.displayMetrics)
+        }
     }
 
     override fun onStart() {
