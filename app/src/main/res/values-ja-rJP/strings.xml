@@ -68,5 +68,5 @@
     <string name="calendar_december">12月</string>
     <string name="title_date">日にち</string>
     <string name="title_time">時間</string>
-    <string name="language">Language:</string>
+    <string name="language">言語：</string>
 </resources>

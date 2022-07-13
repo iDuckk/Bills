@@ -67,10 +67,10 @@
         android:id="@+id/tv_settings_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
         android:text="@string/language"
+        android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/switchTheme" />
 
@@ -78,12 +78,13 @@
         android:id="@+id/b_language"
         android:layout_width="wrap_content"
         android:layout_height="35sp"
-        android:textSize="11sp"
-        android:text="@string/language"
         android:layout_marginStart="10sp"
         android:layout_marginTop="5sp"
+        android:text="@string/language"
+        android:textSize="11sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline_language"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_settings_language" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

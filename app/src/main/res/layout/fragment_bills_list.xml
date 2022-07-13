@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/recViewBill">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -123,6 +124,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline_centre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.50" />
+
                     <ImageView
                         android:id="@+id/im_backMonth"
                         android:layout_width="wrap_content"
@@ -139,15 +147,17 @@
                         android:id="@+id/im_nextMonth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
                         android:contentDescription="@string/description_next_month"
                         android:src="@drawable/ic_navigate_next"
                         app:layout_constraintBottom_toBottomOf="@+id/tv_month"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline_centre"
                         app:layout_constraintStart_toEndOf="@+id/tv_month"
                         app:layout_constraintTop_toTopOf="@+id/tv_month" />
 
                     <TextView
                         android:id="@+id/tv_month"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0sp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/month"
@@ -160,33 +170,37 @@
                         android:id="@+id/im_bills_filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="10sp"
                         android:contentDescription="@string/description_filter"
                         android:src="@drawable/ic_filter"
-                        android:layout_marginEnd="10sp"
                         app:layout_constraintBottom_toBottomOf="@+id/im_nextMonth"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/im_bills_search"
                         app:layout_constraintTop_toTopOf="@+id/im_nextMonth" />
 
                     <ImageView
                         android:id="@+id/im_bills_search"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"
                         android:contentDescription="@string/description_search"
                         android:src="@drawable/ic_search"
-                        android:layout_marginEnd="30sp"
                         app:layout_constraintBottom_toBottomOf="@+id/im_bills_filter"
                         app:layout_constraintEnd_toStartOf="@+id/im_bills_filter"
+                        app:layout_constraintStart_toEndOf="@+id/im_bookmarks"
                         app:layout_constraintTop_toTopOf="@+id/im_bills_filter" />
 
                     <ImageView
                         android:id="@+id/im_bookmarks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="40dp"
                         android:contentDescription="@string/description_bookmarks"
-                        android:layout_marginEnd="30sp"
                         android:src="@drawable/ic_bookmarks"
                         app:layout_constraintBottom_toBottomOf="@+id/im_bills_search"
                         app:layout_constraintEnd_toStartOf="@+id/im_bills_search"
+                        app:layout_constraintStart_toStartOf="@+id/guideline_centre"
                         app:layout_constraintTop_toTopOf="@+id/im_bills_search" />
 
 

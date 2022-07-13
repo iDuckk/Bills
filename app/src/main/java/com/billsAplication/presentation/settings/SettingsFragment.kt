@@ -5,13 +5,15 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.billsAplication.BillsApplication
@@ -32,6 +34,7 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var stateColorButton: StateColorButton
+
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -121,11 +124,20 @@ class SettingsFragment : Fragment() {
             apply()
         }
         //Set Language
-        val locale = Locale(Language.values().get(position).shortName)
-        Locale.setDefault(locale)
-        val config = Configuration()
-        config.locale = locale
-        requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
+        if(position != DEFAULT_POS) {
+            val locale = Locale(Language.values().get(position).shortName)
+            Locale.setDefault(locale)
+            val config = Configuration()
+            config.locale = locale
+            requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
+        }
+        else{
+            val locale = Locale(ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0).language)
+            Locale.setDefault(locale)
+            val config = Configuration()
+            config.locale = locale
+            requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
+        }
         val refresh = Intent(
             requireContext(),
             MainActivity::class.java
