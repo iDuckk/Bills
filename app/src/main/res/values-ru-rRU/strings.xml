@@ -69,4 +69,7 @@
     <string name="calendar_november">Ноябрь</string>
     <string name="calendar_december">Декабрь</string>
     <string name="language">Язык:</string>
+    <string name="currency">Currency:</string>
+    <string name="code_currency">Code</string>
+    <string name="symbol_currency">Symbol</string>
 </resources>

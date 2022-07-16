@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.utils.Currency
+import com.billsAplication.utils.CurrentCurrency
 import java.text.DecimalFormat
 import javax.inject.Inject
 
@@ -72,11 +74,11 @@ class BillsAdapter  @Inject constructor(): ListAdapter<BillsItem, BillViewHolder
 
             if (item.type == TYPE_INCOME) {
                 holderBill.tv_Item_Income.visibility = View.VISIBLE
-                holderBill.tv_Item_Income.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
+                holderBill.tv_Item_Income.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Expense.visibility = View.GONE
             } else if(item.type == TYPE_EXPENSES) {
                 holderBill.tv_Item_Expense.visibility = View.VISIBLE
-                holderBill.tv_Item_Expense.text = item.amount + " " + DecimalFormat().currency!!.currencyCode
+                holderBill.tv_Item_Expense.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Income.visibility = View.GONE
             }else Log.e("TAG", holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType))
         }

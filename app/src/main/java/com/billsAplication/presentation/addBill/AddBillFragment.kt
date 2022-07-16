@@ -148,7 +148,7 @@ class AddBillFragment : Fragment() {
         binding.recViewPhoto.visibility = View.GONE
 
         //Set Currency of amount EditText - Default currency
-        binding.tvCurrancy.text = DecimalFormat().currency!!.currencyCode
+        binding.tvCurrancy.text = CurrentCurrency.currency
 
         initAutoCompleteEditText()
 
