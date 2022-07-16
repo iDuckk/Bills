@@ -54,14 +54,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="60sp" />
+        app:layout_constraintGuide_begin="70sp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="120dp" />
+        app:layout_constraintGuide_begin="140dp" />
 
     <TextView
         android:id="@+id/tv_settings_language"
@@ -77,14 +77,68 @@
     <Button
         android:id="@+id/b_language"
         android:layout_width="wrap_content"
-        android:layout_height="35sp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10sp"
         android:layout_marginTop="5sp"
         android:text="@string/language"
-        android:textSize="11sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline_language"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_settings_language" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="210dp" />
+
+    <Spinner
+        android:id="@+id/spinner_currency"
+        android:layout_width="200sp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_currency"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/currency"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_language" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/spinner_currency"
+        app:layout_constraintStart_toEndOf="@+id/spinner_currency"
+        app:layout_constraintTop_toTopOf="@+id/spinner_currency">
+
+    <RadioButton
+        android:id="@+id/rb_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:textSize="11sp"
+        android:text="@string/code_currency" />
+
+    <RadioButton
+        android:id="@+id/rb_symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textSize="11sp"
+        android:text="@string/symbol_currency"/>
+    </RadioGroup>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

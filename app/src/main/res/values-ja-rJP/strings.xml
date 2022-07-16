@@ -69,4 +69,7 @@
     <string name="title_date">日にち</string>
     <string name="title_time">時間</string>
     <string name="language">言語：</string>
+    <string name="currency">Currency:</string>
+    <string name="code_currency">Code</string>
+    <string name="symbol_currency">Symbol</string>
 </resources>

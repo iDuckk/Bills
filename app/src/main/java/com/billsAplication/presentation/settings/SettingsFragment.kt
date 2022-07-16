@@ -12,6 +12,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
@@ -21,6 +24,8 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.Currency
+import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.Language
 import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -56,6 +61,8 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setDefaultValues()
+
         setButtonText()
 
         switchColorState()
@@ -66,6 +73,10 @@ class SettingsFragment : Fragment() {
 
         buttonLanguage()
 
+        spinnerCurrency()
+
+        radioButtonsCurrency()
+
     }
 
     companion object {
@@ -73,12 +84,119 @@ class SettingsFragment : Fragment() {
         private const val DARK_THEME = 1
         private const val TYPE_THEME = "themeType"
         private const val CURRANT_LANGUAGE_POS = "currentLanguagePos"
+        private const val CURRANT_CURRENCY_POS = "currentCurrencyPos"
+        private const val CURRANT_CURRENCY_TYPE = "currentCurrencyType"
         private const val DEFAULT_POS = 0
+        private const val DEFAULT_TYPE = false
         private const val KEY_LANGUAGE_LIST_FRAGMENT = "key_language_from_fragment"
         private const val KEY_CHOSEN_LANGUAGE_LIST_FRAGMENT = "key_SET_language_from_fragment"
         private const val TAG_DIALOG_LANGUAGE = "Dialog_language"
         private const val REQUEST_KEY_LANGUAGE_ITEM = "RequestKey_LANGUAGE_item"
         private const val KEY_LANGUAGE_ITEMS_DIALOG = "key_language_from_dialog"
+
+        private var typeCurrency = false
+        private var currencyPos = 0
+
+    }
+
+    private fun setDefaultValues(){
+        //Get statement of Currency in Share preference
+        val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
+        typeCurrency = sharedPref.getBoolean(CURRANT_CURRENCY_TYPE, DEFAULT_TYPE)
+        currencyPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
+    }
+
+    private fun spinnerCurrency() {
+        val spinnerAdapter = object: ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            listCurrency()
+        ){
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val view: TextView = super.getDropDownView(
+                    position,
+                    convertView,
+                    parent
+                ) as TextView
+                // set item text size
+                view.setTextSize(TypedValue.COMPLEX_UNIT_SP,12F)
+                // set spinner item padding
+                view.setPadding(
+                    5.toDp(context), // left
+                    3.toDp(context), // top
+                    5.toDp(context), // right
+                    3.toDp(context) // bottom
+                )
+                return view
+            }
+        }
+        binding.spinnerCurrency.adapter = spinnerAdapter
+        binding.spinnerCurrency.setSelection(currencyPos) //set Current Pos
+
+
+        // Set an on item selected listener for spinner object
+        binding.spinnerCurrency.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {//parent.getItemAtPosition(position).toString()
+                if(binding.rbCode.isChecked){
+                    CurrentCurrency.type = false
+                    CurrentCurrency.currency = Currency.values().get(position).code
+                    setSharePref()
+                }else{
+                    CurrentCurrency.type = true
+                    CurrentCurrency.currency = Currency.values().get(position).symbol
+                    setSharePref()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
+            }
+        }
+    }
+
+    private fun listCurrency(): Array<out String> {
+        var list = arrayOf<String>()
+        Currency.values().forEach {
+            list += it.name
+        }
+        return list
+    }
+
+    private fun radioButtonsCurrency(){
+        if(!typeCurrency)
+            binding.rbSymbol.isChecked = true
+        else
+            binding.rbCode.isChecked = true
+
+        binding.rbCode.setOnClickListener{
+                CurrentCurrency.type = false
+                CurrentCurrency.currency = Currency.values().get(binding.spinnerCurrency.selectedItemPosition).code
+                setSharePref()
+        }
+
+        binding.rbSymbol.setOnClickListener {
+                CurrentCurrency.type = true
+                CurrentCurrency.currency = Currency.values().get(binding.spinnerCurrency.selectedItemPosition).symbol
+                setSharePref()
+        }
+    }
+
+    private fun setSharePref(){
+        //Save statement of Currency in Share preference
+        val sharedPref = requireActivity().getPreferences(MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putBoolean(CURRANT_CURRENCY_TYPE, CurrentCurrency.type)
+            putInt(CURRANT_CURRENCY_POS, binding.spinnerCurrency.selectedItemPosition)
+            apply()
+        }
     }
 
     private fun buttonLanguage(){

@@ -2,7 +2,8 @@ package com.billsAplication.presentation.billsList
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -28,13 +30,16 @@ import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.time.LocalDate
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.text.NumberFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -108,6 +113,7 @@ class BillsListFragment : Fragment() {
 
         titleAmount()
         //TODO Переделать ItemBill in RecView
+        //TODO вопрос, о смене языка
         titleBar()
 
         filterBar()

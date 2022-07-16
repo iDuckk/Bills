@@ -69,4 +69,7 @@
     <string name="title_date">Datum</string>
     <string name="title_time">Zeit</string>
     <string name="language">Sprache:</string>
+    <string name="currency">Currency:</string>
+    <string name="code_currency">Code</string>
+    <string name="symbol_currency">Symbol</string>
 </resources>

@@ -21,6 +21,8 @@ import com.billsAplication.presentation.analytics.AnalyticsFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
+import com.billsAplication.utils.Currency
+import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.Language
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         initBottomNavigation()
 
+        setCurrency()
     }
 
     companion object{
@@ -48,6 +51,10 @@ class MainActivity : AppCompatActivity() {
         private const val DARK_THEME = 1
         private const val CURRANT_LANGUAGE_POS = "currentLanguagePos"
         private const val DEFAULT_POS = 0
+        private const val CURRANT_CURRENCY_TYPE = "currentCurrencyType"
+        private const val CURRANT_CURRENCY_POS = "currentCurrencyPos"
+        private const val DEFAULT_TYPE = false
+
     }
 
     fun initBottomNavigation(){
@@ -84,6 +91,20 @@ class MainActivity : AppCompatActivity() {
             val config = Configuration()
             config.locale = locale
             this.resources.updateConfiguration(config, this.resources.displayMetrics)
+        }
+    }
+
+    private fun setCurrency(){
+        //Get statement of Currency in Share preference
+        val sharedPref = this.getPreferences(MODE_PRIVATE)
+        val type = sharedPref.getBoolean(CURRANT_CURRENCY_TYPE, DEFAULT_TYPE)
+        val curPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
+        if(type){
+            //currency
+            CurrentCurrency.currency = Currency.values().get(curPos).symbol
+        }else{
+            //currency
+            CurrentCurrency.currency = Currency.values().get(curPos).code
         }
     }
 

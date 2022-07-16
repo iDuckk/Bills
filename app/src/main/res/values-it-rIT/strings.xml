@@ -69,4 +69,7 @@
     <string name="title_date">Data</string>
     <string name="title_time">Volta</string>
     <string name="language">Lingua:</string>
+    <string name="currency">Currency:</string>
+    <string name="code_currency">Code</string>
+    <string name="symbol_currency">Symbol</string>
 </resources>
