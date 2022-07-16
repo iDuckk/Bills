@@ -171,7 +171,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun radioButtonsCurrency(){
-        if(!typeCurrency)
+        if(typeCurrency)
             binding.rbSymbol.isChecked = true
         else
             binding.rbCode.isChecked = true
