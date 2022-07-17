@@ -69,7 +69,10 @@
     <string name="title_time">Temps</string>
     <string name="search_choose_category">Choisissez la catégorie</string>
     <string name="language">Langue:</string>
-    <string name="currency">Currency:</string>
+    <string name="currency">Devise:</string>
     <string name="code_currency">Code</string>
-    <string name="symbol_currency">Symbol</string>
+    <string name="symbol_currency">Symbole</string>
+    <string name="dialog_title_change_lang">Changer de langue</string>
+    <string name="dialog_message_change_lang_dialog">Voulez-vous changer de langue ?</string>
+    <string name="button_yes">Oui</string>
 </resources>

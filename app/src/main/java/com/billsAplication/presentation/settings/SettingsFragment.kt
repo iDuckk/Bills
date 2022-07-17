@@ -1,11 +1,13 @@
 package com.billsAplication.presentation.settings
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -15,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
@@ -22,6 +25,7 @@ import androidx.fragment.app.setFragmentResultListener
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
+import com.billsAplication.domain.model.ImageItem
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.Currency
@@ -222,8 +226,24 @@ class SettingsFragment : Fragment() {
         //Receive chosen items from Dialog
         dialog.setFragmentResultListener(REQUEST_KEY_LANGUAGE_ITEM) { requestKey, bundle ->
             val item = bundle.getInt(KEY_LANGUAGE_ITEMS_DIALOG) //get chosen Items
-            setLocate(item)
+            if(Language.values().get(item).Name != binding.bLanguage.text)
+                dialogDeleteImage(item)
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dialogDeleteImage(item: Int){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog =  builder
+            .setTitle(getString(R.string.dialog_title_change_lang))
+            .setMessage(getString(R.string.dialog_message_change_lang_dialog))
+            .setPositiveButton(getString(R.string.button_yes)){
+                    dialog, id ->
+                setLocate(item) //Change language
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
     }
 
     private fun listLanguage(): Array<out String> {

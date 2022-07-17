@@ -69,7 +69,10 @@
     <string name="calendar_november">Листопад</string>
     <string name="calendar_december">Грудень</string>
     <string name="language">Мову:</string>
-    <string name="currency">Currency:</string>
-    <string name="code_currency">Code</string>
-    <string name="symbol_currency">Symbol</string>
+    <string name="currency">Валюта:</string>
+    <string name="code_currency">Код</string>
+    <string name="symbol_currency">Символ</string>
+    <string name="dialog_title_change_lang">Змінити мову</string>
+    <string name="dialog_message_change_lang_dialog">Ви хочете змінити мову?</string>
+    <string name="button_yes">Так</string>
 </resources>

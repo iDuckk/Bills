@@ -69,7 +69,10 @@
     <string name="title_date">Datum</string>
     <string name="title_time">Zeit</string>
     <string name="language">Sprache:</string>
-    <string name="currency">Currency:</string>
+    <string name="currency">Währung:</string>
     <string name="code_currency">Code</string>
     <string name="symbol_currency">Symbol</string>
+    <string name="dialog_title_change_lang">Sprache ändern</string>
+    <string name="dialog_message_change_lang_dialog">Möchten Sie die Sprache ändern?</string>
+    <string name="button_yes">Ja</string>
 </resources>

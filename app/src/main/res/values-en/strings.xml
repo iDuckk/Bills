@@ -72,4 +72,7 @@
     <string name="currency">Currency:</string>
     <string name="code_currency">Code</string>
     <string name="symbol_currency">Symbol</string>
+    <string name="dialog_title_change_lang">Change language</string>
+    <string name="dialog_message_change_lang_dialog">Do you want to change language?</string>
+    <string name="button_yes">Yes</string>
 </resources>
