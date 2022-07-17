@@ -69,7 +69,10 @@
     <string name="title_date">日期</string>
     <string name="title_time">时间</string>
     <string name="language">语：</string>
-    <string name="currency">Currency:</string>
-    <string name="code_currency">Code</string>
-    <string name="symbol_currency">Symbol</string>
+    <string name="currency">货币：</string>
+    <string name="code_currency">代码</string>
+    <string name="symbol_currency">象征</string>
+    <string name="dialog_title_change_lang">改变语言</string>
+    <string name="dialog_message_change_lang_dialog">你想改变语言吗？</string>
+    <string name="button_yes">是的</string>
 </resources>

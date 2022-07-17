@@ -69,7 +69,10 @@
     <string name="title_date">日にち</string>
     <string name="title_time">時間</string>
     <string name="language">言語：</string>
-    <string name="currency">Currency:</string>
-    <string name="code_currency">Code</string>
-    <string name="symbol_currency">Symbol</string>
+    <string name="currency">通貨：</string>
+    <string name="code_currency">コード</string>
+    <string name="symbol_currency">シンボル</string>
+    <string name="dialog_title_change_lang">言語を変更</string>
+    <string name="dialog_message_change_lang_dialog">言語を変更しますか？</string>
+    <string name="button_yes">Yes</string>
 </resources>

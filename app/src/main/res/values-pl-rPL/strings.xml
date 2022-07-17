@@ -69,7 +69,10 @@
     <string name="calendar_october">Październik</string>
     <string name="calendar_november">Listopad</string>
     <string name="calendar_december">Grudzień</string>
-    <string name="currency">Currency:</string>
-    <string name="code_currency">Code</string>
+    <string name="currency">Waluta:</string>
+    <string name="code_currency">Kod</string>
     <string name="symbol_currency">Symbol</string>
+    <string name="dialog_title_change_lang">Zmień język</string>
+    <string name="dialog_message_change_lang_dialog">Chcesz zmienić język?</string>
+    <string name="button_yes">TAk</string>
 </resources>
