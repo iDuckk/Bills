@@ -15,8 +15,10 @@
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/a.xml" value="0.2005" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/add_button.xml" value="0.2005" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/background_selector.xml" value="0.249" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/background_selector_title.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/color_cursor.xml" value="0.1945" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/color_cursor_expense.xml" value="0.1945" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/date_border_cardview.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/disable_color_button.xml" value="0.1375" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/dotted.xml" value="0.2365" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/double_color_button.xml" value="0.173" />
@@ -43,12 +45,13 @@
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/selector_switch_unchecked.xml" value="0.1895" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/state_recview_item.xml" value="0.249" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border.xml" value="0.2235" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border_cardview.xml" value="0.158" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border_expense.xml" value="0.2235" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/textview_border_income.xml" value="0.2235" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/thumb.xml" value="0.1995" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/drawable/thumb_drawable.xml" value="0.1995" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/activity_main.xml" value="0.33" />
-        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/bill_item.xml" value="0.33" />
+        <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/bill_item.xml" value="0.5" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/bookmarks_item.xml" value="0.3125" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/category_item.xml" value="0.30978260869565216" />
         <entry key="..\:/AndroidStudioProjects/Bills/app/src/main/res/layout/date_picker.xml" value="0.30978260869565216" />
