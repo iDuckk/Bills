@@ -9,11 +9,11 @@ class BillViewHolder( binding: BillItemBinding) : RecyclerView.ViewHolder(bindin
     val tv_MonthYear = binding.tvMonthYear
     val tv_Time = binding.tvTime
     val tv_Category = binding.tvCategory
-    val tv_Item_Income = binding.tvItemIncome
-    val tv_Item_Expense = binding.tvItemExpense
+    val tv_Item_Amaount = binding.tvItemAmount
     val tv_Item_Description = binding.tvItemNote
     val im_ifExist = binding.imIfExist
 
     val cardVIewTitle = binding.cardViewTitleItem
+    val cardVIewDate = binding.cardViewDate
 
 }

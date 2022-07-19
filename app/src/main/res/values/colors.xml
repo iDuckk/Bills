@@ -16,8 +16,8 @@
     <color name="springGreen">#02EEA2</color>
     <color name="mediumSpringGreen">#00FF7F</color>
     <color name="bottomNav">#212121</color>
-    <color name="main_background">#232323</color>
-    <color name="background_barviews_colordark">#252525</color>
+    <color name="main_background">#222222</color>
+    <color name="background_barviews_colordark">#262626</color>
     <color name="back_for_border">#424242</color>
     <color name="shop_item_text">#616161</color>
 <!--    Note colors-->
