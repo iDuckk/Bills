@@ -1,6 +1,7 @@
 package com.billsAplication.presentation.billsList
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -34,6 +35,7 @@ import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -112,8 +114,7 @@ class BillsListFragment : Fragment() {
         onBackPressed()
 
         titleAmount()
-        //TODO Переделать ItemBill in RecView
-        //TODO вопрос, о смене языка
+
         titleBar()
 
         filterBar()
@@ -124,7 +125,7 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-        setNewList(binding.tvMonth.text.toString())
+//        setNewList(binding.tvMonth.text.toString())
     }
 
     private fun searchButton(){
@@ -139,6 +140,19 @@ class BillsListFragment : Fragment() {
     private fun addButton() {
         binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {
+                dialogDeleteItems()
+            } else {
+                bundle.putInt(ADD_BILL_KEY, CREATE_TYPE)
+                findNavController().navigate(
+                    R.id.action_billsListFragment_to_addBillFragment,
+                    bundle
+                )
+            }
+        }
+    }
+
+    private fun deleteItems() {
+            billAdapter.submitList(null).apply {
                 CoroutineScope(Main).launch {
                     if (listDeleteItems.isNotEmpty()) {
                         listDeleteItems.forEach {
@@ -149,14 +163,22 @@ class BillsListFragment : Fragment() {
                     deleteItem = false
                     listDeleteItems.clear()
                 }
-            } else {
-                bundle.putInt(ADD_BILL_KEY, CREATE_TYPE)
-                findNavController().navigate(
-                    R.id.action_billsListFragment_to_addBillFragment,
-                    bundle
-                )
             }
-        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dialogDeleteItems(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog =  builder
+            .setTitle(getString(R.string.dialog_title_delete_Bills))
+            .setMessage(getString(R.string.dialog_message_delete_bills))
+            .setPositiveButton(getString(R.string.button_yes)){
+                    dialog, id ->
+                deleteItems() //Delete items
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -538,13 +560,14 @@ class BillsListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNewList(month: String) {
         //Delete observe if Active
-        if(viewModel.list.hasActiveObservers())
-        viewModel.list.removeObservers(this)
+//        if(viewModel.list.hasActiveObservers())
+        viewModel.list.removeObservers(viewLifecycleOwner).apply {
         //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(viewLifecycleOwner) {
             //Set list to Adapter
-            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
+            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date + item.time) }
+                .toList())
             //Create amount for title amountTextView
             it.forEach { item ->
                 when (item.type) {
@@ -559,6 +582,7 @@ class BillsListFragment : Fragment() {
             titleTotal.postValue(income - expense)
             income = BigDecimal(0)
             expense = BigDecimal(0)
+            }
         }
     }
 

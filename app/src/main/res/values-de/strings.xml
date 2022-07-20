@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">Sprache ändern</string>
     <string name="dialog_message_change_lang_dialog">Möchten Sie die Sprache ändern?</string>
     <string name="button_yes">Ja</string>
+    <string name="dialog_title_delete_Bills">Rechnungen löschen</string>
+    <string name="dialog_message_delete_bills">Möchten Sie Rechnungen löschen?</string>
 </resources>

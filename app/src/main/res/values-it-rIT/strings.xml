@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">Cambia lingua</string>
     <string name="dialog_message_change_lang_dialog">Vuoi cambiare lingua?</string>
     <string name="button_yes">sì</string>
+    <string name="dialog_title_delete_Bills">Elimina fatture</string>
+    <string name="dialog_message_delete_bills">Vuoi eliminare le fatture?</string>
 </resources>

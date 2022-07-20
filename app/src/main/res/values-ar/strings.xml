@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">تغيير اللغة</string>
     <string name="dialog_message_change_lang_dialog">هل تريد تغيير اللغة؟</string>
     <string name="button_yes">نعم</string>
+    <string name="dialog_title_delete_Bills">حذف مشاريع القوانين</string>
+    <string name="dialog_message_delete_bills">هل تريد حذف الفواتير؟</string>
 </resources>
