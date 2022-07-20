@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">言語を変更</string>
     <string name="dialog_message_change_lang_dialog">言語を変更しますか？</string>
     <string name="button_yes">Yes</string>
+    <string name="dialog_title_delete_Bills">請求書を削除する</string>
+    <string name="dialog_message_delete_bills">請求書を削除しますか？</string>
 </resources>

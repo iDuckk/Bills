@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">Changer de langue</string>
     <string name="dialog_message_change_lang_dialog">Voulez-vous changer de langue ?</string>
     <string name="button_yes">Oui</string>
+    <string name="dialog_title_delete_Bills">Supprimer les chèques</string>
+    <string name="dialog_message_delete_bills">Voulez-vous supprimer des chèques ?</string>
 </resources>

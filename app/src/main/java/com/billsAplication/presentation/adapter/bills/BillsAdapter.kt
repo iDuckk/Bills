@@ -164,4 +164,5 @@ class BillsAdapter @Inject constructor() :
         mIsHighlight.value = false
         isClicked = false
     }
+
 }

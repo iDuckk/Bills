@@ -75,4 +75,6 @@
     <string name="dialog_message_change_lang_dialog">Вы правда хотите изменить язык?</string>
     <string name="button_yes">Да</string>
     <string name="symbol_currency">Символ</string>
+    <string name="dialog_title_delete_Bills">Удалить счета</string>
+    <string name="dialog_message_delete_bills">Вы правда хотите удалить счета?</string>
 </resources>

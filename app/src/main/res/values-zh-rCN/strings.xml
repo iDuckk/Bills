@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">改变语言</string>
     <string name="dialog_message_change_lang_dialog">你想改变语言吗？</string>
     <string name="button_yes">是的</string>
+    <string name="dialog_title_delete_Bills">删除账单</string>
+    <string name="dialog_message_delete_bills">您要删除账单吗？</string>
 </resources>

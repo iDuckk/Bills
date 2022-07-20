@@ -75,4 +75,6 @@
     <string name="dialog_title_change_lang">Змінити мову</string>
     <string name="dialog_message_change_lang_dialog">Ви хочете змінити мову?</string>
     <string name="button_yes">Так</string>
+    <string name="dialog_title_delete_Bills">Видалити рахунки</string>
+    <string name="dialog_message_delete_bills">Ви хочете видалити рахунки?</string>
 </resources>
