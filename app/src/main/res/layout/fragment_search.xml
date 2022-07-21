@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".presentation.search.SearchFragment">
+    tools:context=".presentation.search.SearchFragment"
+    android:background="@color/background_cv_filter">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_search_Bar"
@@ -358,6 +359,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="1sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/recViewBill_search"
         app:layout_constraintTop_toBottomOf="@+id/cardView_RollImage">
@@ -445,7 +447,6 @@
         android:layout_width="match_parent"
         android:layout_height="0sp"
         android:background="?colorOnPrimary"
-        android:layout_marginTop="5sp"
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/thumb_drawable"
         app:fastScrollHorizontalTrackDrawable="@drawable/line_drawable"
@@ -455,7 +456,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView_search_budget"
-        tools:listitem="@layout/bill_item">
+        tools:listitem="@layout/bill_item_search">
     </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

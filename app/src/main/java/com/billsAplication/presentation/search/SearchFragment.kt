@@ -27,6 +27,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSearchBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
@@ -50,7 +51,7 @@ class SearchFragment : Fragment() {
     lateinit var viewModel: SearchViewModel
 
     @Inject
-    lateinit var billAdapter: BillsAdapter
+    lateinit var billAdapter: BillsAdapter_SearchAnalytics
 
     private val bundle = Bundle()
     private val UPDATE_TYPE_SEARCH = 103
@@ -80,7 +81,7 @@ class SearchFragment : Fragment() {
     private var titleTotal = MutableLiveData<BigDecimal>()
     private var imageRoll = false
     private var deleteItem = false
-    private var allItemList = ArrayList<BillsItem>()
+//    private var allItemList = ArrayList<BillsItem>()
     private var listDeleteItems = ArrayList<BillsItem>()
     private var categoryList = arrayOf<String>()
     private var monthList = arrayOf<String>()
@@ -114,7 +115,7 @@ class SearchFragment : Fragment() {
             .visibility = View.GONE
 
         viewModel.list.observe(viewLifecycleOwner) { list ->
-
+//            allItemList.clear()
             list.forEach {
                 //Create list of Notes
                 if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
@@ -123,12 +124,14 @@ class SearchFragment : Fragment() {
                 if (it.category != EMPTY_STRING && it.type != TYPE_NOTE)
                     categoryList += it.category
                 //Create full list
-                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
-                    allItemList.add(it)
+//                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
+//                    allItemList.add(it)
                 //Create Month list
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
+
+            performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
             initAutoCompleteEditText()
@@ -224,14 +227,12 @@ class SearchFragment : Fragment() {
                 if (listDeleteItems.isNotEmpty()) {
                     listDeleteItems.forEach {
                         viewModel.delete(it)
-                        allItemList.remove(it)
                     }
                 }
                 billAdapter.deleteItemsAfterRemovedItemFromDB()
                 deleteItem = false
                 listDeleteItems.clear()
             }
-            setListAdapter(allItemList)
         }
     }
 
@@ -517,51 +518,75 @@ class SearchFragment : Fragment() {
     }
 
     private fun performSearch() {
-        val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
-        val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
-        val listPeriod = binding.etSearchPeriod.text.split(", ").toTypedArray()
-        //List Note sorting
-        if (binding.edSearchNote.text.isNotEmpty())
-            allItemList.forEach {
-                if (it.note != binding.edSearchNote.text.toString())
-                    list.remove(it)
-            }
-        // List Category
-        if (binding.etSearchCategory.text.isNotEmpty())
-            allItemList.forEach { item ->
-                if (!listCategory.contains(item.category))
-                    list.remove(item)
-            }
-        // List Min View
-        if (binding.etSearchAmountMin.text!!.isNotEmpty())
-            allItemList.forEach { item ->
-                if (item.amount.replace(",", "")
-                    < binding.etSearchAmountMin.text.toString().replace(",", "")
-                )
-                    list.remove(item)
-            }
-        // List Max View
-        if (binding.etSearchAmountMax.text!!.isNotEmpty())
-            allItemList.forEach { item ->
-                if (item.amount.replace(",", "")
-                    > binding.etSearchAmountMax.text.toString().replace(",", "")
-                )
-                    list.remove(item)
-            }
-        //  List Period View
-        if (binding.etSearchPeriod.text.isNotEmpty())
-            allItemList.forEach { item ->
-                if (!listPeriod.contains(item.month))
-                    list.remove(item)
-            }
+//        viewModel.getAll()
+//        val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
+        val list: ArrayList<BillsItem> = ArrayList()
+        if(checkViewsEmpty() && viewModel.list.value!!.isNotEmpty()) {
+        viewModel.list.value?.forEach {
+            //Create full list
+            if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
+                list.add(it)
+        }
+            val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
+            val listPeriod = binding.etSearchPeriod.text.split(", ").toTypedArray()
+            //List Note sorting
+            if (binding.edSearchNote.text.isNotEmpty())
+                viewModel.list.value?.forEach {
+                    if (it.note != binding.edSearchNote.text.toString())
+                        list.remove(it)
+                }
+            // List Category
+            if (binding.etSearchCategory.text.isNotEmpty())
+                viewModel.list.value?.forEach { item ->
+                    if (!listCategory.contains(item.category))
+                        list.remove(item)
+                }
+            // List Min View
+            if (binding.etSearchAmountMin.text!!.isNotEmpty())
+                viewModel.list.value?.forEach { item ->
+                    if (item.amount.replace(",", "")
+                        < binding.etSearchAmountMin.text.toString().replace(",", "")
+                    )
+                        list.remove(item)
+                }
+            // List Max View
+            if (binding.etSearchAmountMax.text!!.isNotEmpty())
+                viewModel.list.value?.forEach { item ->
+                    if (item.amount.replace(",", "")
+                        > binding.etSearchAmountMax.text.toString().replace(",", "")
+                    )
+                        list.remove(item)
+                }
+            //  List Period View
+            if (binding.etSearchPeriod.text.isNotEmpty())
+                viewModel.list.value?.forEach { item ->
+                    if (!listPeriod.contains(item.month))
+                        list.remove(item)
+                }
 
-        setListAdapter(list)
+                setListAdapter(list)
+        }else {
+            billAdapter.submitList(null)
+            titleIncome.postValue(BigDecimal(0))
+            titleExpense.postValue(BigDecimal(0))
+            titleTotal.postValue(BigDecimal(0))
+        }
     }
 
-    private fun setListAdapter(list: ArrayList<BillsItem>) {
-        billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }
-            .toList())
-        setAmountBar(list)
+    private fun checkViewsEmpty(): Boolean{
+        return (binding.edSearchNote.text.isNotEmpty()
+                || binding.etSearchCategory.text.isNotEmpty()
+                || binding.etSearchAmountMin.text!!.isNotEmpty()
+                || binding.etSearchAmountMax.text!!.isNotEmpty()
+                || binding.etSearchPeriod.text.isNotEmpty())
+    }
+
+    private fun setListAdapter(list: MutableList<BillsItem>) {
+        billAdapter.submitList(null).apply {
+            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }
+                .toList())
+            setAmountBar(list)
+        }
     }
 
     private fun sortingListValue(date: String): Long{
