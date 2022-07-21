@@ -20,6 +20,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAnalyticsBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.utils.ColorsPie
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
@@ -44,7 +45,7 @@ class AnalyticsFragment : Fragment() {
     @Inject
     lateinit var viewModel: AnalyticsViewModel
     @Inject
-    lateinit var billAdapter: BillsAdapter
+    lateinit var billAdapter: BillsAdapter_SearchAnalytics
 
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
