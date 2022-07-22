@@ -1,6 +1,7 @@
 package com.billsAplication.presentation.search
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -130,10 +131,9 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
-//TODO Вопрос, хотите ли выудалить элемнты
 //TODO Цвет кнопки добавить
-//TODO Корешок в светлой теие
 //TODO Border ItemBill
+//TODO Save data views of Search
             performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
@@ -226,16 +226,7 @@ class SearchFragment : Fragment() {
 
     private fun buttonDelete() {
         binding.bSearchDelete.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                if (listDeleteItems.isNotEmpty()) {
-                    listDeleteItems.forEach {
-                        viewModel.delete(it)
-                    }
-                }
-                billAdapter.deleteItemsAfterRemovedItemFromDB()
-                deleteItem = false
-                listDeleteItems.clear()
-            }
+            dialogDeleteItems()
         }
     }
 
@@ -659,6 +650,34 @@ class SearchFragment : Fragment() {
                 setViewsVisibility(true)
             }
         }
+    }
+
+    private fun deleteItems() {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (listDeleteItems.isNotEmpty()) {
+                listDeleteItems.forEach {
+                    viewModel.delete(it)
+                }
+            }
+            billAdapter.deleteItemsAfterRemovedItemFromDB()
+            deleteItem = false
+            listDeleteItems.clear()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dialogDeleteItems(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog =  builder
+            .setTitle(getString(R.string.dialog_title_delete_Bills))
+            .setMessage(getString(R.string.dialog_message_delete_bills))
+            .setPositiveButton(getString(R.string.button_yes)){
+                    dialog, id ->
+                deleteItems() //Delete items
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
     }
 
     private fun setViewsVisibility(b: Boolean) {
