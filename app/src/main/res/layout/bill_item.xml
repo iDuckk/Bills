@@ -29,9 +29,8 @@
 
                 <TextView
                     android:id="@+id/tv_Item_Amount"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0sp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="28sp"
                     android:layout_marginEnd="5sp"
                     android:gravity="center"
                     android:minHeight="40sp"
@@ -107,6 +106,7 @@
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
@@ -120,8 +120,9 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="100sp"
+                android:layout_width="wrap_content"
                 android:layout_height="24sp">
+
 
                 <TextView
                     android:id="@+id/tv_Day"
@@ -143,6 +144,20 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tv_Day"
                     app:layout_constraintTop_toTopOf="@+id/tv_Day" />
+
+                <TextView
+                    android:id="@+id/tv_itemBill_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bills_list_null_0_0"
+                    android:textSize="10sp"
+                    android:textColor="@color/default_background"
+                    android:layout_marginStart="15sp"
+                    android:layout_marginEnd="15sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_MonthYear"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_MonthYear"
+                    app:layout_constraintTop_toTopOf="@+id/tv_MonthYear" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

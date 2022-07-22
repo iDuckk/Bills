@@ -130,7 +130,10 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
-
+//TODO Вопрос, хотите ли выудалить элемнты
+//TODO Цвет кнопки добавить
+//TODO Корешок в светлой теие
+//TODO Border ItemBill
             performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
