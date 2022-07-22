@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
@@ -15,6 +16,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency
+import java.math.BigDecimal
 import javax.inject.Inject
 
 
@@ -26,6 +28,7 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
 
+    private var textViewAmountDay: TextView? = null
 
     private var isClicked = false //If selected item for adapter
 
@@ -47,6 +50,11 @@ class BillsAdapter @Inject constructor() :
             )
         )
     }
+
+    /*
+    binding.tvSearchIncomeNum.text = "%,.2f".format(it)
+    income += BigDecimal(it.amount.replace(",", ""))
+     */
 
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     override fun onBindViewHolder(holderBill: BillViewHolder, position: Int) {
@@ -70,7 +78,10 @@ class BillsAdapter @Inject constructor() :
 
         if (item.type != TYPE_CATEGORY && item.type != TYPE_NOTE) {
             //Margin cardView if date the same
-            setCardView(position, item, holderBill)
+            setCardView(position, item, holderBill).also {
+                //Set total Amount
+                setTotalAmount(position, item, holderBill)
+            }
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2)
@@ -123,7 +134,6 @@ class BillsAdapter @Inject constructor() :
             )
             params.setMargins(0, 0, 0, 1)
             holderBill.itemView.layoutParams = params
-
         } else {//Set Margin card
             holderBill.cardVIewDate.visibility = View.VISIBLE
             val params = LinearLayout.LayoutParams(
@@ -132,6 +142,34 @@ class BillsAdapter @Inject constructor() :
             )
             params.setMargins(1, 15, 1, 1)
             holderBill.itemView.layoutParams = params
+        }
+    }
+
+    private fun setTotalAmount(
+        position: Int,
+        item: BillsItem,
+        holderBill: BillViewHolder
+    ) {
+        if (position != 0 && item.date == getItem(position - 1).date) {
+            //Get text of textView of DateCardView
+            var lastAmount = BigDecimal(textViewAmountDay?.text.toString().replace(",", ""))
+            //Add amount
+            if(item.type == TYPE_INCOME)
+                lastAmount += BigDecimal(item.amount.replace(",", ""))
+            else
+                lastAmount -= BigDecimal(item.amount.replace(",", ""))
+            //Set text of textView of DateCardView
+            textViewAmountDay?.text = "%,.2f".format(lastAmount)
+        } else {
+            //Set Amount
+            textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
+            var amount = BigDecimal(0)
+            if(item.type == TYPE_INCOME)
+                amount = BigDecimal(item.amount.replace(",", ""))
+            else
+                amount = BigDecimal(item.amount.replace(",", "")).negate()
+
+            textViewAmountDay?.text = "%,.2f".format(amount)
         }
     }
 

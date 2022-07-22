@@ -6,7 +6,7 @@
             android:shape="rectangle">
             <corners android:topLeftRadius="10sp" android:topRightRadius="10sp"/>
             <!--This is the main background -->
-            <solid android:color="@color/background_barviews_colordark" />
+            <solid android:color="?colorBackgroundFloating" />
         </shape>
     </item>
 </layer-list>
