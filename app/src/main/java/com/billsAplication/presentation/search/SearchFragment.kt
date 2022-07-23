@@ -131,9 +131,9 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
-//TODO Цвет кнопки добавить
 //TODO Border ItemBill
 //TODO Save data views of Search
+//TODO При смене месяца не менятьлист если он уже стоит
             performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
