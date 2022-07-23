@@ -436,7 +436,7 @@ class BillsListFragment : Fragment() {
     }
 
     private fun setBackColorAddButton(){
-        if(binding.tvTotalNum.text.toString().replace(",", "") > 0.toString()){
+        if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
             //set color of icon nav bottom income
             (activity as MainActivity)
                 .findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -456,7 +456,8 @@ class BillsListFragment : Fragment() {
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_income)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
             stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-        }else if(binding.tvTotalNum.text.toString().replace(",", "") < 0.toString()) {
+        }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", ""))
+            < BigDecimal(0)) {
             //set color of icon nav bottom expenses
             (activity as MainActivity)
                 .findViewById<BottomNavigationView>(R.id.bottom_navigation)
