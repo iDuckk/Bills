@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
@@ -18,6 +19,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlin.math.log
 
 
 class BillsAdapter @Inject constructor() :
@@ -29,7 +31,9 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_NOTE = 3
 
     private var textViewAmountDay: TextView? = null
+    private var cardViewTotal: CardView? = null
 
+    private var totalAmount: BigDecimal = BigDecimal(0)
     private var isClicked = false //If selected item for adapter
 
     private var mIsHighlight = MutableLiveData<Boolean>()
@@ -78,10 +82,7 @@ class BillsAdapter @Inject constructor() :
 
         if (item.type != TYPE_CATEGORY && item.type != TYPE_NOTE) {
             //Margin cardView if date the same
-            setCardView(position, item, holderBill).also {
-                //Set total Amount
-                setTotalAmount(position, item, holderBill)
-            }
+            setCardView(position, item, holderBill)
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2)
@@ -119,29 +120,73 @@ class BillsAdapter @Inject constructor() :
 
     }
 
+    private fun addAmount(item: BillsItem){
+        //save amount
+        if(item.type == TYPE_INCOME)
+            totalAmount += BigDecimal(item.amount.replace(",", ""))
+        else
+            totalAmount -= BigDecimal(item.amount.replace(",", ""))
+    }
+
+    private fun setDefaultValues(){
+        totalAmount = BigDecimal(0)
+        textViewAmountDay = null
+        cardViewTotal = null
+    }
+
+    private fun savePreviousTotalVies(
+        holderBill: BillViewHolder,
+        item: BillsItem
+    ) {
+        cardViewTotal = holderBill.cardVIewTotal //save total previous cardView
+        textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
+        addAmount(item)
+    }
+
     private fun setCardView(
         position: Int,
         item: BillsItem,
         holderBill: BillViewHolder
     ) {
-        //Set only TIME, cause DATE have set yet
-        if (position != 0 && item.date == getItem(position - 1).date) {
-            holderBill.cardVIewDate.visibility = View.GONE
-            //Set Margin card
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, 0, 0, 1)
-            holderBill.itemView.layoutParams = params
-        } else {//Set Margin card
+        holderBill.cardVIewDate.visibility = View.GONE
+        holderBill.cardVIewTotal.visibility = View.GONE
+        if(position == 0 && currentList.lastIndex == position){ //if only one item in list
+            setDefaultValues() //Clear that do not worry
             holderBill.cardVIewDate.visibility = View.VISIBLE
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(1, 15, 1, 1)
-            holderBill.itemView.layoutParams = params
+            holderBill.cardVIewTotal.visibility = View.VISIBLE
+            totalAmount = BigDecimal(0)
+            addAmount(item)
+            holderBill.tv_total.text = "%,.2f".format(totalAmount)
+            setDefaultValues()
+        } else if(position == 0 && currentList.lastIndex != position){ //if first item
+            setDefaultValues() //Clear that do not worry
+            holderBill.cardVIewDate.visibility = View.VISIBLE
+            savePreviousTotalVies(holderBill, item)
+        }else if(position != 0 && currentList.lastIndex != position) { //Other items
+            if(item.date != getItem(position - 1).date) {//Item with title and Set totalCard
+                holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
+                cardViewTotal?.visibility = View.VISIBLE //Total card previous item
+                textViewAmountDay?.text = "%,.2f".format(totalAmount)
+                setDefaultValues()
+                savePreviousTotalVies(holderBill, item)
+            }else{
+                savePreviousTotalVies(holderBill, item)
+            }
+        }else if(position != 0 && currentList.lastIndex == position) { //When last item
+            holderBill.cardVIewTotal.visibility = View.VISIBLE
+            if (item.date != getItem(position - 1).date) { //If single last item
+                holderBill.cardVIewDate.visibility = View.VISIBLE
+                cardViewTotal?.visibility = View.VISIBLE
+                textViewAmountDay?.text = "%,.2f".format(totalAmount) //Previous total card
+                setDefaultValues()
+                addAmount(item)
+                holderBill.tv_total.text = "%,.2f".format(totalAmount) // Current total card
+                setDefaultValues()
+            } else {
+                addAmount(item)
+                holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                setDefaultValues()
+            }
         }
     }
 
@@ -162,7 +207,7 @@ class BillsAdapter @Inject constructor() :
             textViewAmountDay?.text = "%,.2f".format(lastAmount)
         } else {
             //Set Amount
-            textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
+//            textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
             var amount = BigDecimal(0)
             if(item.type == TYPE_INCOME)
                 amount = BigDecimal(item.amount.replace(",", ""))
