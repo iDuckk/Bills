@@ -17,8 +17,6 @@
             android:id="@+id/cardView_InfoTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom=".8sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardView_TitleItem">
@@ -112,15 +110,16 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView_Date"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:backgroundTint="?android:statusBarColor"
             app:layout_constraintBottom_toTopOf="@+id/cardView_TitleItem"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="24sp">
 
 
@@ -131,6 +130,7 @@
                     android:layout_marginStart="10sp"
                     android:text="00"
                     android:textSize="18sp"
+                    android:textColor="@color/default_background"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -141,23 +141,62 @@
                     android:layout_height="wrap_content"
                     android:text=".00.0000"
                     android:textSize="12sp"
+                    android:textColor="@color/default_background"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tv_Day"
                     app:layout_constraintTop_toTopOf="@+id/tv_Day" />
 
                 <TextView
-                    android:id="@+id/tv_itemBill_total"
+                    android:id="@+id/tv_itemBill_total2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/bills_list_null_0_0"
-                    android:textSize="10sp"
-                    android:textColor="@color/default_background"
-                    android:layout_marginStart="15sp"
                     android:layout_marginEnd="15sp"
+                    android:text="@string/bills_list_null_0_0"
+                    android:visibility="gone"
+                    android:textColor="@color/default_background"
+                    android:textSize="10sp"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_MonthYear"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/tv_MonthYear"
                     app:layout_constraintTop_toTopOf="@+id/tv_MonthYear" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardViewTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?android:statusBarColor"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardView_InfoTitle">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_title_total_item_bill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5sp"
+                android:textColor="@color/default_background"
+                android:textSize="10sp"
+                android:text="@string/bill_list_total"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_itemBill_total"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_itemBill_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15sp"
+                android:text="@string/bills_list_null_0_0"
+                android:textColor="@color/default_background"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

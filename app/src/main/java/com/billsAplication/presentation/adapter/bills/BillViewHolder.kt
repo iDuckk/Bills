@@ -16,5 +16,6 @@ class BillViewHolder( binding: BillItemBinding) : RecyclerView.ViewHolder(bindin
 
     val cardVIewTitle = binding.cardViewTitleItem
     val cardVIewDate = binding.cardViewDate
+    val cardVIewTotal = binding.cardViewTotal
 
 }

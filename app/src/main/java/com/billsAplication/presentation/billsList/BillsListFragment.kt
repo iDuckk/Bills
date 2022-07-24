@@ -109,6 +109,8 @@ class BillsListFragment : Fragment() {
             .findViewById<BottomNavigationView>(R.id.bottom_navigation)
             .visibility = View.VISIBLE
 
+        binding.tvMonth.text = viewModel.currentDate
+
         binding.cardViewFilter.visibility = View.VISIBLE
 
         onBackPressed()
@@ -368,14 +370,15 @@ class BillsListFragment : Fragment() {
             }
         }
         //Set month`s text in bar
-        binding.tvMonth.text = viewModel.currentDate
         binding.tvMonth.setOnClickListener {
-            viewModel.currentDate = viewModel.currentDate()
-            binding.tvMonth.text = viewModel.currentDate()
-            viewModel.defaultMonth()
-            invisibilityFilterCard()
-            //set a new list
-            setNewList(binding.tvMonth.text.toString())
+            if(viewModel.currentDate() != binding.tvMonth.text.toString()) {
+                viewModel.currentDate = viewModel.currentDate()
+                binding.tvMonth.text = viewModel.currentDate()
+                viewModel.defaultMonth()
+                invisibilityFilterCard()
+                //set a new list
+                setNewList(binding.tvMonth.text.toString())
+            }
         }
         //Previous month
         binding.imBackMonth.setOnClickListener {

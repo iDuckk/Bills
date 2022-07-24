@@ -133,7 +133,9 @@ class SearchFragment : Fragment() {
             }
 //TODO Border ItemBill
 //TODO Save data views of Search
-//TODO При смене месяца не менятьлист если он уже стоит
+//TODO При смене месяца не менятьлист если он уже стоит Analytics
+//TODO Изза сортировки листа, некоторые позиции меняются местами в BillList
+//TODO Сделать дату по другому
             performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
