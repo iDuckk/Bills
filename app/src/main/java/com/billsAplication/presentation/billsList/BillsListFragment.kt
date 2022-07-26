@@ -3,11 +3,8 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +17,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -31,17 +27,15 @@ import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.mainActivity.MainActivity
-import com.billsAplication.utils.CurrentCurrency
+import com.billsAplication.utils.CreateDate
+import com.billsAplication.utils.SortingAsc
+import com.billsAplication.utils.SortingDesc
 import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.text.NumberFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -59,6 +53,10 @@ class BillsListFragment : Fragment() {
     lateinit var billAdapter: BillsAdapter
     @Inject
     lateinit var stateColorButton: StateColorButton
+    @Inject
+    lateinit var sortingDesc: SortingDesc
+    @Inject
+    lateinit var sortingAsc: SortingAsc
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
@@ -222,20 +220,18 @@ class BillsListFragment : Fragment() {
         //Cause without remove List, it scrolls down to hte end
             billAdapter.submitList(null)
         if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date + item.time) }.toList())
+            billAdapter.submitList(sortingAsc(list.toMutableList()))
         else
-            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }.toList())
+            billAdapter.submitList(sortingDesc(list.toMutableList()))
     }
     //Sort list after submit if ViewModel.list.value!!
     private fun setDescentSorting(list: List<BillsItem>) {
         //Cause without remove List, it scrolls down to hte end
             billAdapter.submitList(null)
         if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(list.sortedBy { item -> sortingListValue(item.date + item.time) }
-                .toList())
+            billAdapter.submitList(sortingAsc(list.toMutableList()))
         else
-            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }
-                .toList())
+            billAdapter.submitList(sortingDesc(list.toMutableList()))
 
     }
 
@@ -358,7 +354,8 @@ class BillsListFragment : Fragment() {
             if(visibilityFilterCard) {
                 //Cause without remove List, it scrolls down to the end
                 billAdapter.submitList(null)
-                billAdapter.submitList(viewModel.list.value?.sortedByDescending { item -> sortingListValue(item.date + item.time) }?.toList())
+                if(viewModel.list.value != null)
+                    billAdapter.submitList(sortingDesc(viewModel.list.value!!.toMutableList()))
                 invisibilityFilterCard()
             }else{
                 //Resize cardView
@@ -569,9 +566,9 @@ class BillsListFragment : Fragment() {
         //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(viewLifecycleOwner) {
+            sortingDesc(it.toMutableList())
             //Set list to Adapter
-            billAdapter.submitList(it.sortedByDescending { item -> sortingListValue(item.date + item.time) }
-                .toList())
+            billAdapter.submitList(sortingDesc(it.toMutableList()))
             //Create amount for title amountTextView
             it.forEach { item ->
                 when (item.type) {
@@ -588,22 +585,6 @@ class BillsListFragment : Fragment() {
             expense = BigDecimal(0)
             }
         }
-    }
-
-    private fun sortingListValue(date: String): Long{
-        if(date != EMPTY_STRING) {  // 27/04/202211:59 AM
-            val day = date.dropLast(16)
-            val month = date.drop(3).dropLast(13)
-            val year = date.drop(6).dropLast(8)
-            val hour = date.drop(10).dropLast(6)
-            val minute = date.drop(13).dropLast(3)
-
-            val c = Calendar.getInstance()
-            c.set(year.toInt(),month.toInt(),day.toInt(), hour.toInt(), minute.toInt())
-
-            return c.timeInMillis
-        }
-        return 0
     }
 
     private fun setDefaultSortingViews() {

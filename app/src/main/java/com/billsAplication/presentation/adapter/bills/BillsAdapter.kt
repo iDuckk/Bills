@@ -81,7 +81,7 @@ class BillsAdapter @Inject constructor() :
         else holderBill.im_ifExist.visibility = View.GONE
 
         if (item.type != TYPE_CATEGORY && item.type != TYPE_NOTE) {
-            //Margin cardView if date the same
+            //CardView if date the same
             setCardView(position, item, holderBill)
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
@@ -187,34 +187,6 @@ class BillsAdapter @Inject constructor() :
                 holderBill.tv_total.text = "%,.2f".format(totalAmount)
                 setDefaultValues()
             }
-        }
-    }
-
-    private fun setTotalAmount(
-        position: Int,
-        item: BillsItem,
-        holderBill: BillViewHolder
-    ) {
-        if (position != 0 && item.date == getItem(position - 1).date) {
-            //Get text of textView of DateCardView
-            var lastAmount = BigDecimal(textViewAmountDay?.text.toString().replace(",", ""))
-            //Add amount
-            if(item.type == TYPE_INCOME)
-                lastAmount += BigDecimal(item.amount.replace(",", ""))
-            else
-                lastAmount -= BigDecimal(item.amount.replace(",", ""))
-            //Set text of textView of DateCardView
-            textViewAmountDay?.text = "%,.2f".format(lastAmount)
-        } else {
-            //Set Amount
-//            textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
-            var amount = BigDecimal(0)
-            if(item.type == TYPE_INCOME)
-                amount = BigDecimal(item.amount.replace(",", ""))
-            else
-                amount = BigDecimal(item.amount.replace(",", "")).negate()
-
-            textViewAmountDay?.text = "%,.2f".format(amount)
         }
     }
 
