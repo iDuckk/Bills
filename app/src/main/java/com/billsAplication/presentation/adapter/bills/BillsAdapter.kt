@@ -65,11 +65,11 @@ class BillsAdapter @Inject constructor() :
         val item = getItem(position)
         //set background here because it doesn't set in XML
         holderBill.cardVIewTitle.setBackgroundResource(R.drawable.background_selector)
-        holderBill.cardVIewDate.setBackgroundResource(R.drawable.date_border_cardview)
+//        holderBill.itemView.setBackgroundResource(R.drawable.date_border_cardview)
 //        holderBill.itemView.setBackgroundResource(R.drawable.background_selector)
         //Choose select item or not
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
-        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
+//        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
 
         if (item.image1.isNotEmpty()
             || item.image2.isNotEmpty()

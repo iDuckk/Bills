@@ -5,9 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    app:cardElevation="0sp"
-    android:layout_marginBottom="1sp"
-    android:backgroundTint="?colorOnPrimary">
+    app:cardElevation="0sp">
 <!--    android:backgroundTint="?attr/colorOnSecondary"-->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -48,6 +46,7 @@
                     android:gravity="end"
                     android:maxLength="50"
                     android:textSize="12sp"
+                    android:textColor="@color/default_background"
                     app:layout_constraintBottom_toBottomOf="@+id/tv_Item_Amount"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tv_Item_Amount"
@@ -120,7 +119,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="24sp">
+                android:layout_height="24sp"
+                android:background="@drawable/date_border_cardview">
 
 
                 <TextView
