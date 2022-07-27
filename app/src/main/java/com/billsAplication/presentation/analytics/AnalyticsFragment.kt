@@ -22,6 +22,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.utils.ColorsPie
+import com.billsAplication.utils.SortingDesc
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -46,6 +47,8 @@ class AnalyticsFragment : Fragment() {
     lateinit var viewModel: AnalyticsViewModel
     @Inject
     lateinit var billAdapter: BillsAdapter_SearchAnalytics
+    @Inject
+    lateinit var sortingDesc: SortingDesc
 
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
@@ -266,10 +269,8 @@ class AnalyticsFragment : Fragment() {
                     if (it.category == (e as PieEntry).label)
                         list.add(it)
                 }
-
     //                    Log.d("TAG", (e as PieEntry).label)
-                billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date + item.time) }
-                    .toList())
+                billAdapter.submitList(sortingDesc(list.toMutableList()))
             }
 
             override fun onNothingSelected() {}
@@ -329,22 +330,6 @@ class AnalyticsFragment : Fragment() {
             binding.pieChart.setCenterTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
         }
         binding.pieChart.invalidate()
-    }
-
-    private fun sortingListValue(date: String): Long{
-        if(date != EMPTY_STRING) {  // 27/04/202211:59 AM
-            val day = date.dropLast(16)
-            val month = date.drop(3).dropLast(13)
-            val year = date.drop(6).dropLast(8)
-            val hour = date.drop(10).dropLast(6)
-            val minute = date.drop(13).dropLast(3)
-
-            val c = Calendar.getInstance()
-            c.set(year.toInt(),month.toInt(),day.toInt(), hour.toInt(), minute.toInt())
-
-            return c.timeInMillis
-        }
-        return 0
     }
 
     @ColorInt

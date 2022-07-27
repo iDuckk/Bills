@@ -1,10 +1,12 @@
 package com.billsAplication.utils
 
+import android.util.Log
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
 class CreateDate@Inject constructor() {
-    operator fun invoke(date: String): Long {
+    operator fun invoke(date: String): Date {
         if(date != EMPTY_STRING) {  // 27/04/202211:59 AM
             val day = date.dropLast(16)
             val month = date.drop(3).dropLast(13)
@@ -15,9 +17,9 @@ class CreateDate@Inject constructor() {
             val c = Calendar.getInstance()
             c.set(year.toInt(),month.toInt(),day.toInt(), hour.toInt(), minute.toInt())
 
-            return c.timeInMillis
+            return c.time
         }
-        return 0
+        return Date()
     }
 
     companion object{
