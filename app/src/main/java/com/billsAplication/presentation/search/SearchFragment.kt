@@ -143,7 +143,6 @@ class SearchFragment : Fragment() {
             billAdapter.submitList(sortingDesc(it.toMutableList()))
         }
 
-        //TODO Border ItemBill вернуть бордер
         //TODO Save data views of Search SaveInstance
 
         onBackPressed()
