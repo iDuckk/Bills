@@ -140,8 +140,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=".00.0000"
-                    android:textSize="12sp"
                     android:textColor="@color/default_background"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tv_Day"
                     app:layout_constraintTop_toTopOf="@+id/tv_Day" />

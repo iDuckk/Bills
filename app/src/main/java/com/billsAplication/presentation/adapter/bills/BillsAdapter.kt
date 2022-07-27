@@ -82,7 +82,7 @@ class BillsAdapter @Inject constructor() :
 
         if (item.type != TYPE_CATEGORY && item.type != TYPE_NOTE) {
             //CardView if date the same
-            setCardView(position, item, holderBill)
+            setCardViewDateTotal(position, item, holderBill)
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2)
@@ -128,64 +128,58 @@ class BillsAdapter @Inject constructor() :
             totalAmount -= BigDecimal(item.amount.replace(",", ""))
     }
 
-    private fun setDefaultValues(){
-        totalAmount = BigDecimal(0)
-        textViewAmountDay = null
-        cardViewTotal = null
-    }
-
-    private fun savePreviousTotalVies(
-        holderBill: BillViewHolder,
-        item: BillsItem
-    ) {
-        cardViewTotal = holderBill.cardVIewTotal //save total previous cardView
-        textViewAmountDay = holderBill.tv_total //Save textView of DateCardView
-        addAmount(item)
-    }
-
-    private fun setCardView(
+    private fun setCardViewDateTotal(
         position: Int,
         item: BillsItem,
         holderBill: BillViewHolder
-    ) {
+    ){
         holderBill.cardVIewDate.visibility = View.GONE
         holderBill.cardVIewTotal.visibility = View.GONE
         if(position == 0 && currentList.lastIndex == position){ //if only one item in list
-            setDefaultValues() //Clear that do not worry
             holderBill.cardVIewDate.visibility = View.VISIBLE
             holderBill.cardVIewTotal.visibility = View.VISIBLE
             totalAmount = BigDecimal(0)
             addAmount(item)
             holderBill.tv_total.text = "%,.2f".format(totalAmount)
-            setDefaultValues()
+            totalAmount = BigDecimal(0)
         } else if(position == 0 && currentList.lastIndex != position){ //if first item
-            setDefaultValues() //Clear that do not worry
             holderBill.cardVIewDate.visibility = View.VISIBLE
-            savePreviousTotalVies(holderBill, item)
+            totalAmount = BigDecimal(0)
+            //Set Total card if next item has different date
+            if(item.date != getItem(position + 1).date){
+                addAmount(item)
+                holderBill.cardVIewTotal.visibility = View.VISIBLE
+                holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                totalAmount = BigDecimal(0) //Clear total value
+            }
         }else if(position != 0 && currentList.lastIndex != position) { //Other items
-            if(item.date != getItem(position - 1).date) {//Item with title and Set totalCard
+            //Set Total card if next item has different date
+            if(item.date != getItem(position + 1).date){
+                holderBill.cardVIewTotal.visibility = View.VISIBLE
+                //Get total value
+                currentList.forEach {
+                    if(it.date == item.date)
+                        addAmount(it) //Save total value
+                }
+                holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                totalAmount = BigDecimal(0) //Clear total value
+            }
+            //Set Date card if previous item has different date
+            if(item.date != getItem(position - 1).date) {
                 holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
-                cardViewTotal?.visibility = View.VISIBLE //Total card previous item
-                textViewAmountDay?.text = "%,.2f".format(totalAmount)
-                setDefaultValues()
-                savePreviousTotalVies(holderBill, item)
-            }else{
-                savePreviousTotalVies(holderBill, item)
             }
         }else if(position != 0 && currentList.lastIndex == position) { //When last item
+            //Get total value
+            currentList.forEach {
+                if(it.date == item.date)
+                    addAmount(it) //Save total value
+            }
             holderBill.cardVIewTotal.visibility = View.VISIBLE
-            if (item.date != getItem(position - 1).date) { //If single last item
-                holderBill.cardVIewDate.visibility = View.VISIBLE
-                cardViewTotal?.visibility = View.VISIBLE
-                textViewAmountDay?.text = "%,.2f".format(totalAmount) //Previous total card
-                setDefaultValues()
-                addAmount(item)
-                holderBill.tv_total.text = "%,.2f".format(totalAmount) // Current total card
-                setDefaultValues()
-            } else {
-                addAmount(item)
-                holderBill.tv_total.text = "%,.2f".format(totalAmount)
-                setDefaultValues()
+            holderBill.tv_total.text = "%,.2f".format(totalAmount)
+            totalAmount = BigDecimal(0) //Clear total value
+            //Set Date card if previous item has different date
+            if(item.date != getItem(position - 1).date) {
+                holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
             }
         }
     }
