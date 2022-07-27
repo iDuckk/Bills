@@ -144,6 +144,8 @@ class SearchFragment : Fragment() {
         }
 
         //TODO Border ItemBill
+        //TODO Border ItemBill вернуть бордер
+        //TODO После обновления списка в Билл Листе, все сбивается. Может поставить по стандарту
 //TODO Save data views of Search SaveInstance
 //TODO Сделать дату по другому
 //TODO Сделать дилог функции в отдельный класс
