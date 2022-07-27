@@ -85,7 +85,7 @@ class BillsAdapter @Inject constructor() :
             setCardViewDateTotal(position, item, holderBill)
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
-            holderBill.tv_MonthYear.text = item.date.drop(2)
+            holderBill.tv_MonthYear.text = item.date.drop(2).replace("/", ".")
             holderBill.tv_Time.text = item.time
             holderBill.tv_Category.text = item.category
             holderBill.tv_Item_Description.text = item.note

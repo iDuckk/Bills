@@ -143,11 +143,8 @@ class SearchFragment : Fragment() {
             billAdapter.submitList(sortingDesc(it.toMutableList()))
         }
 
-        //TODO Border ItemBill
         //TODO Border ItemBill вернуть бордер
-        //TODO После обновления списка в Билл Листе, все сбивается. Может поставить по стандарту
-//TODO Save data views of Search SaveInstance
-//TODO Сделать дату по другому
+        //TODO Save data views of Search SaveInstance
 
         onBackPressed()
 
