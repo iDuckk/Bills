@@ -195,10 +195,7 @@ class BillsListFragment : Fragment() {
         }
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
-                if (viewModel.list.value != null)
-                    setDescentSorting(viewModel.list.value!!)
-                else
-                    setNewList(binding.tvMonth.text.toString())
+            filterList(binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition).toString())
         }
         //Set Spinner
         spinnerCategory()
