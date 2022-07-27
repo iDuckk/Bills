@@ -95,8 +95,9 @@
 
     <Spinner
         android:id="@+id/spinner_currency"
-        android:layout_width="200sp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="180sp"
         android:layout_marginStart="10dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline_currency"
@@ -119,25 +120,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginStart="5sp"
+        android:layout_marginEnd="10sp"
         app:layout_constraintBottom_toBottomOf="@+id/spinner_currency"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/spinner_currency"
         app:layout_constraintTop_toTopOf="@+id/spinner_currency">
 
-    <RadioButton
-        android:id="@+id/rb_code"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:textSize="11sp"
-        android:text="@string/code_currency" />
+        <RadioButton
+            android:id="@+id/rb_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:text="@string/code_currency"
+            android:textSize="11sp" />
 
-    <RadioButton
-        android:id="@+id/rb_symbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:textSize="11sp"
-        android:text="@string/symbol_currency"/>
+        <RadioButton
+            android:id="@+id/rb_symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/symbol_currency"
+            android:textSize="11sp" />
     </RadioGroup>
 
 
