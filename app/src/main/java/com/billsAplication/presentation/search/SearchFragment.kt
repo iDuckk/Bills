@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -27,20 +26,18 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSearchBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.SortingDesc
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.math.log
 
 
 class SearchFragment : Fragment() {
@@ -50,9 +47,10 @@ class SearchFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: SearchViewModel
-
     @Inject
     lateinit var billAdapter: BillsAdapter_SearchAnalytics
+    @Inject
+    lateinit var sortingDesc: SortingDesc
 
     private val bundle = Bundle()
     private val UPDATE_TYPE_SEARCH = 103
@@ -74,6 +72,7 @@ class SearchFragment : Fragment() {
     private val KEY_CHOSEN_MONTH_LIST_FRAGMENT = "key_CHOSEN_month_from_fragment"
     private val REQUESTKEY_MONTH_ITEM = "RequestKey_MONTH_item"
     private val TAG_DIALOG_MONTH = "Dialog Month"
+    private var mList = MutableLiveData<List<BillsItem>>()
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
@@ -131,10 +130,6 @@ class SearchFragment : Fragment() {
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
             }
-//TODO Border ItemBill
-//TODO Save data views of Search
-//TODO Сделать дату по другому
-//TODO Сделать дилог функции в отдельный класс
             performSearch()
 
             categoryList = categoryList.distinct().toTypedArray()
@@ -143,6 +138,16 @@ class SearchFragment : Fragment() {
 //            setAmountBar(list)
 //            setListAdapter(allItemList)
         }
+
+        mList.observe(viewLifecycleOwner) {
+            billAdapter.submitList(sortingDesc(it.toMutableList()))
+        }
+
+        //TODO Border ItemBill
+//TODO Save data views of Search SaveInstance
+//TODO Сделать дату по другому
+//TODO Сделать дилог функции в отдельный класс
+//TODO Когда отжимаешь или нажимаешь в фильтрах по возрастанию, то применяется весь лист, а не Экспенс
 
         onBackPressed()
 
@@ -512,10 +517,37 @@ class SearchFragment : Fragment() {
             } })
     }
 
+    private fun listObserver(){
+        viewModel.list.observe(viewLifecycleOwner) { list ->
+//            allItemList.clear()
+            list.forEach {
+                //Create list of Notes
+                if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
+                    listNote.add(it.note)
+                //Create Category list
+                if (it.category != EMPTY_STRING && it.type != TYPE_NOTE)
+                    categoryList += it.category
+                //Create full list
+//                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
+//                    allItemList.add(it)
+                //Create Month list
+                if (it.month != EMPTY_STRING)
+                    monthList += it.month
+            }
+            performSearch()
+
+            categoryList = categoryList.distinct().toTypedArray()
+            initAutoCompleteEditText()
+
+//            setAmountBar(list)
+//            setListAdapter(allItemList)
+        }
+    }
+
     private fun performSearch() {
 //        viewModel.getAll()
 //        val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
-        val list: ArrayList<BillsItem> = ArrayList()
+        var list: ArrayList<BillsItem> = ArrayList()
         if(checkViewsEmpty() && viewModel.list.value!!.isNotEmpty()) {
         viewModel.list.value?.forEach {
             //Create full list
@@ -559,9 +591,10 @@ class SearchFragment : Fragment() {
                         list.remove(item)
                 }
 
-                setListAdapter(list)
+            mList.postValue(list) //viewModel.list.value?
+            setAmountBar(list)
         }else {
-            billAdapter.submitList(null)
+            mList.postValue(list)
             titleIncome.postValue(BigDecimal(0))
             titleExpense.postValue(BigDecimal(0))
             titleTotal.postValue(BigDecimal(0))
@@ -574,28 +607,6 @@ class SearchFragment : Fragment() {
                 || binding.etSearchAmountMin.text!!.isNotEmpty()
                 || binding.etSearchAmountMax.text!!.isNotEmpty()
                 || binding.etSearchPeriod.text.isNotEmpty())
-    }
-
-    private fun setListAdapter(list: MutableList<BillsItem>) {
-        billAdapter.submitList(null).apply {
-            billAdapter.submitList(list.sortedByDescending { item -> sortingListValue(item.date) }
-                .toList())
-            setAmountBar(list)
-        }
-    }
-
-    private fun sortingListValue(date: String): Long{
-        if(date != EMPTY_STRING) {
-            val day = date.dropLast(8)
-            val month = date.drop(3).dropLast(5)
-            val year = date.drop(6)
-
-            val c = Calendar.getInstance()
-            c.set(year.toInt(),month.toInt(),day.toInt())
-
-            return c.timeInMillis
-        }
-        return 0
     }
 
     private fun imageRoll() {

@@ -566,7 +566,6 @@ class BillsListFragment : Fragment() {
         //set a new list
         viewModel.getMonth(month)
         viewModel.list.observe(viewLifecycleOwner) {
-            sortingDesc(it.toMutableList())
             //Set list to Adapter
             billAdapter.submitList(sortingDesc(it.toMutableList()))
             //Create amount for title amountTextView
