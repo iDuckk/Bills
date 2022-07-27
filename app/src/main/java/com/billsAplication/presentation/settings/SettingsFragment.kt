@@ -9,7 +9,6 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,6 @@ import androidx.fragment.app.setFragmentResultListener
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
-import com.billsAplication.domain.model.ImageItem
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.Currency
@@ -70,6 +68,8 @@ class SettingsFragment : Fragment() {
         setButtonText()
 
         switchColorState()
+
+        radioButtonsColorState()
 
         switchTurnOn()
 
@@ -305,6 +305,22 @@ class SettingsFragment : Fragment() {
         )
         binding.switchTheme.thumbTintList = buttonStates
         binding.switchTheme.trackTintList = buttonStates
+    }
+
+    private fun radioButtonsColorState() {
+        val buttonStates = ColorStateList(
+            arrayOf(
+                intArrayOf(-android.R.attr.state_enabled),
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ), intArrayOf(
+                requireActivity().getColor(R.color.default_background), //track unChecked
+                stateColorButton.colorButtons!!,
+                requireActivity().getColor(R.color.default_background)
+            )
+        )
+        binding.rbSymbol.buttonTintList = buttonStates
+        binding.rbCode.buttonTintList = buttonStates
     }
 
     private fun setSwitchTheme() {
