@@ -66,9 +66,7 @@ class BookmarksFragment : Fragment() {
         binding.imBookmarksDelete.visibility = View.GONE
 
         binding.imBookmarksBack.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_bookmarksFragment_to_billsListFragment,
-            )
+            requireActivity().onBackPressed()
         }
 
         binding.imBookmarksDelete.setOnClickListener {

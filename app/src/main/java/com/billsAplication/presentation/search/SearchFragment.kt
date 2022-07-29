@@ -143,8 +143,6 @@ class SearchFragment : Fragment() {
             billAdapter.submitList(sortingDesc(it.toMutableList()))
         }
 
-        //TODO Save data views of Search SaveInstance
-
         onBackPressed()
 
         titleBar()
@@ -622,7 +620,7 @@ class SearchFragment : Fragment() {
 
     private fun titleBar() {
         binding.imSearchBack.setOnClickListener {
-            findNavController().navigate(R.id.action_searchFragment_to_billsListFragment)
+            requireActivity().onBackPressed()
         }
     }
 

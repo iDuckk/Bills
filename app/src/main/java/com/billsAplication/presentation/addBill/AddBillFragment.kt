@@ -273,12 +273,7 @@ class AddBillFragment : Fragment() {
         }
 
         binding.imAddBillBack.setOnClickListener {
-            if(TYPE_ENTRENCE == TYPE_BOOKMARK)
-                findNavController().navigate(R.id.action_addBillFragment_to_bookmarksFragment)
-            else if(TYPE_ENTRENCE == UPDATE_TYPE_SEARCH)
-                findNavController().navigate(R.id.action_addBillFragment_to_searchFragment)
-            else
-                findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
+            requireActivity().onBackPressed()
         }
     }
 
