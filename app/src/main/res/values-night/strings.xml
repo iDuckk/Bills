@@ -86,5 +86,9 @@
     <string name="settings_export_db">Export DB</string>
     <string name="settings_import_db">Import DB</string>
     <string name="settings_send_db_to_e_mail">send DB to e-mail</string>
+    <string name="dialog_title_export_db">Export database</string>
+    <string name="dialog_message_export_db">Do you want to export the database to storage?</string>
+    <string name="button_ok">Ok</string>
+    <string name="dialog_message_finish_export"><![CDATA[Database is located in the folder Download -> bills_backup]]></string>
 
 </resources>
