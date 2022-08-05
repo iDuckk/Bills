@@ -77,4 +77,8 @@
     <string name="button_yes">sì</string>
     <string name="dialog_title_delete_Bills">Elimina fatture</string>
     <string name="dialog_message_delete_bills">Vuoi eliminare le fatture?</string>
+    <string name="settings_backup_database">Backup database:</string>
+    <string name="settings_export_db">Export DB</string>
+    <string name="settings_import_db">Import DB</string>
+    <string name="settings_send_db_to_e_mail">send DB to e-mail</string>
 </resources>
