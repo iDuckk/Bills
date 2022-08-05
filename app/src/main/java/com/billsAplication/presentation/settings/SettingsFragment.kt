@@ -84,7 +84,8 @@ class SettingsFragment : Fragment() {
 
         radioButtonsCurrency()
 
-//        exportDatabaseFile.invoke()
+        backup()
+
 //        importDatabaseFile.invoke()
 
 
@@ -109,6 +110,39 @@ class SettingsFragment : Fragment() {
         private var currencyPos = 0
 
     }
+
+    private fun backup() {
+        export()
+
+    }
+
+    private fun export() {
+        binding.bExport.setOnClickListener {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+            val dialog =  builder
+                .setTitle(getString(R.string.dialog_title_export_db))
+                .setMessage(getString(R.string.dialog_message_export_db))
+                .setPositiveButton(getString(R.string.button_yes)){
+                        dialog, id ->
+                    exportDatabaseFile.invoke().also { //export DB
+                        finishExport()
+                    }
+                }
+                .setNegativeButton(getString(R.string.search_cancel), null)
+                .create()
+            dialog.show()
+        }
+    }
+
+    private fun finishExport() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
+            setNegativeButton(getString(R.string.button_ok), null)
+            setMessage(getString(R.string.dialog_message_finish_export))
+            create()
+            show()
+        }
+    }
+
 
     private fun setDefaultValues(){
         //Get statement of Currency in Share preference
