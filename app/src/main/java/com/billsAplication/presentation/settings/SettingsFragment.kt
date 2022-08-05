@@ -26,11 +26,10 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
-import com.billsAplication.utils.CurrentCurrency
-import com.billsAplication.utils.Language
-import com.billsAplication.utils.StateColorButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
@@ -41,6 +40,10 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var stateColorButton: StateColorButton
+    @Inject
+    lateinit var exportDatabaseFile: ExportDatabaseFile
+    @Inject
+    lateinit var importDatabaseFile: ImportDatabaseFile
 
 
     private val component by lazy {
@@ -80,6 +83,10 @@ class SettingsFragment : Fragment() {
         spinnerCurrency()
 
         radioButtonsCurrency()
+
+//        exportDatabaseFile.invoke()
+//        importDatabaseFile.invoke()
+
 
     }
 
