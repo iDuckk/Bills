@@ -812,6 +812,7 @@ class AddBillFragment : Fragment() {
             imageAdapter.submitList(imageList.toMutableList())
             //if type is Edit
             binding.bAddSave.isEnabled = true
+            binding.bAddSave.isEnabled = true
         }
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
