@@ -86,9 +86,6 @@ class SettingsFragment : Fragment() {
 
         backup()
 
-//        importDatabaseFile.invoke()
-
-
     }
 
     companion object {
@@ -114,6 +111,34 @@ class SettingsFragment : Fragment() {
     private fun backup() {
         export()
 
+        import()
+    }
+
+    private fun import() {
+        binding.bImport.setOnClickListener {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+            val dialog =  builder
+                .setTitle(getString(R.string.dialog_title_import_db))
+                .setMessage(getString(R.string.dialog_message_import_db))
+                .setPositiveButton(getString(R.string.button_yes)){
+                        dialog, id ->
+                    importDatabaseFile.invoke().also { //export DB
+                        finishImport()
+                    }
+                }
+                .setNegativeButton(getString(R.string.search_cancel), null)
+                .create()
+            dialog.show()
+        }
+    }
+
+    private fun finishImport() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
+            setNegativeButton(getString(R.string.button_ok), null)
+            setMessage(getString(R.string.dialog_message_finish_import))
+            create()
+            show()
+        }
     }
 
     private fun export() {
