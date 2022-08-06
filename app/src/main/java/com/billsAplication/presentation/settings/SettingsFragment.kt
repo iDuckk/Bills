@@ -86,6 +86,8 @@ class SettingsFragment : Fragment() {
 
         backup()
 
+        backupButtonsColorState()
+
     }
 
     companion object {
@@ -168,6 +170,11 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private fun backupButtonsColorState() {
+        binding.bExport.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bImport.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bSendDb.setBackgroundColor(stateColorButton.colorButtons!!)
+    }
 
     private fun setDefaultValues(){
         //Get statement of Currency in Share preference
