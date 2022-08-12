@@ -2,10 +2,12 @@ package com.billsAplication.data.room.billsDb
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
-import javax.inject.Inject
+
 
 @Database(entities = [BillEntity::class], version = 3, exportSchema = false)
 abstract class BillDatabase : RoomDatabase() {
@@ -32,6 +34,15 @@ abstract class BillDatabase : RoomDatabase() {
                 INSTANCE = instance
                 // return instance
                 instance
+            }
+        }
+
+        fun destroyInstance() {
+            if (INSTANCE != null) {
+                if (INSTANCE!!.isOpen()) {
+                    INSTANCE!!.close()
+                }
+                INSTANCE = null
             }
         }
     }

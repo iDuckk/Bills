@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
+import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
@@ -151,6 +152,7 @@ class BillsListFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun deleteItems() {
             billAdapter.submitList(null).apply {
                 CoroutineScope(Main).launch {
@@ -407,6 +409,7 @@ class BillsListFragment : Fragment() {
         visibilityFilterCard = false
     }
 
+    @SuppressLint("SetTextI18n")
     private fun titleAmount() {
         //Set title Total
         titleTotal.observe(viewLifecycleOwner) {
@@ -432,6 +435,7 @@ class BillsListFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
     private fun setBackColorAddButton(){
         if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
             //set color of icon nav bottom income
@@ -541,6 +545,7 @@ class BillsListFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun handleOnBackPressed() {
                     if(!deleteItem){
                         (activity as MainActivity).finish()

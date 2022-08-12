@@ -1,19 +1,30 @@
 package com.billsAplication.utils
 
 import android.app.Application
+import android.os.Build
 import android.os.Environment
+import android.util.Log
+import androidx.annotation.RequiresApi
+import com.billsAplication.data.room.billsDb.BillDatabase
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.inject.Inject
 
 class ImportDatabaseFile@Inject constructor(val application: Application) {
-    operator fun invoke() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    operator fun invoke(inStream: InputStream) {
         try {
-            copyDataFromOneToAnother(databaseBackupDir + "backup_" + nameDatabase, application.getDatabasePath(nameDatabase).path)
-            copyDataFromOneToAnother(databaseBackupDir + "backup_" + nameDatabase + "-shm", application.getDatabasePath(nameDatabase + "-shm").path)
-            copyDataFromOneToAnother(databaseBackupDir + "backup_" + nameDatabase + "-wal", application.getDatabasePath(nameDatabase + "-wal").path)
+
+            val outStream = FileOutputStream(application.getDatabasePath(nameDatabase).path)
+            inStream.use { input ->
+                outStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -22,17 +33,6 @@ class ImportDatabaseFile@Inject constructor(val application: Application) {
     companion object{
 
         private const val nameDatabase = "bills_database"
-        private var databaseBackupDir = Environment.getExternalStorageDirectory().path + "/Download/bills_backup/"
 
-        private fun copyDataFromOneToAnother(fromPath: String, toPath: String) {
-            val inStream = File(fromPath).inputStream()
-            val outStream = FileOutputStream(toPath)
-
-            inStream.use { input ->
-                outStream.use { output ->
-                    input.copyTo(output)
-                }
-            }
-        }
     }
 }
