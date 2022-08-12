@@ -93,5 +93,6 @@
     <string name="dialog_title_import_db">Import database</string>
     <string name="dialog_message_import_db">If you import database, you will permanently lose the current information. Would you like to continue?</string>
     <string name="dialog_message_finish_import">Database loaded</string>
+    <string name="button_restart">Restart Application</string>
 
 </resources>

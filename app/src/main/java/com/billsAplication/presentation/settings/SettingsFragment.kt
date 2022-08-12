@@ -1,14 +1,23 @@
 package com.billsAplication.presentation.settings
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.content.ContentUris
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.DocumentsContract
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -18,11 +27,16 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
+import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
@@ -30,8 +44,11 @@ import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 import javax.inject.Inject
+import kotlin.system.exitProcess
+
 
 class SettingsFragment : Fragment() {
 
@@ -40,8 +57,10 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
+
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
 
@@ -63,6 +82,7 @@ class SettingsFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -104,29 +124,69 @@ class SettingsFragment : Fragment() {
         private const val TAG_DIALOG_LANGUAGE = "Dialog_language"
         private const val REQUEST_KEY_LANGUAGE_ITEM = "RequestKey_LANGUAGE_item"
         private const val KEY_LANGUAGE_ITEMS_DIALOG = "key_language_from_dialog"
+        private const val nameDatabase = "bills_database"
+        private const val REQUEST_WRITE_EX_STORAGE_PERMISSION = 122
+        private const val REQUEST_READ_EX_STORAGE_PERMISSION = 123
+        private val OPEN_DOCUMENT = 109
+
+        private val REQUEST_EXTERNAL_STORAGE = 1
+        private val PERMISSIONS_STORAGE = arrayOf<String>(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
 
         private var typeCurrency = false
         private var currencyPos = 0
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun backup() {
+
         export()
 
         import()
+
+        sendToEmail()
     }
 
+    private fun sendToEmail() {
+        val nameDatabase = "bills_database"
+        binding.bSendDb.setOnClickListener {
+
+            val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
+            val URI_db: Uri = FileProvider.getUriForFile(
+                requireContext(),
+                "com.billsAplication.fileprovider", // Your package
+                file
+            )
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                type = "text/plain" //application/octet-stream
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
+                putExtra(Intent.EXTRA_SUBJECT, "Test")
+                putExtra(Intent.EXTRA_TEXT, "Message")
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    URI_db
+                ) //requireActivity().getDatabasePath(nameDatabase).toURI()
+            }
+            if (intent.resolveActivity(requireContext().packageManager) != null)
+                startActivity(intent)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun import() {
         binding.bImport.setOnClickListener {
             val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            val dialog =  builder
+            val dialog = builder
                 .setTitle(getString(R.string.dialog_title_import_db))
                 .setMessage(getString(R.string.dialog_message_import_db))
-                .setPositiveButton(getString(R.string.button_yes)){
-                        dialog, id ->
-                    importDatabaseFile.invoke().also { //export DB
-                        finishImport()
-                    }
+                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                    BillDatabase.destroyInstance() //Close Db
+                    verifyStoragePermissions()
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
                 .create()
@@ -136,21 +196,24 @@ class SettingsFragment : Fragment() {
 
     private fun finishImport() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setNegativeButton(getString(R.string.button_ok), null)
+            setNegativeButton(getString(R.string.button_restart)) { d, id ->
+                refreshApp()
+                exitProcess(0)
+            }
             setMessage(getString(R.string.dialog_message_finish_import))
             create()
             show()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun export() {
         binding.bExport.setOnClickListener {
             val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            val dialog =  builder
+            val dialog = builder
                 .setTitle(getString(R.string.dialog_title_export_db))
                 .setMessage(getString(R.string.dialog_message_export_db))
-                .setPositiveButton(getString(R.string.button_yes)){
-                        dialog, id ->
+                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
                     exportDatabaseFile.invoke().also { //export DB
                         finishExport()
                     }
@@ -170,13 +233,56 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun verifyStoragePermissions() {
+        // Check if we have write permission
+        val permission = ActivityCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+            )
+        } else {
+            openDocument()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openDocument() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            // Optionally, specify a URI for the file that should appear in the
+            // system file picker when it loads.
+            putExtra(DocumentsContract.EXTRA_INITIAL_URI, OPEN_DOCUMENT)
+        }
+        startActivityForResult(intent, OPEN_DOCUMENT)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
+            if(data?.data?.path?.contains(nameDatabase)!!){
+                importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
+                finishImport()
+            }else{
+                Log.d("TAG", "File has wrong name")
+            }
+        }
+    }
+
     private fun backupButtonsColorState() {
         binding.bExport.setBackgroundColor(stateColorButton.colorButtons!!)
         binding.bImport.setBackgroundColor(stateColorButton.colorButtons!!)
         binding.bSendDb.setBackgroundColor(stateColorButton.colorButtons!!)
     }
 
-    private fun setDefaultValues(){
+    private fun setDefaultValues() {
         //Get statement of Currency in Share preference
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
         typeCurrency = sharedPref.getBoolean(CURRANT_CURRENCY_TYPE, DEFAULT_TYPE)
@@ -184,11 +290,11 @@ class SettingsFragment : Fragment() {
     }
 
     private fun spinnerCurrency() {
-        val spinnerAdapter = object: ArrayAdapter<String>(
+        val spinnerAdapter = object : ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_spinner_item,
             listCurrency()
-        ){
+        ) {
             override fun getDropDownView(
                 position: Int,
                 convertView: View?,
@@ -200,7 +306,7 @@ class SettingsFragment : Fragment() {
                     parent
                 ) as TextView
                 // set item text size
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP,12F)
+                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
                 // set spinner item padding
                 view.setPadding(
                     5.toDp(context), // left
@@ -216,27 +322,28 @@ class SettingsFragment : Fragment() {
 
 
         // Set an on item selected listener for spinner object
-        binding.spinnerCurrency.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {//parent.getItemAtPosition(position).toString()
-                if(binding.rbCode.isChecked){
-                    CurrentCurrency.type = false
-                    CurrentCurrency.currency = Currency.values().get(position).code
-                    setSharePref()
-                }else{
-                    CurrentCurrency.type = true
-                    CurrentCurrency.currency = Currency.values().get(position).symbol
-                    setSharePref()
+        binding.spinnerCurrency.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {//parent.getItemAtPosition(position).toString()
+                    if (binding.rbCode.isChecked) {
+                        CurrentCurrency.type = false
+                        CurrentCurrency.currency = Currency.values().get(position).code
+                        setSharePref()
+                    } else {
+                        CurrentCurrency.type = true
+                        CurrentCurrency.currency = Currency.values().get(position).symbol
+                        setSharePref()
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
                 }
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
-            }
-        }
     }
 
     private fun listCurrency(): Array<out String> {
@@ -247,26 +354,28 @@ class SettingsFragment : Fragment() {
         return list
     }
 
-    private fun radioButtonsCurrency(){
-        if(typeCurrency)
+    private fun radioButtonsCurrency() {
+        if (typeCurrency)
             binding.rbSymbol.isChecked = true
         else
             binding.rbCode.isChecked = true
 
-        binding.rbCode.setOnClickListener{
-                CurrentCurrency.type = false
-                CurrentCurrency.currency = Currency.values().get(binding.spinnerCurrency.selectedItemPosition).code
-                setSharePref()
+        binding.rbCode.setOnClickListener {
+            CurrentCurrency.type = false
+            CurrentCurrency.currency =
+                Currency.values().get(binding.spinnerCurrency.selectedItemPosition).code
+            setSharePref()
         }
 
         binding.rbSymbol.setOnClickListener {
-                CurrentCurrency.type = true
-                CurrentCurrency.currency = Currency.values().get(binding.spinnerCurrency.selectedItemPosition).symbol
-                setSharePref()
+            CurrentCurrency.type = true
+            CurrentCurrency.currency =
+                Currency.values().get(binding.spinnerCurrency.selectedItemPosition).symbol
+            setSharePref()
         }
     }
 
-    private fun setSharePref(){
+    private fun setSharePref() {
         //Save statement of Currency in Share preference
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
@@ -276,13 +385,15 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun buttonLanguage(){
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun buttonLanguage() {
         binding.bLanguage.setOnClickListener {
             setLanguageDialog()
         }
     }
 
-    private fun setLanguageDialog(){
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setLanguageDialog() {
         //Current language
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val pos = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
@@ -299,19 +410,18 @@ class SettingsFragment : Fragment() {
         //Receive chosen items from Dialog
         dialog.setFragmentResultListener(REQUEST_KEY_LANGUAGE_ITEM) { requestKey, bundle ->
             val item = bundle.getInt(KEY_LANGUAGE_ITEMS_DIALOG) //get chosen Items
-            if(Language.values().get(item).Name != binding.bLanguage.text)
-                dialogDeleteImage(item)
+            if (Language.values().get(item).Name != binding.bLanguage.text)
+                dialogChangeLanguage(item)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun dialogDeleteImage(item: Int){
+    private fun dialogChangeLanguage(item: Int) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog =  builder
+        val dialog = builder
             .setTitle(getString(R.string.dialog_title_change_lang))
             .setMessage(getString(R.string.dialog_message_change_lang_dialog))
-            .setPositiveButton(getString(R.string.button_yes)){
-                    dialog, id ->
+            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
                 setLocate(item) //Change language
             }
             .setNegativeButton(getString(R.string.search_cancel), null)
@@ -327,7 +437,7 @@ class SettingsFragment : Fragment() {
         return list
     }
 
-    private fun setLocate(position: Int){
+    private fun setLocate(position: Int) {
         //Save statement of Language in Share preference
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
@@ -335,20 +445,32 @@ class SettingsFragment : Fragment() {
             apply()
         }
         //Set Language
-        if(position != DEFAULT_POS) {
+        if (position != DEFAULT_POS) {
             val locale = Locale(Language.values().get(position).shortName)
             Locale.setDefault(locale)
             val config = Configuration()
             config.locale = locale
-            requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
-        }
-        else{
-            val locale = Locale(ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0).language)
+            requireContext().resources.updateConfiguration(
+                config,
+                requireContext().resources.displayMetrics
+            )
+        } else {
+            val locale = Locale(
+                ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration())
+                    .get(0)?.language
+            )
             Locale.setDefault(locale)
             val config = Configuration()
             config.locale = locale
-            requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
+            requireContext().resources.updateConfiguration(
+                config,
+                requireContext().resources.displayMetrics
+            )
         }
+        refreshApp()
+    }
+
+    private fun refreshApp() {
         val refresh = Intent(
             requireContext(),
             MainActivity::class.java
@@ -357,7 +479,7 @@ class SettingsFragment : Fragment() {
         startActivity(refresh)
     }
 
-    private fun setButtonText(){
+    private fun setButtonText() {
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
         val currentLanguagePosition = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
         binding.bLanguage.text = Language.values().get(currentLanguagePosition).Name
@@ -416,6 +538,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("CutPasteId")
     private fun colorNavBot() {
         //set color of icon  nav bottom
         (activity as MainActivity)
@@ -442,8 +565,8 @@ class SettingsFragment : Fragment() {
     }
 
     // Extension method to convert pixels to dp
-    fun Int.toDp(context: Context):Int = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,this.toFloat(),context.resources.displayMetrics
+    fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
     ).toInt()
 
     override fun onDestroyView() {
