@@ -1,5 +1,6 @@
 package com.billsAplication.utils
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.os.Build
 import android.os.Environment
@@ -11,8 +12,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
+@SuppressLint("SimpleDateFormat")
 class ExportDatabaseFile@Inject constructor(val application: Application) {
     @RequiresApi(Build.VERSION_CODES.O)
     operator fun invoke() {
@@ -20,21 +24,18 @@ class ExportDatabaseFile@Inject constructor(val application: Application) {
 //            File(databaseBackupDir).apply {
 //                mkdirs()
 //            }
-            var databaseBackupDir1 = application.getExternalFilesDir("Download")
-            val path = databaseBackupDir1!!.toPath().toString() +"/" + nameDatabase
-//            BillDatabase.getDatabase(application).billDao().checkpoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
-            copyDataFromOneToAnother(application.getDatabasePath(nameDatabase).path, databaseBackupDir + nameDatabase)
-//            copyDataFromOneToAnother(application.getDatabasePath(nameDatabase + "-shm").path, databaseBackupDir + "backup_" + nameDatabase + "-shm")
-//            copyDataFromOneToAnother(application.getDatabasePath(nameDatabase + "-wal").path, databaseBackupDir + "backup_" + nameDatabase + "-wal")
+            //requireActivity().contentResolver.openOutputStream()
+            //requireActivity().contentResolver.openInputStream(data?.data!!)
+            copyDataFromOneToAnother(application.getDatabasePath(nameDatabase).path, databaseBackupDir + nameDatabase + "_$timeStamp")
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     companion object{
-
+        private val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         private const val nameDatabase = "bills_database"
-        private var databaseBackupDir = Environment.getExternalStorageDirectory().path + "/Download/"
+        private var databaseBackupDir = Environment.getExternalStorageDirectory().path + "/Download/" //bills_backup
 
         private fun copyDataFromOneToAnother(fromPath: String, toPath: String) {
             val inStream = File(fromPath).inputStream()
@@ -45,6 +46,9 @@ class ExportDatabaseFile@Inject constructor(val application: Application) {
                     input.copyTo(output)
                 }
             }
+            inStream.close()
+            outStream.flush()
+            outStream.close()
         }
     }
 }

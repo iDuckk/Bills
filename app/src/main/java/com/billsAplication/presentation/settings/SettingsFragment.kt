@@ -4,7 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
-import android.content.ContentUris
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -12,11 +12,12 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -28,9 +29,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -44,9 +43,9 @@ import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
-import java.io.FileOutputStream
 import java.util.*
 import javax.inject.Inject
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 
@@ -57,12 +56,12 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
-
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
+    @Inject
+    lateinit var getQueryName: GetQueryName
 
 
     private val component by lazy {
@@ -195,7 +194,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun finishImport() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext()).apply {
             setNegativeButton(getString(R.string.button_restart)) { d, id ->
                 refreshApp()
                 exitProcess(0)
@@ -267,7 +266,7 @@ class SettingsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
-            if(data?.data?.path?.contains(nameDatabase)!!){
+            if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
                 finishImport()
             }else{
