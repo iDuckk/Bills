@@ -25,14 +25,15 @@ class ImportDatabaseFile@Inject constructor(val application: Application) {
                     input.copyTo(output)
                 }
             }
+            inStream.close()
+            outStream.flush()
+            outStream.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     companion object{
-
         private const val nameDatabase = "bills_database"
-
     }
 }
