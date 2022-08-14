@@ -93,9 +93,10 @@
     <string name="dialog_title_export_db">Export database</string>
     <string name="dialog_message_export_db">Do you want to export the database to storage?</string>
     <string name="button_ok">Ok</string>
-    <string name="dialog_message_finish_export"><![CDATA[Database is located in the folder Download -> bills_backup]]></string>
+    <string name="dialog_message_finish_export"><![CDATA[Database is located in the folder Download -> bills_database]]></string>
     <string name="dialog_title_import_db">Import database</string>
     <string name="dialog_message_import_db">If you import database, you will permanently lose the current information. Would you like to continue?</string>
     <string name="dialog_message_finish_import">Database loaded</string>
     <string name="button_restart">Restart Application</string>
+    <string name="error_nameDb_import">File has wrong name</string>
 </resources>

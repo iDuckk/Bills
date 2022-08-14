@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -12,12 +11,10 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.provider.OpenableColumns
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -62,7 +59,8 @@ class SettingsFragment : Fragment() {
     lateinit var importDatabaseFile: ImportDatabaseFile
     @Inject
     lateinit var getQueryName: GetQueryName
-
+    @Inject
+    lateinit var mToast: mToast
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -123,10 +121,11 @@ class SettingsFragment : Fragment() {
         private const val TAG_DIALOG_LANGUAGE = "Dialog_language"
         private const val REQUEST_KEY_LANGUAGE_ITEM = "RequestKey_LANGUAGE_item"
         private const val KEY_LANGUAGE_ITEMS_DIALOG = "key_language_from_dialog"
-        private const val nameDatabase = "bills_database"
-        private const val REQUEST_WRITE_EX_STORAGE_PERMISSION = 122
-        private const val REQUEST_READ_EX_STORAGE_PERMISSION = 123
+        private const val IMPORT_DB = "importDB"
+        private const val EXPORT_DB = "exportDB"
         private val OPEN_DOCUMENT = 109
+        private const val nameDatabase = "bills_database"
+
 
         private val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf<String>(
@@ -150,7 +149,6 @@ class SettingsFragment : Fragment() {
     }
 
     private fun sendToEmail() {
-        val nameDatabase = "bills_database"
         binding.bSendDb.setOnClickListener {
 
             val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
@@ -162,7 +160,7 @@ class SettingsFragment : Fragment() {
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                type = "text/plain" //application/octet-stream
+                type = "application/octet-stream"
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
                 putExtra(Intent.EXTRA_SUBJECT, "Test")
                 putExtra(Intent.EXTRA_TEXT, "Message")
@@ -185,7 +183,7 @@ class SettingsFragment : Fragment() {
                 .setMessage(getString(R.string.dialog_message_import_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
                     BillDatabase.destroyInstance() //Close Db
-                    verifyStoragePermissions()
+                    verifyStoragePermissions(IMPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
                 .create()
@@ -213,9 +211,7 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_export_db))
                 .setMessage(getString(R.string.dialog_message_export_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    exportDatabaseFile.invoke().also { //export DB
-                        finishExport()
-                    }
+                    verifyStoragePermissions(EXPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
                 .create()
@@ -233,7 +229,7 @@ class SettingsFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun verifyStoragePermissions() {
+    fun verifyStoragePermissions(type: String) {
         // Check if we have write permission
         val permission = ActivityCompat.checkSelfPermission(
             requireActivity(),
@@ -247,7 +243,14 @@ class SettingsFragment : Fragment() {
                 REQUEST_EXTERNAL_STORAGE
             )
         } else {
-            openDocument()
+            if(type == IMPORT_DB)
+                openDocument()
+            else if(type == EXPORT_DB)
+                exportDatabaseFile.invoke().also { //export DB
+                    finishExport()
+                }
+            else
+                Log.w("TAG", "Wrong type of permission. Fun verifyStoragePermissions")
         }
     }
 
@@ -263,14 +266,16 @@ class SettingsFragment : Fragment() {
         startActivityForResult(intent, OPEN_DOCUMENT)
     }
 
+    @Deprecated("Deprecated in Java")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
             if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
+                importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
                 finishImport()
             }else{
-                Log.d("TAG", "File has wrong name")
+                mToast(getString(R.string.error_nameDb_import))
             }
         }
     }
