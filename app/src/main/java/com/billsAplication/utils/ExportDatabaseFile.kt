@@ -2,6 +2,7 @@ package com.billsAplication.utils
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
@@ -21,11 +22,6 @@ class ExportDatabaseFile@Inject constructor(val application: Application) {
     @RequiresApi(Build.VERSION_CODES.O)
     operator fun invoke() {
         try {
-//            File(databaseBackupDir).apply {
-//                mkdirs()
-//            }
-            //requireActivity().contentResolver.openOutputStream()
-            //requireActivity().contentResolver.openInputStream(data?.data!!)
             copyDataFromOneToAnother(application.getDatabasePath(nameDatabase).path, databaseBackupDir + nameDatabase + "_$timeStamp")
         } catch (e: Exception) {
             e.printStackTrace()
@@ -35,7 +31,7 @@ class ExportDatabaseFile@Inject constructor(val application: Application) {
     companion object{
         private val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         private const val nameDatabase = "bills_database"
-        private var databaseBackupDir = Environment.getExternalStorageDirectory().path + "/Download/" //bills_backup
+        private var databaseBackupDir = Environment.getExternalStorageDirectory().path + "/Download/"
 
         private fun copyDataFromOneToAnother(fromPath: String, toPath: String) {
             val inStream = File(fromPath).inputStream()
