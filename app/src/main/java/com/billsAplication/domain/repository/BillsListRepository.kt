@@ -1,6 +1,7 @@
 package com.billsAplication.domain.repository
 
 import androidx.lifecycle.LiveData
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.domain.model.BillsItem
 
 interface BillsListRepository {
@@ -20,5 +21,7 @@ interface BillsListRepository {
     fun getType(type : Int) : LiveData<List<BillsItem>>
 
     fun getBookmarks(type : Boolean) : LiveData<List<BillsItem>>
+
+    suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
 
 }

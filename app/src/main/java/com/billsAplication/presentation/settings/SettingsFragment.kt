@@ -30,15 +30,21 @@ import androidx.core.content.FileProvider
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
+import com.billsAplication.data.room.billsDb.BillDao
 import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.databinding.FragmentSettingsBinding
+import com.billsAplication.presentation.billsList.BillsListViewModel
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -51,6 +57,8 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding: FragmentSettingsBinding get() = _binding!!
 
+    @Inject
+    lateinit var viewModel: SettingsViewModel
     @Inject
     lateinit var stateColorButton: StateColorButton
     @Inject
@@ -182,7 +190,10 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_import_db))
                 .setMessage(getString(R.string.dialog_message_import_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    BillDatabase.destroyInstance() //Close Db
+//                    BillDatabase.destroyInstance() //Close Db
+                    CoroutineScope(IO).launch{
+                        viewModel.chekPoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
+                    }
                     verifyStoragePermissions(IMPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
@@ -211,6 +222,9 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_export_db))
                 .setMessage(getString(R.string.dialog_message_export_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                    CoroutineScope(IO).launch{
+                        viewModel.chekPoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
+                    }
                     verifyStoragePermissions(EXPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
