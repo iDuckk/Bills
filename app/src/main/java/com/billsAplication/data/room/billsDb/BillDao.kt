@@ -2,8 +2,9 @@ package com.billsAplication.data.room.billsDb
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
-import com.billsAplication.domain.model.BillsItem
+
 
 @Dao
 interface BillDao {
@@ -31,5 +32,8 @@ interface BillDao {
 
     @Update
     suspend fun update(item : BillEntity)
+
+    @RawQuery
+    suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 
 }
