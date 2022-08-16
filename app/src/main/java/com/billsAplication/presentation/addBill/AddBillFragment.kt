@@ -91,6 +91,7 @@ class AddBillFragment : Fragment() {
     private val EMPTY_STRING = ""
     private val widthPhoto = 600f
     private val  heightPhoto = 800f
+    private val providerPackageApp = "com.billsAplication.fileprovider"
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -151,7 +152,7 @@ class AddBillFragment : Fragment() {
         binding.tvCurrancy.text = CurrentCurrency.currency
 
         initAutoCompleteEditText()
-
+//TODO повторные категории не оч
         imageListeners()
 
         initRecViewImage()
@@ -763,7 +764,7 @@ class AddBillFragment : Fragment() {
         if(photoFile != null){
             val photoURI: Uri = FileProvider.getUriForFile(
                 requireContext(),
-                "com.billsAplication.fileprovider", // Your package
+                providerPackageApp, // Your package
                 photoFile!!)
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         }
