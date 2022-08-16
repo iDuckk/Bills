@@ -90,4 +90,6 @@
     <string name="dialog_message_finish_import">Database loaded</string>
     <string name="button_restart">Restart Application</string>
     <string name="error_nameDb_import">File has wrong name</string>
+    <string name="emailDescription1">1. Download the bills_database.sqlite file on your storage.</string>
+    <string name="emailDescription2"><![CDATA[2. BillsApp -> Settings -> Import DB, and choose the file.]]></string>
 </resources>

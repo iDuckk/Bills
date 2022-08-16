@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import kotlin.io.path.Path
@@ -133,6 +134,10 @@ class SettingsFragment : Fragment() {
         private const val EXPORT_DB = "exportDB"
         private val OPEN_DOCUMENT = 109
         private const val nameDatabase = "bills_database"
+        private val eMailSubject = "BillsApp_backup"
+        private const val queryCheckPoint = "pragma wal_checkpoint(full)"
+        private const val providerPackageApp = "com.billsAplication.fileprovider"
+        private const val typeOfIntentSending = "application/octet-stream"
 
 
         private val REQUEST_EXTERNAL_STORAGE = 1
@@ -158,24 +163,26 @@ class SettingsFragment : Fragment() {
 
     private fun sendToEmail() {
         binding.bSendDb.setOnClickListener {
-
+            //Make checkPoint for merge Sql files db, wal, bad
+            viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
+            val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+            val description = "${getString(R.string.emailDescription1)} \n ${getString(R.string.emailDescription2)}"
             val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
             val URI_db: Uri = FileProvider.getUriForFile(
                 requireContext(),
-                "com.billsAplication.fileprovider", // Your package
+                providerPackageApp, // Your package
                 file
             )
-
             val intent = Intent(Intent.ACTION_SEND).apply {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                type = "application/octet-stream"
-                putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
-                putExtra(Intent.EXTRA_SUBJECT, "Test")
-                putExtra(Intent.EXTRA_TEXT, "Message")
+                type = typeOfIntentSending
+//                putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
+                putExtra(Intent.EXTRA_SUBJECT, eMailSubject + "_"+ timeStamp)
+                putExtra(Intent.EXTRA_TEXT, description)
                 putExtra(
                     Intent.EXTRA_STREAM,
                     URI_db
-                ) //requireActivity().getDatabasePath(nameDatabase).toURI()
+                )
             }
             if (intent.resolveActivity(requireContext().packageManager) != null)
                 startActivity(intent)
@@ -190,10 +197,7 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_import_db))
                 .setMessage(getString(R.string.dialog_message_import_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-//                    BillDatabase.destroyInstance() //Close Db
-                    CoroutineScope(IO).launch{
-                        viewModel.chekPoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
-                    }
+                    //Ask permission
                     verifyStoragePermissions(IMPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
@@ -222,9 +226,8 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_export_db))
                 .setMessage(getString(R.string.dialog_message_export_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    CoroutineScope(IO).launch{
-                        viewModel.chekPoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
-                    }
+                    //Make checkPoint for merge Sql files db, wal, bad
+                    viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
                     verifyStoragePermissions(EXPORT_DB)
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
@@ -258,10 +261,10 @@ class SettingsFragment : Fragment() {
             )
         } else {
             if(type == IMPORT_DB)
-                openDocument()
+                openDocument() //Open File explorer
             else if(type == EXPORT_DB)
                 exportDatabaseFile.invoke().also { //export DB
-                    finishExport()
+                    finishExport() //Dialog after export
                 }
             else
                 Log.w("TAG", "Wrong type of permission. Fun verifyStoragePermissions")
@@ -272,7 +275,7 @@ class SettingsFragment : Fragment() {
     private fun openDocument() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/octet-stream"
+            type = typeOfIntentSending
             // Optionally, specify a URI for the file that should appear in the
             // system file picker when it loads.
             putExtra(DocumentsContract.EXTRA_INITIAL_URI, OPEN_DOCUMENT)
@@ -284,10 +287,11 @@ class SettingsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
-            if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){
+            if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){ //If Files`s name "bills_database"
+                //Close Database
+                BillDatabase.destroyInstance()
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
-                importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
-                finishImport()
+                finishImport() //After import restart App
             }else{
                 mToast(getString(R.string.error_nameDb_import))
             }
