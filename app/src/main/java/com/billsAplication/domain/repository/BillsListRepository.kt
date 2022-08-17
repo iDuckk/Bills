@@ -24,4 +24,6 @@ interface BillsListRepository {
 
     suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
 
+    suspend fun closeDb()
+
 }
