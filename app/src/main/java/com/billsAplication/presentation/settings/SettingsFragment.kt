@@ -289,7 +289,8 @@ class SettingsFragment : Fragment() {
         if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
             if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){ //If Files`s name "bills_database"
                 //Close Database
-                BillDatabase.destroyInstance()
+                viewModel.closeDb()
+                //Import Db
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
                 finishImport() //After import restart App
             }else{

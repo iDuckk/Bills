@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.billsDb.BillDao
+import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.data.room.mapper.BillMapper
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.repository.BillsListRepository
@@ -61,5 +62,9 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
 
     override suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery){
         billDao.checkpoint(supportSQLiteQuery)
+    }
+
+    override suspend fun closeDb(){
+        BillDatabase.destroyInstance()
     }
 }
