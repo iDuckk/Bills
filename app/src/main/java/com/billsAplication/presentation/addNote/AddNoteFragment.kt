@@ -14,8 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddNoteBinding
-import com.billsAplication.presentation.mainActivity.MainActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.billsAplication.utils.InterfaceMainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -66,9 +65,7 @@ class AddNoteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .visibility = View.GONE
+        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
 
         buttonCancel()
 
@@ -191,9 +188,7 @@ class AddNoteFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .visibility = View.VISIBLE
-        _binding = null }
-
+        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+        _binding = null
+    }
 }

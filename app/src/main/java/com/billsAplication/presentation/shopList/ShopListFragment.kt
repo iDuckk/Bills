@@ -15,7 +15,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
@@ -29,10 +28,9 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.mToast
 import com.billsAplication.utils.StateColorButton
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
@@ -235,8 +233,7 @@ class ShopListFragment : Fragment() {
                 )
             binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
-                .isEnabled = true
+            (context as InterfaceMainActivity).navBottom().isEnabled = true
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.hide()
         }else{
@@ -246,8 +243,7 @@ class ShopListFragment : Fragment() {
                     )
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
-            (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation)
-                .isEnabled = false
+            (context as InterfaceMainActivity).navBottom().isEnabled = false
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.show()
         }

@@ -29,9 +29,8 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
-import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.SortingDesc
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,9 +109,7 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .visibility = View.GONE
+        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
 
         viewModel.list.observe(viewLifecycleOwner) { list ->
 //            allItemList.clear()

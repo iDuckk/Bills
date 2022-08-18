@@ -23,6 +23,7 @@ import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.shopList.ShopListFragment
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.CurrentCurrency
+import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.Language
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
@@ -34,7 +35,7 @@ import java.util.*
     TYPE_NOTE = 3
  */
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     override fun onCreate(savedInstanceState: Bundle?) {
         setLocate()
         super.onCreate(savedInstanceState)
@@ -106,6 +107,10 @@ class MainActivity : AppCompatActivity() {
             //currency
             CurrentCurrency.currency = Currency.values().get(curPos).code
         }
+    }
+
+    override fun navBottom(): BottomNavigationView {
+        return findViewById<BottomNavigationView>(R.id.bottom_navigation)
     }
 
     override fun onStart() {

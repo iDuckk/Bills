@@ -26,7 +26,6 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -46,17 +45,14 @@ import com.billsAplication.presentation.adapter.image.onClickListenerDeleteImage
 import com.billsAplication.presentation.adapter.image.onClickListenerItem
 import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -144,7 +140,7 @@ class AddBillFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //Set Bottom bar - invisible
-        (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
+        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
         //Set recView invisible
         binding.recViewPhoto.visibility = View.GONE
 
