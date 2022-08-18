@@ -14,8 +14,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBookmarksBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bookmarks.BookmarksAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.billsAplication.utils.InterfaceMainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,7 +61,7 @@ class BookmarksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
+        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
         binding.imBookmarksDelete.visibility = View.GONE
 
         binding.imBookmarksBack.setOnClickListener {

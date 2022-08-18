@@ -33,23 +33,15 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
-import com.billsAplication.data.room.billsDb.BillDao
-import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.databinding.FragmentSettingsBinding
-import com.billsAplication.presentation.billsList.BillsListViewModel
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 
@@ -564,16 +556,13 @@ class SettingsFragment : Fragment() {
     @SuppressLint("CutPasteId")
     private fun colorNavBot() {
         //set color of icon  nav bottom
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        (context as InterfaceMainActivity).navBottom()
             .itemIconTintList = stateColorButton.stateNavBot!!
         //set color of text nav bottom
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        (context as InterfaceMainActivity).navBottom()
             .itemTextColor = stateColorButton.stateNavBot!!
         //set color effect
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        (context as InterfaceMainActivity).navBottom()
             .itemRippleColor = stateColorButton.stateNavBot
     }
 

@@ -3,7 +3,6 @@ package com.billsAplication.presentation.analytics
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,7 +18,6 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAnalyticsBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.utils.ColorsPie
 import com.billsAplication.utils.SortingDesc
@@ -34,7 +32,6 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 

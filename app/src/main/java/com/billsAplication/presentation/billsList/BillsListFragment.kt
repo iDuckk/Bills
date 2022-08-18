@@ -23,16 +23,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
-import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
-import com.billsAplication.utils.CreateDate
-import com.billsAplication.utils.SortingAsc
-import com.billsAplication.utils.SortingDesc
-import com.billsAplication.utils.StateColorButton
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.billsAplication.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -104,9 +98,7 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (activity as MainActivity)
-            .findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .visibility = View.VISIBLE
+        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
 
         binding.tvMonth.text = viewModel.currentDate
 
@@ -439,19 +431,16 @@ class BillsListFragment : Fragment() {
     private fun setBackColorAddButton(){
         if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
             //set color of icon nav bottom income
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //set color of text nav bottom income
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //set background income
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_income)
 //            //set color effect
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //Send color for ShopList
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_income)
@@ -460,19 +449,16 @@ class BillsListFragment : Fragment() {
         }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", ""))
             < BigDecimal(0)) {
             //set color of icon nav bottom expenses
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set color of text nav bottom expenses
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set background expenses
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_expenses)
 //            //set color effect
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_expenses)
@@ -480,19 +466,16 @@ class BillsListFragment : Fragment() {
             stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
         }else{
             //set color of icon nav bottom
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set color of text nav bottom
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemTextColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set background
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button)
             //set color effect
-            (activity as MainActivity)
-                .findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            (context as InterfaceMainActivity).navBottom()
                 .itemRippleColor = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button)
@@ -527,14 +510,12 @@ class BillsListFragment : Fragment() {
                 binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_delete_forever)
                 binding.cardViewBar.visibility = View.GONE
                 binding.cardViewBudget.visibility = View.GONE
-                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
-                    View.GONE
+                (context as InterfaceMainActivity).navBottom().visibility = View.GONE
             } else {
                 binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_add)
                 binding.cardViewBar.visibility = View.VISIBLE
                 binding.cardViewBudget.visibility = View.VISIBLE
-                (activity as MainActivity).findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility =
-                    View.VISIBLE
+                (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
                 //set a new list
                 setNewList(binding.tvMonth.text.toString())
             }
@@ -548,7 +529,7 @@ class BillsListFragment : Fragment() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun handleOnBackPressed() {
                     if(!deleteItem){
-                        (activity as MainActivity).finish()
+                        requireActivity().finish()
                     }else{
                         deleteItem = false
                         listDeleteItems.clear()
