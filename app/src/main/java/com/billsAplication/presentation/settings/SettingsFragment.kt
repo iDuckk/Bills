@@ -104,7 +104,11 @@ class SettingsFragment : Fragment() {
 
         backup()
 
+        backupToExcel()
+
         backupButtonsColorState()
+
+        backupToExcelButtonsColorState()
 
     }
 
@@ -143,9 +147,17 @@ class SettingsFragment : Fragment() {
 
     }
 
+    private fun backupToExcel() {
+    }
+
+    private fun backupToExcelButtonsColorState() {
+        binding.bExportExcel.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bImportExcel.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bSendExcel.setBackgroundColor(stateColorButton.colorButtons!!)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun backup() {
-
         export()
 
         import()
