@@ -34,14 +34,17 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
+import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
+import com.billsAplication.utils.excel.CreateExcelFile
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 
@@ -62,6 +65,8 @@ class SettingsFragment : Fragment() {
     lateinit var getQueryName: GetQueryName
     @Inject
     lateinit var mToast: mToast
+    @Inject
+    lateinit var createExcelFile: CreateExcelFile
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -148,6 +153,20 @@ class SettingsFragment : Fragment() {
     }
 
     private fun backupToExcel() {
+        exportToExcel()
+    }
+
+    private fun exportToExcel(){
+        binding.bExportExcel.setOnClickListener {
+            var list: ArrayList<BillsItem> = ArrayList()
+            viewModel.getAll()
+            viewModel.listAll.observe(viewLifecycleOwner){
+                list.addAll(it)
+                viewModel.listAll.removeObservers(this).apply {
+                    createExcelFile(list)
+                }
+            }
+        }
     }
 
     private fun backupToExcelButtonsColorState() {
