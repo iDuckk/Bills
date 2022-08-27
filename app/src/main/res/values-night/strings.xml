@@ -97,5 +97,8 @@
     <string name="error_nameDb_import">File has wrong name</string>
     <string name="emailDescription1">1. Download the bills_database.sqlite file on your storage.</string>
     <string name="emailDescription2"><![CDATA[2. BillsApp -> Settings -> Import DB, and choose the file.]]></string>
+    <string name="dialog_message_finish_export_excel"><![CDATA[Excel is saved in the folder Download -> bills_database]]></string>
+    <string name="dialog_title_export_db_excel">Export data to Excel</string>
+    <string name="dialog_message_export_db_excel">Do you want to Export data in Excel file to storage?</string>
 
 </resources>

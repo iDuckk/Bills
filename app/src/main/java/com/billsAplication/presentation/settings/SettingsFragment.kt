@@ -55,16 +55,22 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: SettingsViewModel
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
+
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
+
     @Inject
     lateinit var getQueryName: GetQueryName
+
     @Inject
     lateinit var mToast: mToast
+
     @Inject
     lateinit var createExcelFile: CreateExcelFile
 
@@ -85,7 +91,6 @@ class SettingsFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -133,6 +138,7 @@ class SettingsFragment : Fragment() {
         private const val KEY_LANGUAGE_ITEMS_DIALOG = "key_language_from_dialog"
         private const val IMPORT_DB = "importDB"
         private const val EXPORT_DB = "exportDB"
+        private const val EXPORT_EXCEL = "exportExcel"
         private val OPEN_DOCUMENT = 109
         private const val nameDatabase = "bills_database"
         private val eMailSubject = "BillsApp_backup"
@@ -156,16 +162,38 @@ class SettingsFragment : Fragment() {
         exportToExcel()
     }
 
-    private fun exportToExcel(){
+    private fun exportToExcel() {
         binding.bExportExcel.setOnClickListener {
-            var list: ArrayList<BillsItem> = ArrayList()
-            viewModel.getAll()
-            viewModel.listAll.observe(viewLifecycleOwner){
-                list.addAll(it)
-                viewModel.listAll.removeObservers(this).apply {
-                    createExcelFile(list)
+            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+            val dialog = builder
+                .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
+                .setMessage(getString(R.string.dialog_message_export_db_excel)) //dialog_message_export_db
+                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                    verifyStoragePermissions(EXPORT_EXCEL)
                 }
+                .setNegativeButton(getString(R.string.search_cancel), null)
+                .create()
+            dialog.show()
+        }
+    }
+
+    private fun createExcel(){
+        val list: ArrayList<BillsItem> = ArrayList()
+        viewModel.getAll()
+        viewModel.listAll.observe(viewLifecycleOwner) {
+            list.addAll(it)
+            viewModel.listAll.removeObservers(this).apply {
+                createExcelFile(list)
             }
+        }
+    }
+
+    private fun finishExportToExcel() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
+            setNegativeButton(getString(R.string.button_ok), null)
+            setMessage(getString(R.string.dialog_message_finish_export_excel))
+            create()
+            show()
         }
     }
 
@@ -175,7 +203,6 @@ class SettingsFragment : Fragment() {
         binding.bSendExcel.setBackgroundColor(stateColorButton.colorButtons!!)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun backup() {
         export()
 
@@ -184,12 +211,14 @@ class SettingsFragment : Fragment() {
         sendToEmail()
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun sendToEmail() {
         binding.bSendDb.setOnClickListener {
             //Make checkPoint for merge Sql files db, wal, bad
             viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
             val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-            val description = "${getString(R.string.emailDescription1)} \n ${getString(R.string.emailDescription2)}"
+            val description =
+                "${getString(R.string.emailDescription1)} \n ${getString(R.string.emailDescription2)}"
             val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
             val URI_db: Uri = FileProvider.getUriForFile(
                 requireContext(),
@@ -200,7 +229,7 @@ class SettingsFragment : Fragment() {
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 type = typeOfIntentSending
 //                putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
-                putExtra(Intent.EXTRA_SUBJECT, eMailSubject + "_"+ timeStamp)
+                putExtra(Intent.EXTRA_SUBJECT, eMailSubject + "_" + timeStamp)
                 putExtra(Intent.EXTRA_TEXT, description)
                 putExtra(
                     Intent.EXTRA_STREAM,
@@ -212,7 +241,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun import() {
         binding.bImport.setOnClickListener {
             val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
@@ -241,7 +269,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun export() {
         binding.bExport.setOnClickListener {
             val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
@@ -268,7 +295,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun verifyStoragePermissions(type: String) {
         // Check if we have write permission
         val permission = ActivityCompat.checkSelfPermission(
@@ -283,18 +309,20 @@ class SettingsFragment : Fragment() {
                 REQUEST_EXTERNAL_STORAGE
             )
         } else {
-            if(type == IMPORT_DB)
+            if (type == IMPORT_DB)
                 openDocument() //Open File explorer
-            else if(type == EXPORT_DB)
+            else if (type == EXPORT_DB)
                 exportDatabaseFile.invoke().also { //export DB
                     finishExport() //Dialog after export
-                }
-            else
+                } else if(type == EXPORT_EXCEL){
+                createExcel().apply {
+                        finishExportToExcel()
+                    }
+            }else
                 Log.w("TAG", "Wrong type of permission. Fun verifyStoragePermissions")
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun openDocument() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -307,16 +335,15 @@ class SettingsFragment : Fragment() {
     }
 
     @Deprecated("Deprecated in Java")
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK && requestCode == OPEN_DOCUMENT) {
-            if(getQueryName(data?.data!!)?.contains(nameDatabase)!!){ //If Files`s name "bills_database"
+            if (getQueryName(data?.data!!)?.contains(nameDatabase)!!) { //If Files`s name "bills_database"
                 //Close Database
                 viewModel.closeDb()
                 //Import Db
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
                 finishImport() //After import restart App
-            }else{
+            } else {
                 mToast(getString(R.string.error_nameDb_import))
             }
         }
@@ -431,14 +458,12 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun buttonLanguage() {
         binding.bLanguage.setOnClickListener {
             setLanguageDialog()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setLanguageDialog() {
         //Current language
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
@@ -461,7 +486,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dialogChangeLanguage(item: Int) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog = builder
