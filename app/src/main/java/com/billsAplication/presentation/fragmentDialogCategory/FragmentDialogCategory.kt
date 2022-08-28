@@ -50,6 +50,12 @@ class FragmentDialogCategory : DialogFragment() {
     ): View? {
         _binding = FragmentDialogCategoryBinding.inflate(inflater, container, false)
 
+        viewModel.getCategoryType()
+
+        viewModel.list.observe(viewLifecycleOwner){
+            dialogAdapter.submitList(it.toMutableList())
+        }
+
         initRecView()
 
         binding.imDialogClose.setOnClickListener {
@@ -58,27 +64,29 @@ class FragmentDialogCategory : DialogFragment() {
 
         binding.tvDialogCategoryAdd.setOnClickListener {
             val text = binding.edDialogCategoryAdd.text.toString()
-
-            if(text.isNotEmpty()) {
-                CoroutineScope(IO).launch {
-                    viewModel.addCategory(
-                        BillsItem(
-                            0,
-                            2,
-                            "",
-                            "",
-                            "",
-                            text,
-                            "",
-                            "",
-                            "",
-                            false, "", "", "", "", ""
+            if(dialogAdapter.currentList.isNotEmpty() &&
+                dialogAdapter.currentList.find { text == it.category }?.category != text){
+                if(text.isNotEmpty()) {
+                    CoroutineScope(IO).launch {
+                        viewModel.addCategory(
+                            BillsItem(
+                                0,
+                                2,
+                                "",
+                                "",
+                                "",
+                                text,
+                                "",
+                                "",
+                                "",
+                                false, "", "", "", "", ""
+                            )
                         )
-                    )
+                    }
+                    binding.edDialogCategoryAdd.hideKeyboard()
+                    binding.edDialogCategoryAdd.setText("")
+                    binding.edDialogCategoryAdd.clearFocus()
                 }
-                binding.edDialogCategoryAdd.hideKeyboard()
-                binding.edDialogCategoryAdd.setText("")
-                binding.edDialogCategoryAdd.clearFocus()
             }
         }
 
@@ -114,12 +122,6 @@ class FragmentDialogCategory : DialogFragment() {
             }
             false
         })
-
-        viewModel.getCategoryType()
-
-        viewModel.list.observe(viewLifecycleOwner){
-            dialogAdapter.submitList(it.toMutableList())
-        }
 
         return binding.root
     }
