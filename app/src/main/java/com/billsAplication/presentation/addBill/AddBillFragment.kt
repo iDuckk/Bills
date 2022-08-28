@@ -148,7 +148,7 @@ class AddBillFragment : Fragment() {
         binding.tvCurrancy.text = CurrentCurrency.currency
 
         initAutoCompleteEditText()
-//TODO повторные категории не оч
+
         imageListeners()
 
         initRecViewImage()
@@ -172,7 +172,6 @@ class AddBillFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -214,7 +213,6 @@ class AddBillFragment : Fragment() {
         binding.bAddSave.isEnabled = true
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun imageListeners(){
         binding.imAttach.setOnClickListener {
             onPickPhoto()
@@ -274,7 +272,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun editTextListeners(){
         binding.edDateAdd.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DATE)
@@ -301,7 +298,7 @@ class AddBillFragment : Fragment() {
         binding.edAddCategory.setOnFocusChangeListener { view, b ->
             setColorStateEditText(CATEGORY)
             if(checkFocus) {
-                var dialogCategory = FragmentDialogCategory()
+                val dialogCategory = FragmentDialogCategory()
                 dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
@@ -337,7 +334,6 @@ class AddBillFragment : Fragment() {
         }
     }
     //set views when create type
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setViewsCreateType(){
         //Set Date
         binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
@@ -350,7 +346,6 @@ class AddBillFragment : Fragment() {
     }
 
     //Set views when Edit type
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setViewsEditType(){
         if(billItem != null){
             setTypeBill()
@@ -372,7 +367,6 @@ class AddBillFragment : Fragment() {
         clickListenerButtonEditSave()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setViewsBookmarksType() {
         if(billItem != null) {
             //set type bill
@@ -393,7 +387,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun clickListenerButtonAddSave() {
         binding.bAddSave.setOnClickListener {
             if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
@@ -408,7 +401,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun clickListenerButtonEditSave(){
         binding.bAddSave.setOnClickListener {
             if (!binding.edAddAmount.text.isNullOrEmpty() && !binding.edAddCategory.text.isNullOrEmpty()) {
@@ -560,7 +552,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun createBillItem(): BillsItem{
         var image1 = ""
         var image2 = ""
@@ -650,7 +641,6 @@ class AddBillFragment : Fragment() {
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun storagePermission(it: ImageItem){
         if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             checkStoragePermission()
@@ -670,7 +660,6 @@ class AddBillFragment : Fragment() {
     }
 
     @SuppressLint("InlinedApi")
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun saveImage(it: ImageItem){
         val resolver = requireActivity().contentResolver
         val c = Calendar.getInstance()
@@ -702,7 +691,6 @@ class AddBillFragment : Fragment() {
 //        )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dialogSaveImage(it: ImageItem){
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog =  builder
@@ -718,7 +706,6 @@ class AddBillFragment : Fragment() {
         dialog.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dialogDeleteImage(it: ImageItem){
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog =  builder
@@ -734,7 +721,6 @@ class AddBillFragment : Fragment() {
         dialog.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun cameraPermission(){
 
         when{
@@ -750,7 +736,6 @@ class AddBillFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         // Create the File where the photo should go
@@ -787,7 +772,6 @@ class AddBillFragment : Fragment() {
     }
 
     @Deprecated("Deprecated in Java")
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
