@@ -30,7 +30,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5873972344895405~9006966484"/>
         <activity
             android:name=".presentation.mainActivity.MainActivity"
             android:exported="true"
@@ -45,5 +47,5 @@
             </intent-filter>
         </activity>
     </application>
-
+    <!--            ca-app-pub-5873972344895405~9006966484-->
 </manifest>
