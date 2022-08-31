@@ -1,30 +1,24 @@
 package com.billsAplication.presentation.mainActivity
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
-import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
-import androidx.navigation.Navigation.findNavController
+import androidx.core.view.size
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.billsAplication.R
-import com.billsAplication.presentation.analytics.AnalyticsFragment
-import com.billsAplication.presentation.billsList.BillsListFragment
-import com.billsAplication.presentation.settings.SettingsFragment
-import com.billsAplication.presentation.shopList.ShopListFragment
+import com.billsAplication.databinding.ActivityMainBinding
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.Language
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 
@@ -36,14 +30,21 @@ import java.util.*
  */
 
 class MainActivity : AppCompatActivity(), InterfaceMainActivity {
+
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setLocate()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        initAdMob()
 
         initBottomNavigation()
 
         setCurrency()
+
     }
 
     companion object{
@@ -58,10 +59,15 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     }
 
+    private fun initAdMob(){
+        MobileAds.initialize(this)
+        val adRequest = AdRequest.Builder().build()
+        binding.adViewBanner.loadAd(adRequest)
+    }
+
     fun initBottomNavigation(){
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerViewMain) as NavHostFragment
-        bottomNavigation.setupWithNavController(navHostFragment.navController)
+        binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
     }
 
     //Theme
@@ -110,7 +116,22 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     }
 
     override fun navBottom(): BottomNavigationView {
-        return findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        return binding.bottomNavigation
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.adViewBanner.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.adViewBanner.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.adViewBanner.destroy()
     }
 
     override fun onStart() {
