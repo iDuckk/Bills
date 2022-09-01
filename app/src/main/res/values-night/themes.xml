@@ -16,6 +16,7 @@
         <item name="android:colorBackgroundFloating">@color/background_barviews_colordark</item>
         <item name="colorBackgroundFloating">@color/background_barviews_colordark</item>
 <!--        <item name="android:windowLightStatusBar">true</item>-->
+        <item name="android:navigationBarColor">@color/main_background</item>
     </style>
 
     <style name="ThinnerChip" parent="Widget.MaterialComponents.Chip.Action">
