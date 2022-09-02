@@ -2,6 +2,8 @@ package com.billsAplication.presentation.fragmentDialogCategory
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -52,6 +54,8 @@ class FragmentDialogCategory : DialogFragment() {
 
         viewModel.getCategoryType()
 
+        binding.tvDialogCategoryAdd.visibility = View.GONE
+
         viewModel.list.observe(viewLifecycleOwner){
             dialogAdapter.submitList(it.toMutableList())
         }
@@ -62,34 +66,17 @@ class FragmentDialogCategory : DialogFragment() {
             dismiss()
         }
 
-        binding.tvDialogCategoryAdd.setOnClickListener {
-            val text = binding.edDialogCategoryAdd.text.toString()
-            if(dialogAdapter.currentList.isNotEmpty() &&
-                dialogAdapter.currentList.find { text == it.category }?.category != text){
-                if(text.isNotEmpty()) {
-                    CoroutineScope(IO).launch {
-                        viewModel.addCategory(
-                            BillsItem(
-                                0,
-                                2,
-                                "",
-                                "",
-                                "",
-                                text,
-                                "",
-                                "",
-                                "",
-                                false, "", "", "", "", ""
-                            )
-                        )
-                    }
-                    binding.edDialogCategoryAdd.hideKeyboard()
-                    binding.edDialogCategoryAdd.setText("")
-                    binding.edDialogCategoryAdd.clearFocus()
-                }
-            }
-        }
+        //Listener for changing of editText
+        listenerForChangingTV()
 
+        listenerAddCategory()
+
+        listenerForEnterKey()
+
+        return binding.root
+    }
+
+    private fun listenerForEnterKey() {
         binding.edDialogCategoryAdd.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE
                 || event.action == KeyEvent.ACTION_DOWN
@@ -97,7 +84,7 @@ class FragmentDialogCategory : DialogFragment() {
             ) {
                 val text = binding.edDialogCategoryAdd.text.toString()
 
-                if(text.isNotEmpty()) {
+                if (text.isNotEmpty()) {
                     CoroutineScope(IO).launch {
                         viewModel.addCategory(
                             BillsItem(
@@ -122,8 +109,49 @@ class FragmentDialogCategory : DialogFragment() {
             }
             false
         })
+    }
 
-        return binding.root
+    private fun listenerAddCategory() {
+        binding.tvDialogCategoryAdd.setOnClickListener {
+            val text = binding.edDialogCategoryAdd.text.toString()
+                if (dialogAdapter.currentList.find { text == it.category }?.category != text) {
+                    CoroutineScope(IO).launch {
+                        viewModel.addCategory(
+                            BillsItem(
+                                0,
+                                2,
+                                "",
+                                "",
+                                "",
+                                text,
+                                "",
+                                "",
+                                "",
+                                false, "", "", "", "", ""
+                            )
+                        )
+                    }
+                    binding.edDialogCategoryAdd.hideKeyboard()
+                    binding.edDialogCategoryAdd.setText("")
+                    binding.edDialogCategoryAdd.clearFocus()
+                }
+        }
+    }
+
+    private fun listenerForChangingTV() {
+        binding.edDialogCategoryAdd.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //Hide Add bottom
+                if (p0?.length != 0)
+                    binding.tvDialogCategoryAdd.visibility = View.VISIBLE
+                else
+                    binding.tvDialogCategoryAdd.visibility = View.GONE
+            }
+
+            override fun afterTextChanged(p0: Editable?) {}
+        })
     }
 
     override fun onDestroyView() {
