@@ -95,4 +95,5 @@
     <string name="dialog_message_finish_export_excel"><![CDATA[Excel はフォルダ Download -> bills_database に保存されます]]></string>
     <string name="dialog_title_export_db_excel">データを Excel にエクスポートする</string>
     <string name="dialog_message_export_db_excel">Excel ファイルのデータをストレージにエクスポートしますか?</string>
+    <string name="bSettings_ExportToExcel">Excel にエクスポート</string>
 </resources>

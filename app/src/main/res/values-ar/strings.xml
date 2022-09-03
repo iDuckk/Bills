@@ -77,12 +77,12 @@
     <string name="button_yes">نعم</string>
     <string name="dialog_title_delete_Bills">حذف مشاريع القوانين</string>
     <string name="dialog_message_delete_bills">هل تريد حذف الفواتير؟</string>
-    <string name="settings_backup_database">Backup database:</string>
-    <string name="settings_export_db">Export DB</string>
-    <string name="settings_import_db">Import DB</string>
-    <string name="settings_send_db_to_e_mail">send DB to e-mail</string>
-    <string name="dialog_title_export_db">Export database</string>
-    <string name="dialog_message_export_db">Do you want to export the database to storage?</string>
+    <string name="settings_backup_database">قاعدة بيانات النسخ الاحتياطي:</string>
+    <string name="settings_export_db">تصدير DB</string>
+    <string name="settings_import_db">استيراد DB</string>
+    <string name="settings_send_db_to_e_mail">إرسال DB إلى البريد الإلكتروني</string>
+    <string name="dialog_title_export_db">تصدير قاعدة البيانات</string>
+    <string name="dialog_message_export_db">هل تريد تصدير قاعدة البيانات إلى التخزين؟</string>
     <string name="button_ok">Ok</string>
     <string name="dialog_message_finish_export"><![CDATA[توجد قاعدة البيانات في المجلد Download -> bills_database]]></string>
     <string name="dialog_title_import_db">قاعدة بيانات الاستيراد</string>
@@ -95,4 +95,5 @@
     <string name="dialog_message_finish_export_excel"><![CDATA[يتم حفظ برنامج Excel في المجلد Download -> bills_database]]></string>
     <string name="dialog_title_export_db_excel">تصدير البيانات إلى Excel</string>
     <string name="dialog_message_export_db_excel">هل تريد تصدير البيانات في ملف Excel إلى التخزين؟</string>
+    <string name="bSettings_ExportToExcel">تصدير إلى Excel</string>
 </resources>
