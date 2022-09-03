@@ -95,4 +95,5 @@
     <string name="dialog_message_finish_export_excel"><![CDATA[Excel wird im Ordner Download -> bills_database gespeichert]]></string>
     <string name="dialog_title_export_db_excel">Daten nach Excel exportieren</string>
     <string name="dialog_message_export_db_excel">Möchten Sie Daten in einer Excel-Datei in den Speicher exportieren?</string>
+    <string name="bSettings_ExportToExcel">Nach Excel exportieren</string>
 </resources>

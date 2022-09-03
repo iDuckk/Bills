@@ -429,7 +429,14 @@ class BillsListFragment : Fragment() {
 
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
     private fun setBackColorAddButton(){
-        if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", "")) > BigDecimal(0)){
+        //check text for null
+        var check = ""
+        if(binding.tvTotalNum.text.toString() == "0.00")
+            check = "0"
+        else
+            check = binding.tvTotalNum.text.toString()
+
+        if(BigDecimal(check.replace(",", "")) > BigDecimal(0)){
             //set color of icon nav bottom income
             (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
@@ -446,8 +453,7 @@ class BillsListFragment : Fragment() {
             stateColorButton.colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button_income)
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
             stateColorButton.stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-        }else if(BigDecimal(binding.tvTotalNum.text.toString().replace(",", ""))
-            < BigDecimal(0)) {
+        }else if(BigDecimal(check.replace(",", "")) < BigDecimal(0)) {
             //set color of icon nav bottom expenses
             (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)

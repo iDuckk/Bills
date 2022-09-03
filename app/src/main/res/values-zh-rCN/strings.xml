@@ -95,4 +95,5 @@
     <string name="dialog_message_finish_export_excel"><![CDATA[Excel 保存在文件夹 Download -> bills_database]]></string>
     <string name="dialog_title_export_db_excel">将数据导出到 Excel</string>
     <string name="dialog_message_export_db_excel">是否要将 Excel 文件中的数据导出到存储？</string>
+    <string name="bSettings_ExportToExcel">导出到 Excel</string>
 </resources>

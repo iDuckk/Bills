@@ -23,6 +23,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
@@ -46,6 +47,7 @@ import com.billsAplication.presentation.adapter.image.onClickListenerItem
 import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.utils.*
+import com.billsAplication.utils.Currency
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.coroutines.CoroutineScope
