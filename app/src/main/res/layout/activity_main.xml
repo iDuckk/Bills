@@ -30,12 +30,12 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:navGraph="@navigation/navgraph" />
 <!--            ca-app-pub-5873972344895405/3709024880-->
-            <com.google.android.gms.ads.AdView
+            <com.appodeal.ads.BannerView
                 android:id="@+id/adViewBanner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:adSize="BANNER"
-                app:adUnitId="ca-app-pub-5873972344895405/3709024880"
+                app:adUnitId="31aab04ba7c613e8e4437584d473339a0fe2f9355f49b57d"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

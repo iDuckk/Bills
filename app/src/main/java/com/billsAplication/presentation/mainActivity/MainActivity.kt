@@ -5,21 +5,19 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
-import androidx.core.view.size
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.appodeal.ads.Appodeal
+import com.appodeal.ads.initializing.ApdInitializationCallback
+import com.appodeal.ads.initializing.ApdInitializationError
 import com.billsAplication.R
 import com.billsAplication.databinding.ActivityMainBinding
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.Language
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 
@@ -57,13 +55,21 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         private const val CURRANT_CURRENCY_TYPE = "currentCurrencyType"
         private const val CURRANT_CURRENCY_POS = "currentCurrencyPos"
         private const val DEFAULT_TYPE = false
+        private const val appKey = "31aab04ba7c613e8e4437584d473339a0fe2f9355f49b57d"
 
     }
 
     private fun initAdMob(){
-        MobileAds.initialize(this)
-        val adRequest = AdRequest.Builder().build()
-        binding.adViewBanner.loadAd(adRequest)
+        Appodeal.setTesting(true)
+        Appodeal.setBannerViewId(R.id.adViewBanner)
+        Appodeal.initialize(this, appKey, Appodeal.BANNER, object : ApdInitializationCallback {
+            override fun onInitializationFinished(list: List<ApdInitializationError>?) {
+                //Appodeal initialization finished
+            }
+        })
+//        MobileAds.initialize(this)
+//        val adRequest = AdRequest.Builder().build()
+//        binding.adViewBanner.loadAd(adRequest)
     }
 
     fun initBottomNavigation(){
@@ -122,17 +128,17 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     override fun onResume() {
         super.onResume()
-        binding.adViewBanner.resume()
+//        binding.adViewBanner.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.adViewBanner.pause()
+//        binding.adViewBanner.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.adViewBanner.destroy()
+//        binding.adViewBanner.destroy()
     }
 
     override fun onStart() {
