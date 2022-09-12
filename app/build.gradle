@@ -100,7 +100,5 @@ dependencies {
 
     //Zoom PhotoView\
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-
-    //Appodeal
-    implementation 'com.appodeal.ads:sdk:3.0.0.+'
+    
 }
