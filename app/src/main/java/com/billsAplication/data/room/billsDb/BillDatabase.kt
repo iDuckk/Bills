@@ -29,8 +29,7 @@ abstract class BillDatabase : RoomDatabase() {
                     BillDatabase::class.java,
                     "bills_database"
                 )
-                    .fallbackToDestructiveMigration()
-                    .build()
+                    .build() //.fallbackToDestructiveMigration()
                 INSTANCE = instance
                 // return instance
                 instance
