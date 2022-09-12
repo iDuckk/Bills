@@ -29,13 +29,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:navGraph="@navigation/navgraph" />
-<!--            ca-app-pub-5873972344895405/3709024880-->
-            <com.appodeal.ads.BannerView
+
+            <com.google.android.gms.ads.AdView
                 android:id="@+id/adViewBanner"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:adSize="BANNER"
-                app:adUnitId="31aab04ba7c613e8e4437584d473339a0fe2f9355f49b57d"
+                app:adUnitId="ca-app-pub-5873972344895405/3709024880"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
