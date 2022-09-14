@@ -23,7 +23,8 @@ import java.util.*
 /*
     TYPE_EXPENSES = 0
     TYPE_INCOME = 1
-    TYPE_CATEGORY = 2
+    TYPE_CATEGORY_EXPENSES = 2
+    TYPE_CATEGORY_INCOME = 4
     TYPE_NOTE = 3
  */
 

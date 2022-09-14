@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +32,10 @@ class FragmentDialogCategory : DialogFragment() {
     private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
 
+    private val KEY_CATEGORY_ITEM_SEND = "RequestKey_Category_item_SEND"
+
+    private var typeCategory = 2
+
     @Inject
     lateinit var viewModel: FragmentDialogCategoryViewModel
     @Inject
@@ -52,7 +57,12 @@ class FragmentDialogCategory : DialogFragment() {
     ): View? {
         _binding = FragmentDialogCategoryBinding.inflate(inflater, container, false)
 
-        viewModel.getCategoryType()
+        //get type of categories
+        typeCategory = requireArguments().getInt(KEY_CATEGORY_ITEM_SEND)
+
+        Log.d("TAG", typeCategory.toString())
+
+        viewModel.getCategoryType(typeCategory)
 
         binding.tvDialogCategoryAdd.visibility = View.GONE
 
@@ -65,6 +75,7 @@ class FragmentDialogCategory : DialogFragment() {
         binding.imDialogClose.setOnClickListener {
             dismiss()
         }
+        //TODO SEARCH Frag
 
         //Listener for changing of editText
         listenerForChangingTV()
@@ -89,7 +100,7 @@ class FragmentDialogCategory : DialogFragment() {
                         viewModel.addCategory(
                             BillsItem(
                                 0,
-                                2,
+                                typeCategory,
                                 "",
                                 "",
                                 "",
@@ -119,7 +130,7 @@ class FragmentDialogCategory : DialogFragment() {
                         viewModel.addCategory(
                             BillsItem(
                                 0,
-                                2,
+                                typeCategory,
                                 "",
                                 "",
                                 "",

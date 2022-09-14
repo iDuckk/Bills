@@ -75,10 +75,13 @@ class AddBillFragment : Fragment() {
     private val BILL_ITEM_KEY = "bill_item_key"
     private val REQUESTKEY_CATEGORY_ITEM = "RequestKey_Category_item"
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
+    private val KEY_CATEGORY_ITEM_SEND = "RequestKey_Category_item_SEND"
     private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSE = 0
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
+    private val TYPE_CATEGORY_EXPENSES = 2
+    private val TYPE_CATEGORY_INCOME = 4
     private val DATE = 0
     private val TIME = 1
     private val CATEGORY = 2
@@ -301,6 +304,15 @@ class AddBillFragment : Fragment() {
             setColorStateEditText(CATEGORY)
             if(checkFocus) {
                 val dialogCategory = FragmentDialogCategory()
+
+                val args = Bundle()
+                //sent type Category to Dialog
+                if(TYPE_BILL == TYPE_EXPENSE)
+                    args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_EXPENSES)
+                else
+                    args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_INCOME)
+                dialogCategory.arguments = args
+
                 dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
