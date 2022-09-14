@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.R
 import com.billsAplication.di.ApplicationScope
@@ -52,12 +53,13 @@ class BillsListViewModel @Inject constructor(
     private var NOVEMBER = "NOVEMBER"
     private var DECEMBER = "DECEMBER"
 
-    private val TYPE_CATEGORY = 2
+    private val TYPE_CATEGORY_EXPENSES = 2
+    private val TYPE_CATEGORY_INCOME = 4
 
     init {
         getMonth(currentDate())
         currentDate = currentDate()
-        getCategoryType()
+//        getCategoryType()
     }
 
     fun defaultMonth(){
@@ -69,8 +71,12 @@ class BillsListViewModel @Inject constructor(
         list = getAllDatabase.invoke()
     }
 
-    fun getCategoryType() {
-        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY)
+    fun getCategoryExpenses() {
+        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_EXPENSES)
+    }
+ //TODO личст для инком и экспенс и для общего
+    fun getCategoryIncome() {
+        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_INCOME)
     }
 
     fun getMonth(month: String) {

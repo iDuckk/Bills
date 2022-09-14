@@ -5,12 +5,14 @@ import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
@@ -33,6 +35,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 
 class BillsListFragment : Fragment() {
@@ -53,6 +56,7 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var sortingAsc: SortingAsc
 
+    lateinit var spinnerAdapter: ArrayAdapter<String>
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
     private var deleteItem = false
@@ -61,6 +65,8 @@ class BillsListFragment : Fragment() {
     private var titleIncome = MutableLiveData<BigDecimal>()
     private var titleExpense = MutableLiveData<BigDecimal>()
     private var titleTotal = MutableLiveData<BigDecimal>()
+    private var liveListCategory = MutableLiveData<ArrayList<String>>()
+
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
@@ -84,7 +90,6 @@ class BillsListFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,7 +99,6 @@ class BillsListFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -109,7 +113,7 @@ class BillsListFragment : Fragment() {
         titleAmount()
 
         titleBar()
-
+//TODO Когда выбираешь фильтр и переходишь по Нав боттом, то фильтр остается
         filterBar()
 
         addButton()
@@ -129,7 +133,6 @@ class BillsListFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun addButton() {
         binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {
@@ -144,7 +147,6 @@ class BillsListFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun deleteItems() {
             billAdapter.submitList(null).apply {
                 CoroutineScope(Main).launch {
@@ -160,7 +162,6 @@ class BillsListFragment : Fragment() {
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dialogDeleteItems(){
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog =  builder
@@ -175,7 +176,6 @@ class BillsListFragment : Fragment() {
         dialog.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun filterBar(){
         //Use height instead Gone - destroys view? spinner again resize first item
         invisibilityFilterCard()
@@ -197,7 +197,6 @@ class BillsListFragment : Fragment() {
     }
 
     //Get list Type (Income or Expense)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getSortList(type : Int): ArrayList<BillsItem> {
         val list =  ArrayList<BillsItem>()
         viewModel.list.value?.forEach {
@@ -226,25 +225,121 @@ class BillsListFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun spinnerCategory() {
-        val listCategory = ArrayList<String>()
-        listCategory.add(NONE) //Default value without it doesn't work
 
-        //create Category List
-        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
-            //Because Observer in ViewModel, and it doesn't destroy.
-            //According that we add items again
-            if(listCategory.isNotEmpty()){
-                listCategory.clear()
-                listCategory.add(NONE)
+        createSpinnerAdapter()
+
+        liveList()
+
+        createListCategory()
+
+        onItemSelectListSpinner()
+
+    }
+
+    private fun liveList(){
+        liveListCategory.observe(viewLifecycleOwner){ listCat ->
+            //remove previous data
+            spinnerAdapter.clear()
+            spinnerAdapter.add(NONE)
+            //set new list
+            spinnerAdapter.addAll(listCat)
+            spinnerAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun onItemSelectListSpinner(){
+        // Set an on item selected listener for spinner object
+        binding.spinnerFilter.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {//parent.getItemAtPosition(position).toString()
+                //SetText SIZE
+                if(binding.spinnerFilter.getChildAt(0) != null)
+                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
+                // Display the selected item text on text view
+                filterList(parent.getItemAtPosition(position).toString())
             }
-            list.forEach { item ->
-                    listCategory += item.category
+
+            override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
             }
         }
+    }
 
-        val spinnerAdapter = object: ArrayAdapter<String>(
+    private fun createListCategory() {
+        val listCategory = ArrayList<String>()
+        viewModel.getCategoryExpenses()
+        //Close Observer if exists
+        if(viewModel.listCategory.hasObservers())
+            viewModel.listCategory.removeObservers(this)
+        //Add expenses category
+        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
+            //Crate list of Expenses
+            list.forEach { item ->
+                listCategory += item.category
+            }
+        }
+        //First remove observers and start again that add Income list
+        viewModel.listCategory.removeObservers(this).apply {
+            viewModel.getCategoryIncome() //Add income category
+            viewModel.listCategory.observe(viewLifecycleOwner) { list ->
+                list.forEach { item ->
+                    listCategory += item.category
+                }.apply {
+                    //Set list
+                    liveListCategory.postValue(listCategory)
+                }
+                viewModel.listCategory.removeObservers(viewLifecycleOwner)
+            }
+        }
+    }
+
+    private fun createListCategoryExpenses() {
+        val listCategory = ArrayList<String>()
+        //Close Observer if exists
+        if(viewModel.listCategory.hasObservers())
+            viewModel.listCategory.removeObservers(this)
+
+        viewModel.getCategoryExpenses()
+        //Add expenses category
+        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
+            //Crate list of Expenses
+            list.forEach { item ->
+                listCategory += item.category
+            }.apply {
+                //Set list
+                liveListCategory.postValue(listCategory)
+            }
+        }
+    }
+
+    private fun createListCategoryIncome() {
+        val listCategory = ArrayList<String>()
+        //Close Observer if exists
+        if(viewModel.listCategory.hasObservers())
+            viewModel.listCategory.removeObservers(this)
+
+        viewModel.getCategoryIncome()
+        //Add expenses category
+        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
+            //Crate list of Expenses
+            list.forEach { item ->
+                listCategory += item.category
+            }.apply {
+                //Set list
+                liveListCategory.postValue(listCategory)
+            }
+        }
+    }
+
+    private fun createSpinnerAdapter(){
+        val listCategory = ArrayList<String>()
+        listCategory.add(NONE)//First item
+
+        spinnerAdapter = object: ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_spinner_item,
             listCategory
@@ -272,55 +367,40 @@ class BillsListFragment : Fragment() {
             }
         }
 
-         binding.spinnerFilter.adapter = spinnerAdapter
-
-        // Set an on item selected listener for spinner object
-        binding.spinnerFilter.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {//parent.getItemAtPosition(position).toString()
-                //SetText SIZE
-                if(binding.spinnerFilter.getChildAt(0) != null)
-                (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
-                // Display the selected item text on text view
-                filterList(parent.getItemAtPosition(position).toString())
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
-            }
-        }
-
+        binding.spinnerFilter.adapter = spinnerAdapter
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun filterList(value: String){
         if(value != NONE) {
-            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
+            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
                 setDescentSorting(spinnerItemList(TYPE_INCOME, value))
-            else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
+                createListCategoryIncome()
+            }else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
                 setDescentSorting(spinnerItemList(TYPE_EXPENSES, value))
-            else
+                createListCategoryExpenses()
+            }else {
                 setDescentSorting(spinnerItemList(TYPE_FULL_LIST_SORT, value))
+                createListCategory()
+            }
         } else {
-            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked)
+            if(binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
                 setDescentSorting(getSortList(TYPE_INCOME))
-            else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked)
+                createListCategoryIncome()
+            }else if(binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
                 setDescentSorting(getSortList(TYPE_EXPENSES))
-            else {
+                createListCategoryExpenses()
+            }else {
                 if (viewModel.list.value != null)
                     setDescentSorting(viewModel.list.value!!)
                 else {
                     setNewList(binding.tvMonth.text.toString())
                 }
+                createListCategory()
             }
         }
     }
 
     //Get list if Spinner chosen a Category
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun spinnerItemList(type: Int, value: String): ArrayList<BillsItem>{
         val listCat = ArrayList<BillsItem>()
         //If chosen "None"
@@ -338,7 +418,6 @@ class BillsListFragment : Fragment() {
         return listCat
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun titleBar() {
         //Sorting
         binding.imBillsFilter.setOnClickListener{
@@ -490,7 +569,6 @@ class BillsListFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun initRecView() {
         with(binding.recViewBill) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -547,7 +625,6 @@ class BillsListFragment : Fragment() {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setNewList(month: String) {
         //Delete observe if Active
 //        if(viewModel.list.hasActiveObservers())

@@ -14,12 +14,10 @@ class FragmentDialogCategoryViewModel @Inject constructor(
     private val deleteBillItemUseCase: DeleteBillItemUseCase
 ) : ViewModel() {
 
-    private val TYPE_CATEGORY = 2
-
     lateinit var list : LiveData<List<BillsItem>>
 
-    fun getCategoryType() {
-        list =  getTypeUseCase.invoke(TYPE_CATEGORY)
+    fun getCategoryType(type: Int) {
+        list =  getTypeUseCase.invoke(type)
     }
 
     suspend fun deleteCategory(billItem : BillsItem){
