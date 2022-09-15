@@ -111,7 +111,7 @@ class BillsListFragment : Fragment() {
         onBackPressed()
 
         titleAmount()
-
+//TODO Не меняется ТоталАмоунт, при смене фильтра
         titleBar()
 //TODO Когда выбираешь фильтр и переходишь по Нав боттом, то фильтр остается
         filterBar()

@@ -34,7 +34,7 @@ class FragmentDialogCategory : DialogFragment() {
 
     private val KEY_CATEGORY_ITEM_SEND = "RequestKey_Category_item_SEND"
 
-    private var typeCategory = 2
+    private var typeCategory = 2 // 2 - this is default value
 
     @Inject
     lateinit var viewModel: FragmentDialogCategoryViewModel
@@ -75,7 +75,6 @@ class FragmentDialogCategory : DialogFragment() {
         binding.imDialogClose.setOnClickListener {
             dismiss()
         }
-        //TODO SEARCH Frag
 
         //Listener for changing of editText
         listenerForChangingTV()

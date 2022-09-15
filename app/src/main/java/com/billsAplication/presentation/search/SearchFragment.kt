@@ -62,7 +62,8 @@ class SearchFragment : Fragment() {
     private val TAG_DIALOG_CATEGORY = "Dialog Category"
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
-    private val TYPE_CATEGORY = 2
+    private val TYPE_CATEGORY_EXPENSES = 2
+    private val TYPE_CATEGORY_INCOME = 4
     private val TYPE_NOTE = 3
     private val listNote: ArrayList<String> = ArrayList()
     private val EMPTY_STRING = ""
@@ -542,7 +543,7 @@ class SearchFragment : Fragment() {
         if(checkViewsEmpty() && viewModel.list.value!!.isNotEmpty()) {
         viewModel.list.value?.forEach {
             //Create full list
-            if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
+            if (it.type != TYPE_CATEGORY_EXPENSES && it.type != TYPE_CATEGORY_INCOME && it.type != TYPE_NOTE)
                 list.add(it)
         }
             val listCategory = binding.etSearchCategory.text.split(", ").toTypedArray()
@@ -702,7 +703,7 @@ class SearchFragment : Fragment() {
     private fun setAmountBar(list: List<BillsItem>) {
         list.forEach {
             //Create full list
-            if (it.type != TYPE_CATEGORY)
+            if (it.type != TYPE_CATEGORY_EXPENSES && it.type != TYPE_CATEGORY_INCOME)
             //Create amount for title amountTextView
                 when (it.type) {
                     TYPE_INCOME ->
