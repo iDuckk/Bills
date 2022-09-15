@@ -74,7 +74,7 @@ class BillsListViewModel @Inject constructor(
     fun getCategoryExpenses() {
         listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_EXPENSES)
     }
- //TODO личст для инком и экспенс и для общего
+
     fun getCategoryIncome() {
         listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_INCOME)
     }
