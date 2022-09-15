@@ -113,7 +113,7 @@ class BillsListFragment : Fragment() {
         titleAmount()
 
         titleBar()
-//TODO Когда выбираешь фильтр и переходишь по Нав боттом, то фильтр остается
+
         filterBar()
 
         addButton()
@@ -707,6 +707,11 @@ class BillsListFragment : Fragment() {
     fun Int.toDp(context: Context):Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,this.toFloat(),context.resources.displayMetrics
     ).toInt()
+
+    override fun onPause() {
+        super.onPause()
+        invisibilityFilterCard()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
