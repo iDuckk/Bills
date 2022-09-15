@@ -111,7 +111,7 @@ class BillsListFragment : Fragment() {
         onBackPressed()
 
         titleAmount()
-//TODO Не меняется ТоталАмоунт, при смене фильтра
+
         titleBar()
 //TODO Когда выбираешь фильтр и переходишь по Нав боттом, то фильтр остается
         filterBar()
@@ -193,6 +193,23 @@ class BillsListFragment : Fragment() {
         }
         //Set Spinner
         spinnerCategory()
+
+    }
+
+    private fun setTotalAmount(){
+            billAdapter.currentList.forEach { item ->
+                when (item.type) {
+                    TYPE_INCOME ->
+                        income += BigDecimal(item.amount.replace(",", ""))
+                    TYPE_EXPENSES ->
+                        expense += BigDecimal(item.amount.replace(",", ""))
+                }
+            }
+            titleIncome.postValue(income)
+            titleExpense.postValue(expense)
+            titleTotal.postValue(income - expense)
+            income = BigDecimal(0)
+            expense = BigDecimal(0)
 
     }
 
@@ -398,6 +415,7 @@ class BillsListFragment : Fragment() {
                 createListCategory()
             }
         }
+        setTotalAmount()
     }
 
     //Get list if Spinner chosen a Category
