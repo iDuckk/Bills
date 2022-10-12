@@ -341,10 +341,12 @@ class AddBillFragment : Fragment() {
     private fun textViewListeners(){
         binding.tvAddExpenses.setOnClickListener {
             setTypeExpense()
+            binding.edAddCategory.text.clear()
         }
 
         binding.tvAddIncome.setOnClickListener {
             setTypeIncome()
+            binding.edAddCategory.text.clear()
         }
     }
     //set views when create type
@@ -894,6 +896,8 @@ class AddBillFragment : Fragment() {
         //if type is Edit
         binding.bAddSave.isEnabled = true
         isFocusEditText()
+
+
     }
     //set income type after join to fragment
     private fun setTypeIncome(){

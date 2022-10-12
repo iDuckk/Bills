@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:adSize="BANNER"
-                app:adUnitId="ca-app-pub-5873972344895405/3709024880"
+                app:adUnitId="ca-app-pub-6299960663345072/1656264507"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
