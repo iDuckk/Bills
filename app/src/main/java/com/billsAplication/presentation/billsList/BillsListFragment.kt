@@ -3,21 +3,17 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SpinnerAdapter
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -33,7 +29,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -122,7 +117,7 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-//        setNewList(binding.tvMonth.text.toString())
+        setNewList(binding.tvMonth.text.toString())
     }
 
     private fun searchButton(){
