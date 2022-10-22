@@ -47,7 +47,6 @@ import com.billsAplication.presentation.adapter.image.onClickListenerItem
 import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
 import com.billsAplication.utils.*
-import com.billsAplication.utils.Currency
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +58,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.log
 
 
 @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
@@ -108,6 +108,7 @@ class AddBillFragment : Fragment() {
     private var TYPE_BOOKMARK = 102
     private val UPDATE_TYPE_SEARCH = 103
     private var TYPE_ENTRENCE = 0
+    private var TIME_FORMAT_24 = ""
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -354,7 +355,9 @@ class AddBillFragment : Fragment() {
         //Set Date
         binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
         //Set Time
-        binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
+        binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
+        //Save time format 24 for DB
+        TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time)
         //Set Expense TextView as default
         setTypeExpense()
         //Add new Item
@@ -368,7 +371,9 @@ class AddBillFragment : Fragment() {
             setBookmarkImage()
             //set EditTexts
             binding.edDateAdd.setText(billItem?.date.toString())
-            binding.edTimeAdd.setText(billItem?.time.toString())
+            binding.edTimeAdd.setText(timeFormat(billItem?.time.toString()))
+            //Save time format 24 for DB
+            TIME_FORMAT_24 = billItem?.time.toString()
             binding.edAddCategory.setText(billItem?.category.toString())
             binding.edAddAmount.setText(billItem?.amount.toString())
             binding.edAddNote.setText(billItem?.note.toString())
@@ -387,11 +392,12 @@ class AddBillFragment : Fragment() {
         if(billItem != null) {
             //set type bill
             setTypeBill()
-
             //Set Date
             binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time))
             //Set Time
-            binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time))
+            binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
+            //Save time format 24 for DB
+            TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time)
             //set EditTexts others EditText
             binding.edAddCategory.setText(billItem?.category.toString())
             binding.edAddAmount.setText(billItem?.amount.toString())
@@ -401,6 +407,17 @@ class AddBillFragment : Fragment() {
             addImageItemToList()
             clickListenerButtonAddSave()
         }
+    }
+
+    private fun timeFormat(time: String):String{
+        var hour = "${time.get(0)}${time.get(1)}".toInt()
+        var minute = "${time.get(3)}${time.get(4)}".toInt()
+
+        val c = Calendar.getInstance()
+        c.set(Calendar.HOUR_OF_DAY, hour)
+        c.set(Calendar.MINUTE, minute)
+
+        return SimpleDateFormat("hh:mm a").format(c.time)
     }
 
     private fun clickListenerButtonAddSave() {
@@ -595,7 +612,7 @@ class AddBillFragment : Fragment() {
             TYPE_BILL,
             date.month.toString() + " " + date.year.toString(),
             binding.edDateAdd.text.toString(),
-            binding.edTimeAdd.text.toString(),
+            TIME_FORMAT_24,
             binding.edAddCategory.text.toString(),
             binding.edAddAmount.text.toString(),
             binding.edAddNote.text.toString(),
@@ -632,7 +649,9 @@ class AddBillFragment : Fragment() {
             { view, hour, minute ->
                 c.set(Calendar.HOUR_OF_DAY, hour)
                 c.set(Calendar.MINUTE, minute)
-                binding.edTimeAdd.setText(SimpleDateFormat("HH:mm a").format(c.time))
+                //Save time string that save time in 24 format
+                TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(c.time)
+                binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(c.time))
                 binding.edAddAmount.requestFocus()
             }, cHour, cMinute, false)
 

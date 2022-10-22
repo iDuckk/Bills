@@ -18,7 +18,10 @@ import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.math.log
 
 
@@ -86,7 +89,8 @@ class BillsAdapter @Inject constructor() :
             //set Values
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2).replace("/", ".")
-            holderBill.tv_Time.text = item.time
+            holderBill.tv_Time.text = timeFormat(item.time)
+//            timeFormat(item.time)
             holderBill.tv_Category.text = item.category
             holderBill.tv_Item_Description.text = item.note
             //set amount
@@ -118,6 +122,17 @@ class BillsAdapter @Inject constructor() :
             true
         }
 
+    }
+
+    private fun timeFormat(time: String):String{
+        var hour = "${time.get(0)}${time.get(1)}".toInt()
+        var minute = "${time.get(3)}${time.get(4)}".toInt()
+
+        val c = Calendar.getInstance()
+        c.set(Calendar.HOUR_OF_DAY, hour)
+        c.set(Calendar.MINUTE, minute)
+
+        return SimpleDateFormat("hh:mm a").format(c.time)
     }
 
     private fun addAmount(item: BillsItem){
