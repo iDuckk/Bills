@@ -357,7 +357,7 @@ class AddBillFragment : Fragment() {
         //Set Time
         binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
         //Save time format 24 for DB
-        TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time)
+        TIME_FORMAT_24 = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
         //Set Expense TextView as default
         setTypeExpense()
         //Add new Item
@@ -397,7 +397,7 @@ class AddBillFragment : Fragment() {
             //Set Time
             binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
             //Save time format 24 for DB
-            TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(Calendar.getInstance().time)
+            TIME_FORMAT_24 = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
             //set EditTexts others EditText
             binding.edAddCategory.setText(billItem?.category.toString())
             binding.edAddAmount.setText(billItem?.amount.toString())
@@ -650,7 +650,8 @@ class AddBillFragment : Fragment() {
                 c.set(Calendar.HOUR_OF_DAY, hour)
                 c.set(Calendar.MINUTE, minute)
                 //Save time string that save time in 24 format
-                TIME_FORMAT_24 = SimpleDateFormat("HH:mm a").format(c.time)
+                TIME_FORMAT_24 = SimpleDateFormat("HH:mm").format(c.time)
+
                 binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(c.time))
                 binding.edAddAmount.requestFocus()
             }, cHour, cMinute, false)
