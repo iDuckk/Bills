@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -117,7 +118,7 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-        setNewList(binding.tvMonth.text.toString())
+//        setNewList(binding.tvMonth.text.toString())
     }
 
     private fun searchButton(){
