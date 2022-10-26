@@ -80,7 +80,7 @@ class BillsListViewModel @Inject constructor(
     }
 
     fun getMonth(month: String) {
-        list =  getMonth.invoke(mapMonthToSQL(month))
+        list =  getMonth.invoke(month)
     }
 
     suspend fun delete(item: BillsItem){
@@ -125,6 +125,7 @@ class BillsListViewModel @Inject constructor(
             application.getString(R.string.calendar_october) -> return OCTOBER + month.removePrefix(month.dropLast(5))
             application.getString(R.string.calendar_november) -> return NOVEMBER + month.removePrefix(month.dropLast(5))
             application.getString(R.string.calendar_december) -> return DECEMBER + month.removePrefix(month.dropLast(5))
+            else -> return "Wrong month"
         }
         return ""
     }
