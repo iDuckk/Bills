@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -515,7 +516,8 @@ class BillsListFragment : Fragment() {
         //Set title Total
         titleTotal.observe(viewLifecycleOwner) {
             if (_binding != null) {
-                binding.tvTotalNum.text = "%,.2f".format(it)
+//                binding.tvTotalNum.text = "%,.2f".format(it)
+                binding.tvTotalNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
             setBackColorAddButton()
@@ -523,14 +525,14 @@ class BillsListFragment : Fragment() {
         //Set title Expense
         titleExpense.observe(viewLifecycleOwner) {
             if (_binding != null) {
-                binding.tvExpenseNum.text = "%,.2f".format(it)
+                binding.tvExpenseNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
         }
         //Set title Income
         titleIncome.observe(viewLifecycleOwner) {
             if (_binding != null) {
-                binding.tvIncomeNum.text = "%,.2f".format(it)
+                binding.tvIncomeNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
         }
@@ -539,13 +541,10 @@ class BillsListFragment : Fragment() {
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
     private fun setBackColorAddButton() {
         //check text for null
-        var check = ""
-        if (binding.tvTotalNum.text.toString() == "0.00")
-            check = "0"
-        else
-            check = binding.tvTotalNum.text.toString()
+        val check = binding.tvTotalNum.text.toString().replace(",", "")
 
-        if (BigDecimal(check.replace(",", "")) > BigDecimal(0)) {
+
+        if (check.toDouble() > 0) {
             //set color of icon nav bottom income
             (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList =
@@ -567,7 +566,7 @@ class BillsListFragment : Fragment() {
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
             stateColorButton.stateNavBot =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-        } else if (BigDecimal(check.replace(",", "")) < BigDecimal(0)) {
+        } else if (check.toDouble() <0) {
             //set color of icon nav bottom expenses
             (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList =

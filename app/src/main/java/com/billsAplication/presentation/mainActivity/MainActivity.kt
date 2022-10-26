@@ -15,8 +15,6 @@ import com.billsAplication.utils.Currency
 import com.billsAplication.utils.CurrentCurrency
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.Language
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 
@@ -38,7 +36,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initAdMob()
+//        initAdMob()
 
         initBottomNavigation()
 
@@ -58,11 +56,11 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     }
 
-    private fun initAdMob(){
-        MobileAds.initialize(this)
-        val adRequest = AdRequest.Builder().build()
-        binding.adViewBanner.loadAd(adRequest)
-    }
+//    private fun initAdMob(){
+//        MobileAds.initialize(this)
+//        val adRequest = AdRequest.Builder().build()
+//        binding.adViewBanner.loadAd(adRequest)
+//    }
 
     fun initBottomNavigation(){
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerViewMain) as NavHostFragment
@@ -120,17 +118,17 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     override fun onResume() {
         super.onResume()
-        binding.adViewBanner.resume()
+//        binding.adViewBanner.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.adViewBanner.pause()
+//        binding.adViewBanner.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.adViewBanner.destroy()
+//        binding.adViewBanner.destroy()
     }
 
     override fun onStart() {
