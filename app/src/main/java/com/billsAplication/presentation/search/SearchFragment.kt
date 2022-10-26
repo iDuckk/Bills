@@ -35,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -202,21 +203,21 @@ class SearchFragment : Fragment() {
         //Set title Total
         titleTotal.observe(requireActivity()) {
             if (_binding != null) {
-                binding.tvSearchTotalNum.text = "%,.2f".format(it)
+                binding.tvSearchTotalNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
         }
         //Set title Expense
         titleExpense.observe(requireActivity()) {
             if (_binding != null) {
-                binding.tvSearchExpenseNum.text = "%,.2f".format(it)
+                binding.tvSearchExpenseNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
         }
         //Set title Income
         titleIncome.observe(requireActivity()) {
             if (_binding != null) {
-                binding.tvSearchIncomeNum.text = "%,.2f".format(it)
+                binding.tvSearchIncomeNum.text = "%,.2f".format(Locale.ENGLISH, it)
                 resizeText()
             }
         }
