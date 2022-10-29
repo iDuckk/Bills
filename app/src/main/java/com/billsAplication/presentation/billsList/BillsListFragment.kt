@@ -272,7 +272,7 @@ class BillsListFragment : Fragment() {
             spinnerAdapter.clear()
             spinnerAdapter.add(NONE)
             //set new list
-            spinnerAdapter.addAll(listCat)
+            spinnerAdapter.addAll(listCat.sorted())
             spinnerAdapter.notifyDataSetChanged()
         }
     }
@@ -308,7 +308,7 @@ class BillsListFragment : Fragment() {
         viewModel.listCategory.observe(viewLifecycleOwner) { list ->
             //Crate list of Expenses
             list.forEach { item ->
-                listCategory += item.category
+                listCategory.add(item.category)
             }
         }
         //First remove observers and start again that add Income list
@@ -316,7 +316,7 @@ class BillsListFragment : Fragment() {
             viewModel.getCategoryIncome() //Add income category
             viewModel.listCategory.observe(viewLifecycleOwner) { list ->
                 list.forEach { item ->
-                    listCategory += item.category
+                    listCategory.add(item.category)
                 }.apply {
                     //Set list
                     liveListCategory.postValue(listCategory)
