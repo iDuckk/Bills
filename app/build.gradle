@@ -58,8 +58,8 @@ dependencies {
     implementation files('libs/commons-collections4-4.4.jar') //Apache poi
     implementation files('libs/commons-compress-1.21.jar') //Apache poi
     implementation files('libs/curvesapi-1.07.jar') //Apache poi
-    implementation files('libs/slf4j-api-1.7.36.jar') //Apache poi
-//    implementation 'com.google.android.gms:play-services-ads:21.3.0'
+    implementation files('libs/slf4j-api-1.7.36.jar')//Apache poi
+    implementation 'com.google.android.gms:play-services-ads:21.3.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
