@@ -235,7 +235,7 @@ class ShopListFragment : Fragment() {
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
             (context as InterfaceMainActivity).navBottom().isEnabled = true
             binding.buttonAddNoteMicro.backgroundTintList = colorState
-            dialogRecording.hide()
+            dialogRecording.dismiss()
         }else{
             val colorState = ColorStateList
                 .valueOf(
