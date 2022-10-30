@@ -122,6 +122,7 @@ class SettingsFragment : Fragment() {
     }
 
     companion object {
+        private val REQUEST_WRITE_EX_STORAGE_PERMISSION = 122
         private const val LIGHT_THEME = 0
         private const val DARK_THEME = 1
         private const val TYPE_THEME = "themeType"
@@ -156,19 +157,31 @@ class SettingsFragment : Fragment() {
 
     private fun exportToExcel() {
         binding.bExportExcel.setOnClickListener {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            val dialog = builder
-                .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
-                .setMessage(getString(R.string.dialog_message_export_db_excel)) //dialog_message_export_db
-                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    createExcel().apply {
-                        finishExportToExcel()
-                    }
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    checkStoragePermission()
+                }else{
+                    dialogExcel()
                 }
-                .setNegativeButton(getString(R.string.search_cancel), null)
-                .create()
-            dialog.show()
+            }else{
+                dialogExcel()
+            }
         }
+    }
+
+    private fun dialogExcel(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog = builder
+            .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
+            .setMessage(getString(R.string.dialog_message_export_db_excel)) //dialog_message_export_db
+            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                createExcel().apply {
+                    finishExportToExcel()
+                }
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
     }
 
     private fun createExcel() {
@@ -282,7 +295,15 @@ class SettingsFragment : Fragment() {
 
     private fun export() {
         binding.bExport.setOnClickListener {
-            exportDialog()
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    checkStoragePermission()
+                }else{
+                    exportDialog()
+                }
+            }else{
+                exportDialog()
+            }
         }
     }
 
@@ -320,6 +341,16 @@ class SettingsFragment : Fragment() {
             } else {
                 mToast(getString(R.string.error_nameDb_import))
             }
+        }
+    }
+
+    private fun checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_EX_STORAGE_PERMISSION
+            )
         }
     }
 
