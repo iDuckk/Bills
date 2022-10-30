@@ -5,6 +5,7 @@ import android.app.Application
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -36,7 +37,7 @@ class ExportDatabaseFile@Inject constructor(val application: Application) {
         private fun copyDataFromOneToAnother(fromPath: String, toPath: String) {
             val inStream = File(fromPath).inputStream()
             val outStream = FileOutputStream(toPath)
-
+            MediaStore.MediaColumns.MIME_TYPE
             inStream.use { input ->
                 outStream.use { output ->
                     input.copyTo(output)
