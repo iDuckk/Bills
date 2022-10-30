@@ -1,6 +1,5 @@
 package com.billsAplication.presentation.settings
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
@@ -23,9 +22,9 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
@@ -146,13 +145,6 @@ class SettingsFragment : Fragment() {
         private const val providerPackageApp = "com.billsAplication.fileprovider"
         private const val typeOfIntentSending = "application/octet-stream"
 
-
-        private val REQUEST_EXTERNAL_STORAGE = 1
-        private val PERMISSIONS_STORAGE = arrayOf<String>(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-
         private var typeCurrency = false
         private var currencyPos = 0
 
@@ -169,7 +161,9 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
                 .setMessage(getString(R.string.dialog_message_export_db_excel)) //dialog_message_export_db
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    verifyStoragePermissions(EXPORT_EXCEL)
+                    createExcel().apply {
+                        finishExportToExcel()
+                    }
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
                 .create()
@@ -177,7 +171,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun createExcel(){
+    private fun createExcel() {
         val list: ArrayList<BillsItem> = ArrayList()
         viewModel.getAll()
         viewModel.listAll.observe(viewLifecycleOwner) {
@@ -248,8 +242,7 @@ class SettingsFragment : Fragment() {
                 .setTitle(getString(R.string.dialog_title_import_db))
                 .setMessage(getString(R.string.dialog_message_import_db))
                 .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    //Ask permission
-                    verifyStoragePermissions(IMPORT_DB)
+                    openDocument() //Open File explorer
                 }
                 .setNegativeButton(getString(R.string.search_cancel), null)
                 .create()
@@ -269,20 +262,27 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private fun exportDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog = builder
+            .setTitle(getString(R.string.dialog_title_export_db))
+            .setMessage(getString(R.string.dialog_message_export_db))
+            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                //Make checkPoint for merge Sql files db, wal, bad
+                viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
+                //Export Db
+                exportDatabaseFile.invoke().also { //export DB
+                    finishExport() //Dialog after export
+                }
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
+    }
+
     private fun export() {
         binding.bExport.setOnClickListener {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            val dialog = builder
-                .setTitle(getString(R.string.dialog_title_export_db))
-                .setMessage(getString(R.string.dialog_message_export_db))
-                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    //Make checkPoint for merge Sql files db, wal, bad
-                    viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
-                    verifyStoragePermissions(EXPORT_DB)
-                }
-                .setNegativeButton(getString(R.string.search_cancel), null)
-                .create()
-            dialog.show()
+            exportDialog()
         }
     }
 
@@ -292,34 +292,6 @@ class SettingsFragment : Fragment() {
             setMessage(getString(R.string.dialog_message_finish_export))
             create()
             show()
-        }
-    }
-
-    fun verifyStoragePermissions(type: String) {
-        // Check if we have write permission
-        val permission = ActivityCompat.checkSelfPermission(
-            requireActivity(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                PERMISSIONS_STORAGE,
-                REQUEST_EXTERNAL_STORAGE
-            )
-        } else {
-            if (type == IMPORT_DB)
-                openDocument() //Open File explorer
-            else if (type == EXPORT_DB)
-                exportDatabaseFile.invoke().also { //export DB
-                    finishExport() //Dialog after export
-                } else if(type == EXPORT_EXCEL){
-                createExcel().apply {
-                        finishExportToExcel()
-                    }
-            }else
-                Log.w("TAG", "Wrong type of permission. Fun verifyStoragePermissions")
         }
     }
 
@@ -342,7 +314,9 @@ class SettingsFragment : Fragment() {
                 viewModel.closeDb()
                 //Import Db
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
-                finishImport() //After import restart App
+                    .apply {
+                        finishImport() //After import restart App
+                    }
             } else {
                 mToast(getString(R.string.error_nameDb_import))
             }

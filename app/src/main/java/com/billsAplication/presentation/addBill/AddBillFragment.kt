@@ -67,7 +67,6 @@ class AddBillFragment : Fragment() {
     private var _binding: FragmentAddBillBinding? = null
     private val binding : FragmentAddBillBinding get() = _binding!!
 
-    private val REQUEST_WRITE_EX_STORAGE_PERMISSION = 122
     private val REQUEST_CODE_PERMISSIONS = 100
     private val REQUEST_IMAGE_CAPTURE = 102
     private val PICK_IMAGE = 109
@@ -198,7 +197,8 @@ class AddBillFragment : Fragment() {
         }
 
         onClickListenerSaveImage = {
-            storagePermission(it)
+            dialogSaveImage(it)
+//            storagePermission(it)
         }
 
         onClickListenerItem = {
@@ -675,24 +675,6 @@ class AddBillFragment : Fragment() {
                 )
                 binding.edAddNote.setAdapter(adapter)
             }
-    }
-
-    private fun storagePermission(it: ImageItem){
-        if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            checkStoragePermission()
-        }else{
-            dialogSaveImage(it)
-        }
-    }
-
-    private fun checkStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_WRITE_EX_STORAGE_PERMISSION
-            )
-        }
     }
 
     @SuppressLint("InlinedApi")
