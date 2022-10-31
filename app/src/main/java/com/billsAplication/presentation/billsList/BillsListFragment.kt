@@ -264,7 +264,8 @@ class BillsListFragment : Fragment() {
 //                if (binding.spinnerFilter.getChildAt(0) != null)
 //                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
-                filterList(parent.getItemAtPosition(position).toString())
+                if(visibilityFilterCard)
+                    filterList(parent.getItemAtPosition(position).toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
@@ -402,7 +403,7 @@ class BillsListFragment : Fragment() {
             }
         }
     }
-    //TODO Когда включен когда выбран спинер итем, и потом включаешь радиобатн, обнулить спеннер.
+
     //Get list if Spinner chosen a Category
     private fun spinnerItemList(type: Int, value: String): ArrayList<BillsItem> {
         val listCat = ArrayList<BillsItem>()
