@@ -177,17 +177,13 @@ class BillsListFragment : Fragment() {
         invisibilityFilterCard()
         //income list
         binding.checkBoxIncome.setOnClickListener {
-            filterList(
-                binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
-                    .toString()
-            )
+            binding.spinnerFilter.setSelection(0)
+            filterList(NONE)
         }
         //Expense list
         binding.checkBoxExpense.setOnClickListener {
-            filterList(
-                binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
-                    .toString()
-            )
+            binding.spinnerFilter.setSelection(0)
+            filterList(NONE)
         }
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
@@ -265,8 +261,8 @@ class BillsListFragment : Fragment() {
                 id: Long
             ) {//parent.getItemAtPosition(position).toString()
                 //SetText SIZE
-                if (binding.spinnerFilter.getChildAt(0) != null)
-                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
+//                if (binding.spinnerFilter.getChildAt(0) != null)
+//                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
                 filterList(parent.getItemAtPosition(position).toString())
             }
@@ -609,8 +605,7 @@ class BillsListFragment : Fragment() {
                 binding.cardViewBudget.visibility = View.VISIBLE
                 (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
                 //set a new list
-                if(!FIRST_ENTRANCE)
-                    setNewList(binding.tvMonth.text.toString())
+                setNewList(binding.tvMonth.text.toString())
             }
         }
     }
@@ -642,9 +637,7 @@ class BillsListFragment : Fragment() {
             //If first entrance get month from LocalDate()
             if (FIRST_ENTRANCE) {
                 //Get List
-                CoroutineScope(Main).launch {
-                    viewModel.getMonth(viewModel.mapMonthToSQL(viewModel.currentDate()))
-                }
+                viewModel.getMonth(viewModel.mapMonthToSQL(viewModel.currentDate()))
                 FIRST_ENTRANCE = false
             } else { //In another case get month from args
                 viewModel.getMonth(viewModel.mapMonthToSQL(month))
