@@ -17,6 +17,9 @@ import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +35,22 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
+
+    private var income = BigDecimal(0)
+    private var expense = BigDecimal(0)
+
+    private var titleIncome = MutableLiveData<BigDecimal>()
+    val isTitleIncome: LiveData<BigDecimal>
+        get() = titleIncome
+
+    private var titleExpense = MutableLiveData<BigDecimal>()
+    val isTitleExpense: LiveData<BigDecimal>
+        get() = titleExpense
+
+    private var titleTotal = MutableLiveData<BigDecimal>()
+    val isTitleTotal: LiveData<BigDecimal>
+        get() = titleTotal
+
 
     private var textViewAmountDay: TextView? = null
     private var cardViewTotal: CardView? = null
@@ -74,6 +93,14 @@ class BillsAdapter @Inject constructor() :
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
 //        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
 
+        if(position == 0) {
+            titleIncome.postValue(0.0.toBigDecimal())
+            titleExpense.postValue(0.0.toBigDecimal())
+            titleTotal.postValue(0.0.toBigDecimal())
+            income = 0.0.toBigDecimal()
+            expense = 0.0.toBigDecimal()
+        }
+
         if (item.image1.isNotEmpty()
             || item.image2.isNotEmpty()
             || item.image3.isNotEmpty() ||
@@ -95,11 +122,13 @@ class BillsAdapter @Inject constructor() :
             holderBill.tv_Item_Description.text = item.note
             //set amount
             if (item.type == TYPE_INCOME) {
+                income += BigDecimal(item.amount.replace(",", ""))
                 holderBill.tv_Item_Amaount.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Amaount.setTextColor(
                     holderBill.itemView.context.getColor(R.color.text_income)
                 )
             } else if (item.type == TYPE_EXPENSES) {
+                expense -= BigDecimal(item.amount.replace(",", ""))
                 holderBill.tv_Item_Amaount.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Amaount.setTextColor(
                     holderBill.itemView.context.getColor(R.color.text_expense)
@@ -108,6 +137,12 @@ class BillsAdapter @Inject constructor() :
                 "TAG",
                 holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
             )
+            //Set total views
+            if(currentList.lastIndex == position){
+                titleIncome.postValue(income)
+                titleExpense.postValue(expense)
+                titleTotal.postValue(income + expense)
+            }
         }
 
         holderBill.itemView.setOnClickListener {
@@ -137,10 +172,12 @@ class BillsAdapter @Inject constructor() :
 
     private fun addAmount(item: BillsItem){
         //save amount
-        if(item.type == TYPE_INCOME)
+        if(item.type == TYPE_INCOME){
             totalAmount += BigDecimal(item.amount.replace(",", ""))
-        else
-            totalAmount -= BigDecimal(item.amount.replace(",", ""))
+        }
+        else{
+                totalAmount -= BigDecimal(item.amount.replace(",", ""))
+        }
     }
 
     private fun setCardViewDateTotal(
@@ -227,6 +264,13 @@ class BillsAdapter @Inject constructor() :
         electedItemsList.clear()
         mIsHighlight.value = false
         isClicked = false
+    }
+    fun setAmount(){
+        titleIncome.postValue(0.0.toBigDecimal())
+        titleExpense.postValue(0.0.toBigDecimal())
+        titleTotal.postValue(0.0.toBigDecimal())
+        income = 0.0.toBigDecimal()
+        expense = 0.0.toBigDecimal()
     }
 
 }

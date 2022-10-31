@@ -27,6 +27,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -58,14 +59,9 @@ class BillsListFragment : Fragment() {
     lateinit var sortingAsc: SortingAsc
 
     lateinit var spinnerAdapter: ArrayAdapter<String>
-    private var income = BigDecimal(0)
-    private var expense = BigDecimal(0)
     private var deleteItem = false
     private var visibilityFilterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
-    private var titleIncome = MutableLiveData<BigDecimal>()
-    private var titleExpense = MutableLiveData<BigDecimal>()
-    private var titleTotal = MutableLiveData<BigDecimal>()
     private var liveListCategory = MutableLiveData<ArrayList<String>>()
 
 
@@ -110,9 +106,9 @@ class BillsListFragment : Fragment() {
 
         binding.cardViewFilter.visibility = View.VISIBLE
 
-        onBackPressed()
+        setNewList(binding.tvMonth.text.toString())
 
-        titleAmount()
+        onBackPressed()
 
         titleBar()
 
@@ -124,7 +120,6 @@ class BillsListFragment : Fragment() {
 
         initRecView()
 
-//        setNewList(binding.tvMonth.text.toString())
     }
 
     private fun searchButton() {
@@ -203,23 +198,6 @@ class BillsListFragment : Fragment() {
         }
         //Set Spinner
         spinnerCategory()
-
-    }
-
-    private fun setTotalAmount() {
-        billAdapter.currentList.forEach { item ->
-            when (item.type) {
-                TYPE_INCOME ->
-                    income += BigDecimal(item.amount.replace(",", ""))
-                TYPE_EXPENSES ->
-                    expense += BigDecimal(item.amount.replace(",", ""))
-            }
-        }
-        titleIncome.postValue(income)
-        titleExpense.postValue(expense)
-        titleTotal.postValue(income - expense)
-        income = BigDecimal(0)
-        expense = BigDecimal(0)
 
     }
 
@@ -427,9 +405,8 @@ class BillsListFragment : Fragment() {
                 createListCategory()
             }
         }
-        setTotalAmount()
     }
-
+    //TODO Когда включен когда выбран спинер итем, и потом включаешь радиобатн, обнулить спеннер.
     //Get list if Spinner chosen a Category
     private fun spinnerItemList(type: Int, value: String): ArrayList<BillsItem> {
         val listCat = ArrayList<BillsItem>()
@@ -502,6 +479,7 @@ class BillsListFragment : Fragment() {
         }
     }
 
+
     private fun invisibilityFilterCard() {
         setDefaultSortingViews()
         //Set small size card view
@@ -509,33 +487,6 @@ class BillsListFragment : Fragment() {
         binding.cardViewFilter.requestLayout()
         binding.cardViewFilter.visibility = View.INVISIBLE
         visibilityFilterCard = false
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun titleAmount() {
-        //Set title Total
-        titleTotal.observe(viewLifecycleOwner) {
-            if (_binding != null) {
-//                binding.tvTotalNum.text = "%,.2f".format(it)
-                binding.tvTotalNum.text = "%,.2f".format(Locale.ENGLISH, it)
-                resizeText()
-            }
-            setBackColorAddButton()
-        }
-        //Set title Expense
-        titleExpense.observe(viewLifecycleOwner) {
-            if (_binding != null) {
-                binding.tvExpenseNum.text = "%,.2f".format(Locale.ENGLISH, it)
-                resizeText()
-            }
-        }
-        //Set title Income
-        titleIncome.observe(viewLifecycleOwner) {
-            if (_binding != null) {
-                binding.tvIncomeNum.text = "%,.2f".format(Locale.ENGLISH, it)
-                resizeText()
-            }
-        }
     }
 
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
@@ -620,6 +571,19 @@ class BillsListFragment : Fragment() {
             binding.recViewBill.itemAnimator = null
         }
 
+        billAdapter.isTitleIncome.observe(viewLifecycleOwner) {
+            binding.tvIncomeNum.text = "%,.2f".format(Locale.ENGLISH, it)
+        }
+
+        billAdapter.isTitleExpense.observe(viewLifecycleOwner) {
+            binding.tvExpenseNum.text = "%,.2f".format(Locale.ENGLISH, it)
+        }
+
+        billAdapter.isTitleTotal.observe(viewLifecycleOwner) {
+            binding.tvTotalNum.text = "%,.2f".format(Locale.ENGLISH, it)
+            setBackColorAddButton()
+        }
+
         billAdapter.onClickListenerBillItem = {
             bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
@@ -645,7 +609,8 @@ class BillsListFragment : Fragment() {
                 binding.cardViewBudget.visibility = View.VISIBLE
                 (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
                 //set a new list
-                setNewList(binding.tvMonth.text.toString())
+                if(!FIRST_ENTRANCE)
+                    setNewList(binding.tvMonth.text.toString())
             }
         }
     }
@@ -674,33 +639,27 @@ class BillsListFragment : Fragment() {
 //        if(viewModel.list.hasActiveObservers())
         viewModel.list.removeObservers(viewLifecycleOwner).apply {
             //set a new list
-            if (FIRST_ENTRANCE) { //If first entrance get month from LocalDate()
-                viewModel.getMonth(viewModel.mapMonthToSQL(viewModel.currentDate()))
+            //If first entrance get month from LocalDate()
+            if (FIRST_ENTRANCE) {
+                //Get List
+                CoroutineScope(Main).launch {
+                    viewModel.getMonth(viewModel.mapMonthToSQL(viewModel.currentDate()))
+                }
                 FIRST_ENTRANCE = false
             } else { //In another case get month from args
                 viewModel.getMonth(viewModel.mapMonthToSQL(month))
             }
+            //Set List
             viewModel.list.observe(viewLifecycleOwner) {
+                //If list null
+                if(it.isNullOrEmpty())
+                    billAdapter.setAmount()
                 //Set list to Adapter
                 try {
                     billAdapter.submitList(sortingDesc(it.toMutableList()))
                 } catch (e: NumberFormatException) {
-                    Log.d("TAG", e.message!!)
+                    Log.w("TAG", e.message!!)
                 }
-                //Create amount for title amountTextView
-                it.forEach { item ->
-                    when (item.type) {
-                        TYPE_INCOME ->
-                            income += BigDecimal(item.amount.replace(",", ""))
-                        TYPE_EXPENSES ->
-                            expense += BigDecimal(item.amount.replace(",", ""))
-                    }
-                }
-                titleIncome.postValue(income)
-                titleExpense.postValue(expense)
-                titleTotal.postValue(income - expense)
-                income = BigDecimal(0)
-                expense = BigDecimal(0)
             }
         }
     }
