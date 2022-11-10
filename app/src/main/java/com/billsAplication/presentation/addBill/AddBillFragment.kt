@@ -322,7 +322,7 @@ class AddBillFragment : Fragment() {
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
                     binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
-                    binding.edAddAmount.requestFocus()
+                    binding.edAddNote.requestFocus()
                 }
                 checkFocus = false
             }
