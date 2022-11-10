@@ -100,13 +100,15 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setNewList(binding.tvMonth.text.toString())
+
         (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
 
         binding.tvMonth.text = viewModel.currentDate
 
         binding.cardViewFilter.visibility = View.VISIBLE
 
-        setNewList(binding.tvMonth.text.toString())
+        initRecView()
 
         onBackPressed()
 
@@ -117,8 +119,6 @@ class BillsListFragment : Fragment() {
         addButton()
 
         searchButton()
-
-        initRecView()
 
     }
 

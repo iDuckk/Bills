@@ -93,14 +93,30 @@ class BillsAdapter @Inject constructor() :
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
 //        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
 
-        if(position == 0) {
-            titleIncome.postValue(0.0.toBigDecimal())
-            titleExpense.postValue(0.0.toBigDecimal())
-            titleTotal.postValue(0.0.toBigDecimal())
-            income = 0.0.toBigDecimal()
-            expense = 0.0.toBigDecimal()
+        //Set total views
+        setTotalView(position, holderBill)
+
+        setViews(item, position, holderBill)
+
+        holderBill.itemView.setOnClickListener {
+            if (isClicked)
+                highlightItem(item, holderBill)
+            else onClickListenerBillItem?.invoke(item)
         }
 
+        holderBill.itemView.setOnLongClickListener {
+            onLongClickListenerBillItem?.invoke(electedItemsList)
+            highlightItem(item, holderBill)
+            true
+        }
+
+    }
+
+    private fun setViews(
+        item: BillsItem,
+        position: Int,
+        holderBill: BillViewHolder
+    ) {
         if (item.image1.isNotEmpty()
             || item.image2.isNotEmpty()
             || item.image3.isNotEmpty() ||
@@ -117,18 +133,16 @@ class BillsAdapter @Inject constructor() :
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2).replace("/", ".")
             holderBill.tv_Time.text = timeFormat(item.time)
-//            timeFormat(item.time)
+    //            timeFormat(item.time)
             holderBill.tv_Category.text = item.category
             holderBill.tv_Item_Description.text = item.note
             //set amount
             if (item.type == TYPE_INCOME) {
-                income += BigDecimal(item.amount.replace(",", ""))
                 holderBill.tv_Item_Amaount.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Amaount.setTextColor(
                     holderBill.itemView.context.getColor(R.color.text_income)
                 )
             } else if (item.type == TYPE_EXPENSES) {
-                expense -= BigDecimal(item.amount.replace(",", ""))
                 holderBill.tv_Item_Amaount.text = item.amount + " " + CurrentCurrency.currency
                 holderBill.tv_Item_Amaount.setTextColor(
                     holderBill.itemView.context.getColor(R.color.text_expense)
@@ -137,26 +151,40 @@ class BillsAdapter @Inject constructor() :
                 "TAG",
                 holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
             )
-            //Set total views
-            if(currentList.lastIndex == position){
-                titleIncome.postValue(income)
-                titleExpense.postValue(expense)
-                titleTotal.postValue(income + expense)
+        }
+    }
+
+    private fun setTotalView(
+        position: Int,
+        holderBill: BillViewHolder
+    ) {
+        if (position == 0) {
+            CoroutineScope(IO).launch {
+                titleIncome.postValue(0.0.toBigDecimal())
+                titleExpense.postValue(0.0.toBigDecimal())
+                titleTotal.postValue(0.0.toBigDecimal())
+                income = 0.0.toBigDecimal()
+                expense = 0.0.toBigDecimal()
+
+                currentList.forEachIndexed { index, billsItem ->
+                    if (billsItem.type != TYPE_CATEGORY && billsItem.type != TYPE_NOTE) {
+                        if (billsItem.type == TYPE_INCOME) {
+                            income += BigDecimal(billsItem.amount.replace(",", ""))
+                        } else if (billsItem.type == TYPE_EXPENSES) {
+                            expense -= BigDecimal(billsItem.amount.replace(",", ""))
+                        } else Log.e(
+                            "TAG",
+                            holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
+                        )
+                    }
+                    if (currentList.lastIndex == index) {
+                        titleIncome.postValue(income)
+                        titleExpense.postValue(expense)
+                        titleTotal.postValue(income + expense)
+                    }
+                }
             }
         }
-
-        holderBill.itemView.setOnClickListener {
-            if (isClicked)
-                highlightItem(item, holderBill)
-            else onClickListenerBillItem?.invoke(item)
-        }
-
-        holderBill.itemView.setOnLongClickListener {
-            onLongClickListenerBillItem?.invoke(electedItemsList)
-            highlightItem(item, holderBill)
-            true
-        }
-
     }
 
     private fun timeFormat(time: String):String{
