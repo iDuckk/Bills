@@ -60,8 +60,6 @@ class FragmentDialogCategory : DialogFragment() {
         //get type of categories
         typeCategory = requireArguments().getInt(KEY_CATEGORY_ITEM_SEND)
 
-        Log.d("TAG", typeCategory.toString())
-
         viewModel.getCategoryType(typeCategory)
 
         binding.tvDialogCategoryAdd.visibility = View.GONE

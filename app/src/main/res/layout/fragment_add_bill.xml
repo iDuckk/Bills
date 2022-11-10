@@ -118,6 +118,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10sp"
+                        android:layout_marginEnd="10dp"
                         android:text="@string/title_date_time"
                         app:layout_constraintBottom_toBottomOf="@+id/ed_Date_add"
                         app:layout_constraintEnd_toStartOf="@+id/ed_Date_add"
@@ -145,99 +146,100 @@
                         android:id="@+id/ed_Date_add"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:backgroundTint="@color/default_background"
                         android:cursorVisible="false"
-                        android:textSize="16sp"
                         android:gravity="center"
-                        tools:hint="@string/title_date"
                         android:maxLines="1"
                         android:minHeight="48dp"
-                        app:layout_constraintBottom_toTopOf="@id/ed_add_category"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_amount"
                         app:layout_constraintEnd_toStartOf="@+id/edTime_add"
-                        app:layout_constraintStart_toStartOf="@+id/ed_add_category"
-                        app:layout_constraintTop_toBottomOf="@+id/tv_add_expenses" />
+                        app:layout_constraintStart_toEndOf="@+id/tv_add_date"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_add_expenses"
+                        tools:hint="@string/title_date" />
 
                     <TextView
                         android:id="@+id/tv_add_category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
                         android:text="@string/title_category"
-                        app:layout_constraintEnd_toStartOf="@+id/ed_add_category"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_Date_add" />
+                        app:layout_constraintBottom_toBottomOf="@+id/ed_add_category"
+                        app:layout_constraintStart_toStartOf="@+id/tv_add_amount"
+                        app:layout_constraintTop_toTopOf="@+id/ed_add_category" />
 
                     <EditText
                         android:id="@+id/ed_add_category"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         android:backgroundTint="@color/default_background"
                         android:cursorVisible="false"
-                        android:textSize="16sp"
-                        tools:hint="@string/title_category"
                         android:maxLines="1"
                         android:minHeight="48dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/tv_add_category"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_add_category"
-                        app:layout_constraintTop_toTopOf="@+id/tv_add_category" />
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_note"
+                        app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_amount"
+                        tools:hint="@string/title_category" />
 
                     <TextView
                         android:id="@+id/tv_add_amount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="15dp"
                         android:text="@string/title_amount"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category" />
+                        app:layout_constraintBottom_toBottomOf="@+id/ed_add_amount"
+                        app:layout_constraintStart_toStartOf="@+id/tv_add_date"
+                        app:layout_constraintTop_toTopOf="@+id/ed_add_amount" />
 
                     <com.cottacush.android.currencyedittext.CurrencyEditText
                         android:id="@+id/ed_add_amount"
                         android:layout_width="0sp"
                         android:layout_height="wrap_content"
-                        app:localeTag="en-NG"
+                        android:layout_marginTop="5dp"
                         android:backgroundTint="@color/default_background"
                         android:cursorVisible="false"
-                        android:maxLength="20"
-                        android:textSize="16sp"
                         android:inputType="number|numberDecimal"
+                        android:maxLength="20"
                         android:maxLines="1"
                         android:minHeight="48dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/tv_add_amount"
-                        app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
-                        app:layout_constraintStart_toStartOf="@+id/ed_add_category"
-                        app:layout_constraintTop_toTopOf="@+id/tv_add_amount"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_category"
+                        app:layout_constraintEnd_toEndOf="@+id/edTime_add"
+                        app:layout_constraintStart_toStartOf="@+id/ed_Date_add"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_Date_add"
+                        app:localeTag="en-NG"
                         tools:hint="@string/title_amount" />
 
                     <TextView
                         android:id="@+id/tv_add_note"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="15dp"
                         android:text="@string/title_note"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_add_amount" />
+                        app:layout_constraintBottom_toBottomOf="@+id/ed_add_note"
+                        app:layout_constraintStart_toStartOf="@+id/tv_add_category"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category" />
 
                     <AutoCompleteTextView
                         android:id="@+id/ed_add_note"
                         android:layout_width="0sp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         android:backgroundTint="@color/default_background"
+                        android:completionThreshold="1"
                         android:ems="10"
                         android:inputType="textPersonName"
-                        android:completionThreshold="1"
-                        android:textSize="16sp"
-                        tools:hint="@string/title_note"
                         android:maxLines="1"
                         android:minHeight="48dp"
                         android:textCursorDrawable="@drawable/color_cursor"
-                        app:layout_constraintBottom_toBottomOf="@+id/tv_add_note"
-                        app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
-                        app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
-                        app:layout_constraintTop_toTopOf="@+id/tv_add_note" />
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
+                        app:layout_constraintStart_toStartOf="@+id/ed_add_category"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category"
+                        tools:hint="@string/title_note" />
 
                     <TextView
                         android:id="@+id/tv_Currancy"
