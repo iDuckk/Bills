@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -64,6 +65,8 @@ class BookmarksFragment : Fragment() {
         (context as InterfaceMainActivity).navBottom().visibility = View.GONE
         binding.imBookmarksDelete.visibility = View.GONE
 
+        onBackPressed()
+
         binding.imBookmarksBack.setOnClickListener {
             requireActivity().onBackPressed()
         }
@@ -87,6 +90,18 @@ class BookmarksFragment : Fragment() {
             bookmarkAdapter.submitList(it)
         }
 
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigate(R.id.action_bookmarksFragment_to_billsListFragment)
+
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {
