@@ -100,7 +100,7 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setNewList(binding.tvMonth.text.toString())
+        setNewList(viewModel.currentDate)
 
         (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
 
@@ -264,7 +264,7 @@ class BillsListFragment : Fragment() {
 //                if (binding.spinnerFilter.getChildAt(0) != null)
 //                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
                 // Display the selected item text on text view
-                if(visibilityFilterCard)
+                if (visibilityFilterCard)
                     filterList(parent.getItemAtPosition(position).toString())
             }
 
@@ -397,7 +397,7 @@ class BillsListFragment : Fragment() {
                 if (viewModel.list.value != null)
                     setDescentSorting(viewModel.list.value!!)
                 else {
-                    setNewList(binding.tvMonth.text.toString())
+                    setNewList(viewModel.currentDate)
                 }
                 createListCategory()
             }
@@ -449,7 +449,7 @@ class BillsListFragment : Fragment() {
                 viewModel.defaultMonth()
                 invisibilityFilterCard()
                 //set a new list
-                setNewList(binding.tvMonth.text.toString())
+                setNewList(viewModel.currentDate)
             }
         }
         //Previous month
@@ -458,7 +458,7 @@ class BillsListFragment : Fragment() {
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             invisibilityFilterCard()
             //set a new list
-            setNewList(binding.tvMonth.text.toString())
+            setNewList(viewModel.currentDate)
         }
         //Next month
         binding.imNextMonth.setOnClickListener {
@@ -466,7 +466,7 @@ class BillsListFragment : Fragment() {
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             invisibilityFilterCard()
             //set a new list
-            setNewList(binding.tvMonth.text.toString())
+            setNewList(viewModel.currentDate)
         }
 
         binding.imBookmarks.setOnClickListener {
@@ -514,7 +514,7 @@ class BillsListFragment : Fragment() {
             stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
             stateColorButton.stateNavBot =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-        } else if (check.toDouble() <0) {
+        } else if (check.toDouble() < 0) {
             //set color of icon nav bottom expenses
             (context as InterfaceMainActivity).navBottom()
                 .itemIconTintList =
@@ -606,7 +606,7 @@ class BillsListFragment : Fragment() {
                 binding.cardViewBudget.visibility = View.VISIBLE
                 (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
                 //set a new list
-                setNewList(binding.tvMonth.text.toString())
+                setNewList(viewModel.currentDate)
             }
         }
     }
@@ -631,31 +631,21 @@ class BillsListFragment : Fragment() {
     }
 
     private fun setNewList(month: String) {
-        //Delete observe if Active
-//        if(viewModel.list.hasActiveObservers())
-        viewModel.list.removeObservers(viewLifecycleOwner).apply {
-            //set a new list
-            //If first entrance get month from LocalDate()
-            if (FIRST_ENTRANCE) {
-                //Get List
-                viewModel.getMonth(viewModel.mapMonthToSQL(viewModel.currentDate()))
-                FIRST_ENTRANCE = false
-            } else { //In another case get month from args
-                viewModel.getMonth(viewModel.mapMonthToSQL(month))
-            }
-            //Set List
-            viewModel.list.observe(viewLifecycleOwner) {
-                //If list null
-                if(it.isNullOrEmpty())
-                    billAdapter.setAmount()
-                //Set list to Adapter
-                try {
-                    billAdapter.submitList(sortingDesc(it.toMutableList()))
-                } catch (e: NumberFormatException) {
-                    Log.w("TAG", e.message!!)
-                }
+        //set a new list
+        viewModel.getMonth(month)
+        //Set List
+        viewModel.list.observe(viewLifecycleOwner) {
+            //If list null
+            if (it.isNullOrEmpty())
+                billAdapter.setAmount()
+            //Set list to Adapter
+            try {
+                billAdapter.submitList(sortingDesc(it.toMutableList()))
+            } catch (e: NumberFormatException) {
+                Log.w("TAG", e.message!!)
             }
         }
+
     }
 
     private fun setDefaultSortingViews() {

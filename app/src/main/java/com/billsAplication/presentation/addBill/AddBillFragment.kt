@@ -154,8 +154,6 @@ class AddBillFragment : Fragment() {
         //Set Currency of amount EditText - Default currency
         binding.tvCurrancy.text = CurrentCurrency.currency
 
-        onBackPressed()
-
         initAutoCompleteEditText()
 
         imageListeners()
@@ -283,20 +281,6 @@ class AddBillFragment : Fragment() {
         binding.imAddBillBack.setOnClickListener {
             requireActivity().onBackPressed()
         }
-    }
-
-    private fun onBackPressed() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if(TYPE_ENTRENCE == TYPE_BOOKMARK)
-                        findNavController().navigate(R.id.action_addBillFragment_to_bookmarksFragment)
-                    else
-                        findNavController().navigate(R.id.action_addBillFragment_to_billsListFragment)
-                }
-            }
-        )
     }
 
     private fun editTextListeners(){

@@ -57,7 +57,7 @@ class BillsListViewModel @Inject constructor(
     private val TYPE_CATEGORY_INCOME = 4
 
     init {
-        getMonth(currentDate())
+//        getMonth(currentDate())
         currentDate = currentDate()
 //        getCategoryType()
     }
@@ -80,7 +80,7 @@ class BillsListViewModel @Inject constructor(
     }
 
     fun getMonth(month: String) {
-        list =  getMonth.invoke(month)
+        list =  getMonth.invoke(mapMonthToSQL(month))
     }
 
     suspend fun delete(item: BillsItem){
@@ -111,7 +111,7 @@ class BillsListViewModel @Inject constructor(
             }
     }
 
-    fun mapMonthToSQL(month: String): String{
+    private fun mapMonthToSQL(month: String): String{
         when(month.dropLast(5)){
             application.getString(R.string.calendar_January) -> return JANUARY + month.removePrefix(month.dropLast(5))
             application.getString(R.string.calendar_february) -> return FEBRUARY + month.removePrefix(month.dropLast(5))
