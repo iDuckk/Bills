@@ -268,7 +268,7 @@
                 android:backgroundTint="@color/default_background"
                 android:textSize="16sp"
                 android:hint="@string/title_description"
-                android:inputType="textPersonName"
+                android:inputType="textMultiLine"
                 android:minHeight="48dp"
                 android:textCursorDrawable="@drawable/color_cursor"
                 app:layout_constraintBottom_toTopOf="@+id/recView_photo"
