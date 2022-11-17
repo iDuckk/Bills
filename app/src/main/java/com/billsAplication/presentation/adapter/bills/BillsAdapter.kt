@@ -13,13 +13,13 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.billsAplication.R
 import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,19 +36,21 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
 
+    private val scope = CoroutineScope(Dispatchers.Main)
+
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
 
-    private var titleIncome = MutableLiveData<BigDecimal>()
-    val isTitleIncome: LiveData<BigDecimal>
+    private var titleIncome = MutableLiveData<String>()
+    val isTitleIncome: LiveData<String>
         get() = titleIncome
 
-    private var titleExpense = MutableLiveData<BigDecimal>()
-    val isTitleExpense: LiveData<BigDecimal>
+    private var titleExpense = MutableLiveData<String>()
+    val isTitleExpense: LiveData<String>
         get() = titleExpense
 
-    private var titleTotal = MutableLiveData<BigDecimal>()
-    val isTitleTotal: LiveData<BigDecimal>
+    private var titleTotal = MutableLiveData<String>()
+    val isTitleTotal: LiveData<String>
         get() = titleTotal
 
 
@@ -93,8 +95,8 @@ class BillsAdapter @Inject constructor() :
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
 //        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
 
-        //Set total views
-        setTotalView(position, holderBill)
+        //Set Amount views
+        setAmountViews(position, holderBill)
 
         setViews(item, position, holderBill)
 
@@ -133,7 +135,7 @@ class BillsAdapter @Inject constructor() :
             holderBill.tv_Day.text = item.date.dropLast(8)
             holderBill.tv_MonthYear.text = item.date.drop(2).replace("/", ".")
             holderBill.tv_Time.text = timeFormat(item.time)
-    //            timeFormat(item.time)
+            //            timeFormat(item.time)
             holderBill.tv_Category.text = item.category
             holderBill.tv_Item_Description.text = item.note
             //set amount
@@ -154,151 +156,161 @@ class BillsAdapter @Inject constructor() :
         }
     }
 
-    private fun setTotalView(
+    private fun setAmountViews(
         position: Int,
         holderBill: BillViewHolder
     ) {
         if (position == 0) {
-            CoroutineScope(IO).launch {
-                titleIncome.postValue(0.0.toBigDecimal())
-                titleExpense.postValue(0.0.toBigDecimal())
-                titleTotal.postValue(0.0.toBigDecimal())
-                income = 0.0.toBigDecimal()
-                expense = 0.0.toBigDecimal()
-
-                currentList.forEachIndexed { index, billsItem ->
-                    if (billsItem.type != TYPE_CATEGORY && billsItem.type != TYPE_NOTE) {
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    titleIncome.postValue("0.00")
+                    titleExpense.postValue("0.00")
+                    titleTotal.postValue("0.00")
+                    income = 0.0.toBigDecimal()
+                    expense = 0.0.toBigDecimal()
+                }
+                //Income amount
+                withContext(Dispatchers.IO) {
+                    currentList.forEachIndexed { index, billsItem ->
                         if (billsItem.type == TYPE_INCOME) {
                             income += BigDecimal(billsItem.amount.replace(",", ""))
-                        } else if (billsItem.type == TYPE_EXPENSES) {
+                        }
+                    }
+                }
+                //Expenses amount
+                withContext(Dispatchers.IO) {
+                    currentList.forEachIndexed { index, billsItem ->
+                        if (billsItem.type == TYPE_EXPENSES) {
                             expense -= BigDecimal(billsItem.amount.replace(",", ""))
-                        } else Log.e(
-                            "TAG",
-                            holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
-                        )
+                        }
                     }
-                    if (currentList.lastIndex == index) {
-                        titleIncome.postValue(income)
-                        titleExpense.postValue(expense)
-                        titleTotal.postValue(income + expense)
-                    }
+                }
+                withContext(Dispatchers.IO) {
+                    titleIncome.postValue("%,.2f".format(Locale.ENGLISH, income))
+                    titleExpense.postValue("%,.2f".format(Locale.ENGLISH, expense))
+                    titleTotal.postValue("%,.2f".format(Locale.ENGLISH, (income + expense)))
                 }
             }
         }
+
     }
 
-    private fun timeFormat(time: String):String{
-        var hour = "${time.get(0)}${time.get(1)}".toInt()
-        var minute = "${time.get(3)}${time.get(4)}".toInt()
+        private fun timeFormat(time: String): String {
+            var hour = "${time.get(0)}${time.get(1)}".toInt()
+            var minute = "${time.get(3)}${time.get(4)}".toInt()
 
-        val c = Calendar.getInstance()
-        c.set(Calendar.HOUR_OF_DAY, hour)
-        c.set(Calendar.MINUTE, minute)
+            val c = Calendar.getInstance()
+            c.set(Calendar.HOUR_OF_DAY, hour)
+            c.set(Calendar.MINUTE, minute)
 
-        return SimpleDateFormat("hh:mm a").format(c.time)
-    }
-
-    private fun addAmount(item: BillsItem){
-        //save amount
-        if(item.type == TYPE_INCOME){
-            totalAmount += BigDecimal(item.amount.replace(",", ""))
+            return SimpleDateFormat("hh:mm a").format(c.time)
         }
-        else{
+
+        private fun addAmount(item: BillsItem) {
+            //save amount
+            if (item.type == TYPE_INCOME) {
+                totalAmount += BigDecimal(item.amount.replace(",", ""))
+            } else {
                 totalAmount -= BigDecimal(item.amount.replace(",", ""))
-        }
-    }
-
-    private fun setCardViewDateTotal(
-        position: Int,
-        item: BillsItem,
-        holderBill: BillViewHolder
-    ){
-        holderBill.cardVIewDate.visibility = View.GONE
-        holderBill.cardVIewTotal.visibility = View.GONE
-        if(position == 0 && currentList.lastIndex == position){ //if only one item in list
-            holderBill.cardVIewDate.visibility = View.VISIBLE
-            holderBill.cardVIewTotal.visibility = View.VISIBLE
-            totalAmount = BigDecimal(0)
-            addAmount(item)
-            holderBill.tv_total.text = "%,.2f".format(totalAmount)
-            totalAmount = BigDecimal(0)
-        } else if(position == 0 && currentList.lastIndex != position){ //if first item
-            holderBill.cardVIewDate.visibility = View.VISIBLE
-            totalAmount = BigDecimal(0)
-            //Set Total card if next item has different date
-            if(item.date != getItem(position + 1).date){
-                addAmount(item)
-                holderBill.cardVIewTotal.visibility = View.VISIBLE
-                holderBill.tv_total.text = "%,.2f".format(totalAmount)
-                totalAmount = BigDecimal(0) //Clear total value
             }
-        }else if(position != 0 && currentList.lastIndex != position) { //Other items
-            //Set Total card if next item has different date
-            if(item.date != getItem(position + 1).date){
+        }
+
+        private fun setCardViewDateTotal(
+            position: Int,
+            item: BillsItem,
+            holderBill: BillViewHolder
+        ) {
+            holderBill.cardVIewDate.visibility = View.GONE
+            holderBill.cardVIewTotal.visibility = View.GONE
+            if (position == 0 && currentList.lastIndex == position) { //if only one item in list
+                holderBill.cardVIewDate.visibility = View.VISIBLE
                 holderBill.cardVIewTotal.visibility = View.VISIBLE
+                totalAmount = BigDecimal(0)
+                addAmount(item)
+                holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                totalAmount = BigDecimal(0)
+            } else if (position == 0 && currentList.lastIndex != position) { //if first item
+                holderBill.cardVIewDate.visibility = View.VISIBLE
+                totalAmount = BigDecimal(0)
+                //Set Total card if next item has different date
+                if (item.date != getItem(position + 1).date) {
+                    addAmount(item)
+                    holderBill.cardVIewTotal.visibility = View.VISIBLE
+                    holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                    totalAmount = BigDecimal(0) //Clear total value
+                }
+            } else if (position != 0 && currentList.lastIndex != position) { //Other items
+                //Set Total card if next item has different date
+                if (item.date != getItem(position + 1).date) {
+                    holderBill.cardVIewTotal.visibility = View.VISIBLE
+                    //Get total value
+                    currentList.forEach {
+                        if (it.date == item.date)
+                            addAmount(it) //Save total value
+                    }
+                    holderBill.tv_total.text = "%,.2f".format(totalAmount)
+                    totalAmount = BigDecimal(0) //Clear total value
+                }
+                //Set Date card if previous item has different date
+                if (item.date != getItem(position - 1).date) {
+                    holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
+                }
+            } else if (position != 0 && currentList.lastIndex == position) { //When last item
                 //Get total value
                 currentList.forEach {
-                    if(it.date == item.date)
+                    if (it.date == item.date)
                         addAmount(it) //Save total value
                 }
+                holderBill.cardVIewTotal.visibility = View.VISIBLE
                 holderBill.tv_total.text = "%,.2f".format(totalAmount)
                 totalAmount = BigDecimal(0) //Clear total value
-            }
-            //Set Date card if previous item has different date
-            if(item.date != getItem(position - 1).date) {
-                holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
-            }
-        }else if(position != 0 && currentList.lastIndex == position) { //When last item
-            //Get total value
-            currentList.forEach {
-                if(it.date == item.date)
-                    addAmount(it) //Save total value
-            }
-            holderBill.cardVIewTotal.visibility = View.VISIBLE
-            holderBill.tv_total.text = "%,.2f".format(totalAmount)
-            totalAmount = BigDecimal(0) //Clear total value
-            //Set Date card if previous item has different date
-            if(item.date != getItem(position - 1).date) {
-                holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
+                //Set Date card if previous item has different date
+                if (item.date != getItem(position - 1).date) {
+                    holderBill.cardVIewDate.visibility = View.VISIBLE //Date card
+                }
             }
         }
-    }
 
-    private fun highlightItem(
-        item: BillsItem,
-        holderBill: BillViewHolder
-    ) {
-        if (electedItemsList.isEmpty()) {
-            isClicked = true
-            mIsHighlight.value = true
-        }
-
-        if (electedItemsList.find { it == item } == item) {
-            electedItemsList.remove(item)
-            holderBill.cardVIewTitle.isSelected = false
-            holderBill.itemView.isSelected = false
+        private fun highlightItem(
+            item: BillsItem,
+            holderBill: BillViewHolder
+        ) {
             if (electedItemsList.isEmpty()) {
-                mIsHighlight.value = false
-                isClicked = false
+                isClicked = true
+                mIsHighlight.value = true
             }
-        } else {
-            electedItemsList.add(item)
-            holderBill.cardVIewTitle.isSelected = true
-            holderBill.itemView.isSelected = true
+
+            if (electedItemsList.find { it == item } == item) {
+                electedItemsList.remove(item)
+                holderBill.cardVIewTitle.isSelected = false
+                holderBill.itemView.isSelected = false
+                if (electedItemsList.isEmpty()) {
+                    mIsHighlight.value = false
+                    isClicked = false
+                }
+            } else {
+                electedItemsList.add(item)
+                holderBill.cardVIewTitle.isSelected = true
+                holderBill.itemView.isSelected = true
+            }
+        }
+
+        fun deleteItemsAfterRemovedItemFromDB() {
+            electedItemsList.clear()
+            mIsHighlight.value = false
+            isClicked = false
+        }
+
+        fun setAmount() {
+            titleIncome.postValue("0.00")
+            titleExpense.postValue("0.00")
+            titleTotal.postValue("0.00")
+            income = 0.0.toBigDecimal()
+            expense = 0.0.toBigDecimal()
+        }
+
+        override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView)
+            scope.cancel()
         }
     }
-
-    fun deleteItemsAfterRemovedItemFromDB() {
-        electedItemsList.clear()
-        mIsHighlight.value = false
-        isClicked = false
-    }
-    fun setAmount(){
-        titleIncome.postValue(0.0.toBigDecimal())
-        titleExpense.postValue(0.0.toBigDecimal())
-        titleTotal.postValue(0.0.toBigDecimal())
-        income = 0.0.toBigDecimal()
-        expense = 0.0.toBigDecimal()
-    }
-
-}
