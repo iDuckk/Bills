@@ -48,6 +48,17 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         }
     }
 
+
+
+    override suspend fun getTypeList(type: Int): List<BillsItem> {
+        var newList = ArrayList<BillsItem>()
+        val list = billDao.getTypeList(type)
+        list.forEach {
+            newList.add(mapper.mapBillEntityToBillItem(it))
+        }
+        return newList
+    }
+
     override fun getBookmarks(type: Boolean): LiveData<List<BillsItem>> {
         return Transformations.map(billDao.getBookmarks(type)){
             it.map{

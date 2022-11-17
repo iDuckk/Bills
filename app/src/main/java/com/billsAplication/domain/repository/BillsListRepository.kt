@@ -20,6 +20,8 @@ interface BillsListRepository {
 
     fun getType(type : Int) : LiveData<List<BillsItem>>
 
+    suspend fun getTypeList(type : Int) : List<BillsItem>
+
     fun getBookmarks(type : Boolean) : LiveData<List<BillsItem>>
 
     suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)

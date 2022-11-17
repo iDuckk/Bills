@@ -18,6 +18,9 @@ interface BillDao {
     @Query("SELECT * FROM bills_list WHERE type = :type")
     fun getType(type : Int): LiveData<List<BillEntity>>
 
+    @Query("SELECT * FROM bills_list WHERE type = :type")
+    suspend fun getTypeList(type : Int): List<BillEntity>
+
     @Query("SELECT * FROM bills_list WHERE bookmark = :type")
     fun getBookmarks(type : Boolean): LiveData<List<BillEntity>>
 

@@ -26,10 +26,9 @@ import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.*
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
@@ -63,6 +62,7 @@ class BillsListFragment : Fragment() {
     private var visibilityFilterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
     private var liveListCategory = MutableLiveData<ArrayList<String>>()
+    private val scope = CoroutineScope(Dispatchers.Main)
 
 
     private val ADD_BILL_KEY = "add_bill_key"
@@ -232,23 +232,10 @@ class BillsListFragment : Fragment() {
 
         createSpinnerAdapter()
 
-        liveList()
-
         createListCategory()
 
         onItemSelectListSpinner()
 
-    }
-
-    private fun liveList() {
-        liveListCategory.observe(viewLifecycleOwner) { listCat ->
-            //remove previous data
-            spinnerAdapter.clear()
-            spinnerAdapter.add(NONE)
-            //set new list
-            spinnerAdapter.addAll(listCat.sorted())
-            spinnerAdapter.notifyDataSetChanged()
-        }
     }
 
     private fun onItemSelectListSpinner() {
@@ -274,67 +261,58 @@ class BillsListFragment : Fragment() {
     }
 
     private fun createListCategory() {
-        val listCategory = ArrayList<String>()
-        viewModel.getCategoryExpenses()
-        //Close Observer if exists
-        if (viewModel.listCategory.hasObservers())
-            viewModel.listCategory.removeObservers(this)
-        //Add expenses category
-        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
-            //Crate list of Expenses
-            list.forEach { item ->
-                listCategory.add(item.category)
-            }
-        }
-        //First remove observers and start again that add Income list
-        viewModel.listCategory.removeObservers(this).apply {
-            viewModel.getCategoryIncome() //Add income category
-            viewModel.listCategory.observe(viewLifecycleOwner) { list ->
-                list.forEach { item ->
-                    listCategory.add(item.category)
-                }.apply {
-                    //Set list
-                    liveListCategory.postValue(listCategory)
+        scope.launch {
+            //remove previous data
+            spinnerAdapter.clear()
+            spinnerAdapter.add(NONE)
+            //set new list
+            val list = ArrayList<String>()
+                withContext(Dispatchers.IO){
+                    viewModel.getTypeList(TYPE_INCOME).forEach {
+                        list.add(it.category)
+                    }
+                    withContext(Dispatchers.IO){
+                        viewModel.getTypeList(TYPE_EXPENSES).forEach {
+                            list.add(it.category)
+                        }
+                        withContext(Dispatchers.Main){
+                            spinnerAdapter.addAll(list.distinct().sorted())
+                        }
+                    }
                 }
-                viewModel.listCategory.removeObservers(viewLifecycleOwner)
-            }
         }
     }
 
     private fun createListCategoryExpenses() {
-        val listCategory = ArrayList<String>()
-        //Close Observer if exists
-        if (viewModel.listCategory.hasObservers())
-            viewModel.listCategory.removeObservers(this)
-
-        viewModel.getCategoryExpenses()
-        //Add expenses category
-        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
-            //Crate list of Expenses
-            list.forEach { item ->
-                listCategory += item.category
-            }.apply {
-                //Set list
-                liveListCategory.postValue(listCategory)
+        val list = ArrayList<String>()
+        scope.launch {
+            //remove previous data
+            spinnerAdapter.clear()
+            spinnerAdapter.add(NONE)
+            withContext(Dispatchers.IO) {
+                viewModel.getTypeList(TYPE_EXPENSES).forEach {
+                    list.add(it.category)
+                }
+                withContext(Dispatchers.Main) {
+                    spinnerAdapter.addAll(list.distinct().sorted())
+                }
             }
         }
     }
 
     private fun createListCategoryIncome() {
-        val listCategory = ArrayList<String>()
-        //Close Observer if exists
-        if (viewModel.listCategory.hasObservers())
-            viewModel.listCategory.removeObservers(this)
-
-        viewModel.getCategoryIncome()
-        //Add expenses category
-        viewModel.listCategory.observe(viewLifecycleOwner) { list ->
-            //Crate list of Expenses
-            list.forEach { item ->
-                listCategory += item.category
-            }.apply {
-                //Set list
-                liveListCategory.postValue(listCategory)
+        val list = ArrayList<String>()
+        scope.launch {
+            //remove previous data
+            spinnerAdapter.clear()
+            spinnerAdapter.add(NONE)
+            withContext(Dispatchers.IO) {
+                viewModel.getTypeList(TYPE_INCOME).forEach {
+                    list.add(it.category)
+                }
+                withContext(Dispatchers.Main) {
+                    spinnerAdapter.addAll(list.distinct().sorted())
+                }
             }
         }
     }
@@ -378,13 +356,10 @@ class BillsListFragment : Fragment() {
         if (value != NONE) {
             if (binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
                 setDescentSorting(spinnerItemList(TYPE_INCOME, value))
-                createListCategoryIncome()
             } else if (binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
                 setDescentSorting(spinnerItemList(TYPE_EXPENSES, value))
-                createListCategoryExpenses()
             } else {
                 setDescentSorting(spinnerItemList(TYPE_FULL_LIST_SORT, value))
-                createListCategory()
             }
         } else {
             if (binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
@@ -569,15 +544,15 @@ class BillsListFragment : Fragment() {
         }
 
         billAdapter.isTitleIncome.observe(viewLifecycleOwner) {
-            binding.tvIncomeNum.text = "%,.2f".format(Locale.ENGLISH, it)
+            binding.tvIncomeNum.text = it
         }
 
         billAdapter.isTitleExpense.observe(viewLifecycleOwner) {
-            binding.tvExpenseNum.text = "%,.2f".format(Locale.ENGLISH, it)
+            binding.tvExpenseNum.text = it
         }
 
         billAdapter.isTitleTotal.observe(viewLifecycleOwner) {
-            binding.tvTotalNum.text = "%,.2f".format(Locale.ENGLISH, it)
+            binding.tvTotalNum.text = it
             setBackColorAddButton()
         }
 
@@ -632,20 +607,23 @@ class BillsListFragment : Fragment() {
 
     private fun setNewList(month: String) {
         //set a new list
-        viewModel.getMonth(month)
-        //Set List
-        viewModel.list.observe(viewLifecycleOwner) {
-            //If list null
-            if (it.isNullOrEmpty())
-                billAdapter.setAmount()
-            //Set list to Adapter
-            try {
-                billAdapter.submitList(sortingDesc(it.toMutableList()))
-            } catch (e: NumberFormatException) {
-                Log.w("TAG", e.message!!)
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                viewModel.getMonth(month)
+            }
+
+            viewModel.list.observe(viewLifecycleOwner) {
+                //If list null
+                if (it.isNullOrEmpty())
+                    billAdapter.setAmount()
+                //Set list to Adapter
+                try {
+                    billAdapter.submitList(sortingDesc(it.toMutableList()))
+                } catch (e: NumberFormatException) {
+                    Log.w("TAG", e.message!!)
+                }
             }
         }
-
     }
 
     private fun setDefaultSortingViews() {
@@ -694,6 +672,7 @@ class BillsListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        scope.cancel()
         _binding = null
     }
 
