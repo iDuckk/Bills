@@ -188,9 +188,9 @@ class BillsListFragment : Fragment() {
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
             filterList(
-                binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
-                    .toString()
-            )
+                    binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
+                        .toString()
+                    )
         }
         //Set Spinner
         spinnerCategory()
@@ -267,19 +267,19 @@ class BillsListFragment : Fragment() {
             spinnerAdapter.add(NONE)
             //set new list
             val list = ArrayList<String>()
-                withContext(Dispatchers.IO){
-                    viewModel.getTypeList(TYPE_INCOME).forEach {
+            withContext(Dispatchers.IO) {
+                viewModel.getTypeList(TYPE_INCOME).forEach {
+                    list.add(it.category)
+                }
+                withContext(Dispatchers.IO) {
+                    viewModel.getTypeList(TYPE_EXPENSES).forEach {
                         list.add(it.category)
                     }
-                    withContext(Dispatchers.IO){
-                        viewModel.getTypeList(TYPE_EXPENSES).forEach {
-                            list.add(it.category)
-                        }
-                        withContext(Dispatchers.Main){
-                            spinnerAdapter.addAll(list.distinct().sorted())
-                        }
+                    withContext(Dispatchers.Main) {
+                        spinnerAdapter.addAll(list.distinct().sorted())
                     }
                 }
+            }
         }
     }
 
@@ -610,17 +610,18 @@ class BillsListFragment : Fragment() {
         scope.launch {
             withContext(Dispatchers.IO) {
                 viewModel.getMonth(month)
-            }
-
-            viewModel.list.observe(viewLifecycleOwner) {
-                //If list null
-                if (it.isNullOrEmpty())
-                    billAdapter.setAmount()
-                //Set list to Adapter
-                try {
-                    billAdapter.submitList(sortingDesc(it.toMutableList()))
-                } catch (e: NumberFormatException) {
-                    Log.w("TAG", e.message!!)
+                withContext(Dispatchers.Main) {
+                    viewModel.list.observe(viewLifecycleOwner) {
+                        //If list null
+                        if (it.isNullOrEmpty())
+                            billAdapter.setAmount()
+                        //Set list to Adapter
+                        try {
+                            billAdapter.submitList(sortingDesc(it.toMutableList()))
+                        } catch (e: NumberFormatException) {
+                            Log.w("TAG", e.message!!)
+                        }
+                    }
                 }
             }
         }
