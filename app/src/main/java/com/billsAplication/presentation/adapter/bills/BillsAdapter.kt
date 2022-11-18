@@ -36,7 +36,7 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     private var income = BigDecimal(0)
     private var expense = BigDecimal(0)
@@ -89,11 +89,8 @@ class BillsAdapter @Inject constructor() :
         val item = getItem(position)
         //set background here because it doesn't set in XML
         holderBill.cardVIewTitle.setBackgroundResource(R.drawable.background_selector)
-//        holderBill.itemView.setBackgroundResource(R.drawable.date_border_cardview)
-//        holderBill.itemView.setBackgroundResource(R.drawable.background_selector)
         //Choose select item or not
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
-//        holderBill.itemView.isSelected = electedItemsList.find { it == item } == item
 
         //Set Amount views
         setAmountViews(position, holderBill)
@@ -162,13 +159,6 @@ class BillsAdapter @Inject constructor() :
     ) {
         if (position == 0) {
             scope.launch {
-                withContext(Dispatchers.IO) {
-                    titleIncome.postValue("0.00")
-                    titleExpense.postValue("0.00")
-                    titleTotal.postValue("0.00")
-                    income = 0.0.toBigDecimal()
-                    expense = 0.0.toBigDecimal()
-                }
                 //Income amount
                 withContext(Dispatchers.IO) {
                     currentList.forEachIndexed { index, billsItem ->
@@ -186,9 +176,14 @@ class BillsAdapter @Inject constructor() :
                     }
                 }
                 withContext(Dispatchers.IO) {
+
                     titleIncome.postValue("%,.2f".format(Locale.ENGLISH, income))
                     titleExpense.postValue("%,.2f".format(Locale.ENGLISH, expense))
                     titleTotal.postValue("%,.2f".format(Locale.ENGLISH, (income + expense)))
+                }
+                withContext(Dispatchers.IO) {
+                    income = 0.0.toBigDecimal()
+                    expense = 0.0.toBigDecimal()
                 }
             }
         }
@@ -305,8 +300,6 @@ class BillsAdapter @Inject constructor() :
             titleIncome.postValue("0.00")
             titleExpense.postValue("0.00")
             titleTotal.postValue("0.00")
-            income = 0.0.toBigDecimal()
-            expense = 0.0.toBigDecimal()
         }
 
         override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
