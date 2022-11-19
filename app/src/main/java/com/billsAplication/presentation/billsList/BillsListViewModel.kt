@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.billsAplication.R
+import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.billsUseCases.*
 import com.billsAplication.domain.model.BillsItem
 import kotlinx.coroutines.*
@@ -76,8 +77,10 @@ class BillsListViewModel @Inject constructor(
         listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_INCOME)
     }
 
-    fun getMonth(month: String) {
-        list = getMonth.invoke(mapMonthToSQL(month))
+    suspend fun getMonth(month: String) {
+        list = withContext(Dispatchers.IO){
+            getMonth.invoke(mapMonthToSQL(month))
+        }
     }
 
     suspend fun delete(item: BillsItem) {
