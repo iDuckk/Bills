@@ -18,6 +18,7 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -62,7 +63,7 @@ class BillsListFragment : Fragment() {
     private var visibilityFilterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
     private var liveListCategory = MutableLiveData<ArrayList<String>>()
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private var scope = CoroutineScope(Dispatchers.Main)
 
 
     private val ADD_BILL_KEY = "add_bill_key"
@@ -102,8 +103,6 @@ class BillsListFragment : Fragment() {
 
         setNewList(viewModel.currentDate)
 
-        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
-
         binding.tvMonth.text = viewModel.currentDate
 
         binding.cardViewFilter.visibility = View.VISIBLE
@@ -119,6 +118,10 @@ class BillsListFragment : Fragment() {
         addButton()
 
         searchButton()
+
+    }
+
+    companion object{
 
     }
 
@@ -188,9 +191,9 @@ class BillsListFragment : Fragment() {
         //Descending sort
         binding.checkBoxDecDate.setOnClickListener {
             filterList(
-                    binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
-                        .toString()
-                    )
+                binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
+                    .toString()
+            )
         }
         //Set Spinner
         spinnerCategory()
@@ -418,9 +421,9 @@ class BillsListFragment : Fragment() {
         }
         //Set month`s text in bar
         binding.tvMonth.setOnClickListener {
-            if (viewModel.currentDate() != binding.tvMonth.text.toString()) {
-                viewModel.currentDate = viewModel.currentDate()
-                binding.tvMonth.text = viewModel.currentDate()
+            viewModel.currentDate = viewModel.currentDate()
+            if (viewModel.currentDate != binding.tvMonth.text.toString()) {
+                binding.tvMonth.text = viewModel.currentDate
                 viewModel.defaultMonth()
                 invisibilityFilterCard()
                 //set a new list
@@ -554,6 +557,7 @@ class BillsListFragment : Fragment() {
         billAdapter.isTitleTotal.observe(viewLifecycleOwner) {
             binding.tvTotalNum.text = it
             setBackColorAddButton()
+            resizeText()
         }
 
         billAdapter.onClickListenerBillItem = {
@@ -608,20 +612,16 @@ class BillsListFragment : Fragment() {
     private fun setNewList(month: String) {
         //set a new list
         scope.launch {
-            withContext(Dispatchers.IO) {
-                viewModel.getMonth(month)
-                withContext(Dispatchers.Main) {
-                    viewModel.list.observe(viewLifecycleOwner) {
-                        //If list null
-                        if (it.isNullOrEmpty())
-                            billAdapter.setAmount()
-                        //Set list to Adapter
-                        try {
-                            billAdapter.submitList(sortingDesc(it.toMutableList()))
-                        } catch (e: NumberFormatException) {
-                            Log.w("TAG", e.message!!)
-                        }
-                    }
+            viewModel.getMonth(month)
+            viewModel.list.observe(viewLifecycleOwner) {
+                //If list null
+                if (it.isNullOrEmpty())
+                    billAdapter.setAmount()
+                //Set list to Adapter
+                try {
+                    billAdapter.submitList(sortingDesc(it.toMutableList()))
+                } catch (e: NumberFormatException) {
+                    Log.w("TAG", e.message!!)
                 }
             }
         }
@@ -665,6 +665,13 @@ class BillsListFragment : Fragment() {
     fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
     ).toInt()
+
+    override fun onResume() {
+        super.onResume()
+        if(!scope.isActive)
+            scope = CoroutineScope(Dispatchers.Main)
+        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+    }
 
     override fun onPause() {
         super.onPause()
