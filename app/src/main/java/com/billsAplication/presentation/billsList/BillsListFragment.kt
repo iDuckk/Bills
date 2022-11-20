@@ -1,6 +1,7 @@
 package com.billsAplication.presentation.billsList
 
 import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -14,8 +15,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
@@ -41,22 +44,16 @@ class BillsListFragment : Fragment() {
     private val binding: FragmentBillsListBinding get() = _binding!!
 
     private val bundle = Bundle()
-
     @Inject
     lateinit var viewModel: BillsListViewModel
-
     @Inject
     lateinit var billAdapter: BillsAdapter
-
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var sortingDesc: SortingDesc
-
     @Inject
     lateinit var sortingAsc: SortingAsc
-
     @Inject
     lateinit var slideView: SlideView
 

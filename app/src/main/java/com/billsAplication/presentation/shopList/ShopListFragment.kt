@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
@@ -29,6 +30,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.billsAplication.utils.InterfaceMainActivity
+import com.billsAplication.utils.RotationView
 import com.billsAplication.utils.mToast
 import com.billsAplication.utils.StateColorButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -51,6 +53,8 @@ class ShopListFragment : Fragment() {
     lateinit var mToast: mToast
     @Inject
     lateinit var stateColorButton: StateColorButton
+    @Inject
+    lateinit var rotationView: RotationView
 
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
@@ -80,7 +84,6 @@ class ShopListFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -97,7 +100,6 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ClickableViewAccessibility")
     private fun buttonSpeechToText() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext());
@@ -196,9 +198,9 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
     @SuppressLint("ResourceType")
     private fun addButtons() {
+        val imClose = requireView().findViewById<ImageView>(R.id.imageButton)
         val colorState = ColorStateList
             .valueOf(stateColorButton.colorButtons!!)
         binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton
@@ -213,17 +215,15 @@ class ShopListFragment : Fragment() {
             if (!binding.buttonAddNoteMicro.isVisible) {
                 binding.buttonAddNoteMicro.visibility = View.VISIBLE
                 binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-                binding.buttonAddNote.imageButton.setImageResource(R.drawable.ic_close)
-
+                rotationView(imClose, 0f, 45f)
             } else {
                 binding.buttonAddNoteMicro.visibility = View.GONE
                 binding.buttonAddNoteKeyboard.visibility = View.GONE
-                binding.buttonAddNote.imageButton.setImageResource(R.drawable.ic_add)
+                rotationView(imClose, 45f, 0f)
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun setEnabledViewsFOrRec(enabled: Boolean){
         if(enabled){
             val colorState = ColorStateList
