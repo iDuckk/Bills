@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.shopList
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -15,13 +16,12 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,10 +29,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
-import com.billsAplication.utils.InterfaceMainActivity
-import com.billsAplication.utils.RotationView
-import com.billsAplication.utils.mToast
-import com.billsAplication.utils.StateColorButton
+import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
@@ -55,6 +52,12 @@ class ShopListFragment : Fragment() {
     lateinit var stateColorButton: StateColorButton
     @Inject
     lateinit var rotationView: RotationView
+    @Inject
+    lateinit var slideView: SlideView
+    @Inject
+    lateinit var motionViewY: MotionViewY
+    @Inject
+    lateinit var motionViewX: MotionViewX
 
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
@@ -62,6 +65,7 @@ class ShopListFragment : Fragment() {
     private val UPDATE_TYPE = 20
     private val RECORD_AOUDIO_REQUEST = 110
     private val COLOR_NOTE_PRIMARY = ""
+    private var buttonMotion = true
     lateinit var dialogRecording: AlertDialog
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -105,20 +109,23 @@ class ShopListFragment : Fragment() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext());
 
         val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         }
 
         speechRecognizerListener()
 
         binding.buttonAddNoteMicro.setOnTouchListener { view, motionEvent ->
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                 //Stop recording
                 speechRecognizer?.stopListening()
                 //ColorState of buttons
                 setEnabledViewsFOrRec(true)
             }
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 //Get permission
                 recordPermission()
                 //ColorState of buttons
@@ -156,8 +163,12 @@ class ShopListFragment : Fragment() {
         })
     }
 
-    private fun recordPermission(){
-        if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+    private fun recordPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             checkPermission()
         }
     }
@@ -200,32 +211,31 @@ class ShopListFragment : Fragment() {
 
     @SuppressLint("ResourceType")
     private fun addButtons() {
-        val imClose = requireView().findViewById<ImageView>(R.id.imageButton)
         val colorState = ColorStateList
             .valueOf(stateColorButton.colorButtons!!)
         binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton
-        binding.buttonAddNoteMicro.visibility = View.GONE
-        binding.buttonAddNoteKeyboard.visibility = View.GONE
         binding.buttonAddNoteMicro.size = FloatingActionButton.SIZE_MINI
         binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
         binding.buttonAddNoteMicro.backgroundTintList = colorState
         binding.buttonAddNoteKeyboard.backgroundTintList = colorState
 
         binding.buttonAddNote.mainLayout.setOnClickListener {
-            if (!binding.buttonAddNoteMicro.isVisible) {
-                binding.buttonAddNoteMicro.visibility = View.VISIBLE
-                binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-                rotationView(imClose, 0f, 45f)
+            if (buttonMotion) {
+                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 0f, 45f)
+                motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), 0f,  -170f)
+                motionViewX(requireView().findViewById<ImageView>(R.id.button_addNote_keyboard), 0f, -200f)
+                buttonMotion = false
             } else {
-                binding.buttonAddNoteMicro.visibility = View.GONE
-                binding.buttonAddNoteKeyboard.visibility = View.GONE
-                rotationView(imClose, 45f, 0f)
+                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
+                motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), -170f, 0f)
+                motionViewX(requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),-200f, 0f)
+                buttonMotion = true
             }
         }
     }
 
-    private fun setEnabledViewsFOrRec(enabled: Boolean){
-        if(enabled){
+    private fun setEnabledViewsFOrRec(enabled: Boolean) {
+        if (enabled) {
             val colorState = ColorStateList
                 .valueOf(
                     requireContext()
@@ -236,11 +246,11 @@ class ShopListFragment : Fragment() {
             (context as InterfaceMainActivity).navBottom().isEnabled = true
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.dismiss()
-        }else{
+        } else {
             val colorState = ColorStateList
                 .valueOf(
                     requireContext().getColor(R.color.default_background)
-                    )
+                )
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
             (context as InterfaceMainActivity).navBottom().isEnabled = false
@@ -249,9 +259,9 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    private fun dialogRecording(){
+    private fun dialogRecording() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        dialogRecording =  builder
+        dialogRecording = builder
             .setMessage(getString(R.string.title_dialog_rec_listener))
             .create()
     }
@@ -264,6 +274,20 @@ class ShopListFragment : Fragment() {
         val textColor = typedArray.getColor(0, 0)
         typedArray.recycle()
         return textColor
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(!buttonMotion) {
+            rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
+            motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), -170f, 0f)
+            motionViewX(
+                requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
+                -200f,
+                0f
+            )
+            buttonMotion = true
+        }
     }
 
     override fun onDestroyView() {

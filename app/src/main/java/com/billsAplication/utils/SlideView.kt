@@ -13,7 +13,7 @@ class SlideView@Inject constructor() {
 
         val slideAnimator = ValueAnimator
             .ofInt(currentHeight, newHeight)
-            .setDuration(500)
+            .setDuration(300)
 
         slideAnimator.addUpdateListener { animation1: ValueAnimator ->
             val value = animation1.animatedValue as Int
