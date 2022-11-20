@@ -1,5 +1,7 @@
 package com.billsAplication.presentation.billsList
 
+import android.animation.AnimatorSet
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -9,16 +11,15 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -28,12 +29,8 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 class BillsListFragment : Fragment() {
@@ -58,11 +55,13 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var sortingAsc: SortingAsc
 
+    @Inject
+    lateinit var slideView: SlideView
+
     lateinit var spinnerAdapter: ArrayAdapter<String>
     private var deleteItem = false
     private var visibilityFilterCard = false
     private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
-    private var liveListCategory = MutableLiveData<ArrayList<String>>()
     private var scope = CoroutineScope(Dispatchers.Main)
 
 
@@ -72,9 +71,7 @@ class BillsListFragment : Fragment() {
     private val TYPE_INCOME = 1
     private val TYPE_FULL_LIST_SORT = 101
     private val NONE = "None"
-    private val EMPTY_STRING = ""
 
-    private var FIRST_ENTRANCE = true
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
     private val CREATE_TYPE = 100
@@ -118,10 +115,6 @@ class BillsListFragment : Fragment() {
         addButton()
 
         searchButton()
-
-    }
-
-    companion object{
 
     }
 
@@ -176,8 +169,7 @@ class BillsListFragment : Fragment() {
     }
 
     private fun filterBar() {
-        //Use height instead Gone - destroys view? spinner again resize first item
-        invisibilityFilterCard()
+        visibilityFilterCard = false
         //income list
         binding.checkBoxIncome.setOnClickListener {
             binding.spinnerFilter.setSelection(0)
@@ -404,19 +396,16 @@ class BillsListFragment : Fragment() {
         //Sorting
         binding.imBillsFilter.setOnClickListener {
             if (visibilityFilterCard) {
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter),100, 0)
+                visibilityFilterCard = false
+                setDefaultSortingViews()
                 //Cause without remove List, it scrolls down to the end
                 billAdapter.submitList(null)
                 if (viewModel.list.value != null)
                     billAdapter.submitList(sortingDesc(viewModel.list.value!!.toMutableList()))
-                invisibilityFilterCard()
             } else {
-                //Resize cardView
-                binding.cardViewFilter.layoutParams.height =
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT
-                binding.cardViewFilter.requestLayout()
-                binding.cardViewFilter.visibility = View.VISIBLE
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 0, 100)
                 visibilityFilterCard = true
-                setDefaultSortingViews()
             }
         }
         //Set month`s text in bar
@@ -425,7 +414,12 @@ class BillsListFragment : Fragment() {
             if (viewModel.currentDate != binding.tvMonth.text.toString()) {
                 binding.tvMonth.text = viewModel.currentDate
                 viewModel.defaultMonth()
-                invisibilityFilterCard()
+                //Set off filter card
+                if(visibilityFilterCard) {
+                    slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+                    visibilityFilterCard = false
+                    setDefaultSortingViews()
+                }
                 //set a new list
                 setNewList(viewModel.currentDate)
             }
@@ -434,7 +428,12 @@ class BillsListFragment : Fragment() {
         binding.imBackMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
-            invisibilityFilterCard()
+            //Set off filter card
+            if(visibilityFilterCard) {
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+                visibilityFilterCard = false
+                setDefaultSortingViews()
+            }
             //set a new list
             setNewList(viewModel.currentDate)
         }
@@ -442,7 +441,12 @@ class BillsListFragment : Fragment() {
         binding.imNextMonth.setOnClickListener {
             viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
-            invisibilityFilterCard()
+            //Set off filter card
+            if(visibilityFilterCard) {
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+                visibilityFilterCard = false
+                setDefaultSortingViews()
+            }
             //set a new list
             setNewList(viewModel.currentDate)
         }
@@ -452,16 +456,6 @@ class BillsListFragment : Fragment() {
                 R.id.action_billsListFragment_to_bookmarksFragment,
             )
         }
-    }
-
-
-    private fun invisibilityFilterCard() {
-        setDefaultSortingViews()
-        //Set small size card view
-        binding.cardViewFilter.layoutParams.height = 1
-        binding.cardViewFilter.requestLayout()
-        binding.cardViewFilter.visibility = View.INVISIBLE
-        visibilityFilterCard = false
     }
 
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
@@ -568,7 +562,12 @@ class BillsListFragment : Fragment() {
 
         billAdapter.onLongClickListenerBillItem = {
             listDeleteItems = it
-            invisibilityFilterCard()
+            //Set off filter card
+            if(visibilityFilterCard) {
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+                visibilityFilterCard = false
+                setDefaultSortingViews()
+            }
         }
         //Highlight item
         billAdapter.isHighlight.observe(viewLifecycleOwner) {
@@ -675,7 +674,12 @@ class BillsListFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        invisibilityFilterCard()
+        //Set off filter card
+        if(visibilityFilterCard) {
+            slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+            visibilityFilterCard = false
+            setDefaultSortingViews()
+        }
     }
 
     override fun onDestroyView() {
