@@ -5,6 +5,8 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -110,11 +112,11 @@ class BillsListFragment : Fragment() {
 
         titleBar()
 
-        filterBar()
-
         addButton()
 
         searchButton()
+
+        filterBar()
 
     }
 
@@ -169,7 +171,6 @@ class BillsListFragment : Fragment() {
     }
 
     private fun filterBar() {
-        visibilityFilterCard = false
         //income list
         binding.checkBoxIncome.setOnClickListener {
             binding.spinnerFilter.setSelection(0)
@@ -395,6 +396,7 @@ class BillsListFragment : Fragment() {
     private fun titleBar() {
         //Sorting
         binding.imBillsFilter.setOnClickListener {
+            filterViewsColor()
             if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter),100, 0)
                 visibilityFilterCard = false
@@ -633,6 +635,23 @@ class BillsListFragment : Fragment() {
         binding.spinnerFilter.setSelection(0)
     }
 
+    private fun filterViewsColor() {
+        val buttonStates = ColorStateList(
+            arrayOf(
+                intArrayOf(-android.R.attr.state_enabled),
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ), intArrayOf(
+                requireActivity().getColor(R.color.default_background), //track unChecked
+                stateColorButton.colorButtons!!,
+                requireActivity().getColor(R.color.default_background)
+            )
+        )
+        binding.checkBoxIncome.buttonTintList = buttonStates
+        binding.checkBoxExpense.buttonTintList = buttonStates
+        binding.checkBoxDecDate.buttonTintList = buttonStates
+    }
+
     @SuppressLint("SetTextI18n")
     private fun resizeText() {
         //Resize text in views if value is huge
@@ -667,9 +686,11 @@ class BillsListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(!scope.isActive)
+        if(!scope.isActive) {
             scope = CoroutineScope(Dispatchers.Main)
-        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+            createListCategory()
+            (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+        }
     }
 
     override fun onPause() {
