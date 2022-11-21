@@ -1,10 +1,8 @@
 package com.billsAplication.presentation.search
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,7 +15,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.TextView.OnEditorActionListener
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.MutableLiveData
@@ -30,8 +28,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
 import com.billsAplication.presentation.chooseCategory.ChooseCategoryDialog
 import com.billsAplication.presentation.chooseCategory.ChooseMonthDialog
-import com.billsAplication.utils.InterfaceMainActivity
-import com.billsAplication.utils.SortingDesc
+import com.billsAplication.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +49,12 @@ class SearchFragment : Fragment() {
     lateinit var billAdapter: BillsAdapter_SearchAnalytics
     @Inject
     lateinit var sortingDesc: SortingDesc
+    @Inject
+    lateinit var slideView: SlideView
+    @Inject
+    lateinit var fadeOutView: FadeOutView
+    @Inject
+    lateinit var fadeInView: FadeInView
 
     private val bundle = Bundle()
     private val UPDATE_TYPE_SEARCH = 103
@@ -91,6 +94,14 @@ class SearchFragment : Fragment() {
     private var chosenItemsMonth = booleanArrayOf()
 
 
+    private val heightSearch by lazy {
+        binding.cardViewSearch.height
+    }
+
+    private val heightRoll by lazy {
+        binding.cardViewRollImage.height
+    }
+
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
     }
@@ -108,7 +119,6 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -123,9 +133,6 @@ class SearchFragment : Fragment() {
                 //Create Category list
                 if (it.category != EMPTY_STRING && it.type != TYPE_NOTE)
                     categoryList += it.category
-                //Create full list
-//                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
-//                    allItemList.add(it)
                 //Create Month list
                 if (it.month != EMPTY_STRING)
                     monthList += it.month
@@ -134,9 +141,6 @@ class SearchFragment : Fragment() {
 
             categoryList = categoryList.distinct().toTypedArray()
             initAutoCompleteEditText()
-
-//            setAmountBar(list)
-//            setListAdapter(allItemList)
         }
 
         mList.observe(viewLifecycleOwner) {
@@ -250,37 +254,37 @@ class SearchFragment : Fragment() {
         if (imageRoll) {
             //Chip of note
             if (binding.edSearchNote.text.isNotEmpty()) {
-                binding.chipNote.visibility = View.VISIBLE
                 binding.chipNote.text = binding.edSearchNote.text
+                fadeOutView(binding.chipNote)
             }
             //chip of category
             if (binding.etSearchCategory.text.isNotEmpty()) {
-                binding.chipCategory.visibility = View.VISIBLE
                 binding.chipCategory.text = binding.etSearchCategory.text
+                fadeOutView(binding.chipCategory)
             }
             //Chip of min
             if (binding.etSearchAmountMin.text!!.isNotEmpty()) {
-                binding.chipMin.visibility = View.VISIBLE
                 binding.chipMin.text =
                     getString(R.string.amount_min) + binding.etSearchAmountMin.text
+                fadeOutView(binding.chipMin)
             }
             //Chip of max
             if (binding.etSearchAmountMax.text!!.isNotEmpty()) {
-                binding.chipMax.visibility = View.VISIBLE
                 binding.chipMax.text =
                     getString(R.string.amount_max) + binding.etSearchAmountMax.text
+                fadeOutView(binding.chipMax)
             }
             //chip of period
             if (binding.etSearchPeriod.text.isNotEmpty()) {
-                binding.chipPeriod.visibility = View.VISIBLE
                 binding.chipPeriod.text = binding.etSearchPeriod.text
+                fadeOutView(binding.chipPeriod)
             }
         } else {
-            binding.chipNote.visibility = View.GONE
-            binding.chipCategory.visibility = View.GONE
-            binding.chipMin.visibility = View.GONE
-            binding.chipMax.visibility = View.GONE
-            binding.chipPeriod.visibility = View.GONE
+            fadeInView(binding.chipNote)
+            fadeInView(binding.chipCategory)
+            fadeInView(binding.chipMin)
+            fadeInView(binding.chipMax)
+            fadeInView(binding.chipPeriod)
         }
     }
 
@@ -511,36 +515,7 @@ class SearchFragment : Fragment() {
             } })
     }
 
-    private fun listObserver(){
-        viewModel.list.observe(viewLifecycleOwner) { list ->
-//            allItemList.clear()
-            list.forEach {
-                //Create list of Notes
-                if (it.note != EMPTY_STRING && it.type != TYPE_NOTE)
-                    listNote.add(it.note)
-                //Create Category list
-                if (it.category != EMPTY_STRING && it.type != TYPE_NOTE)
-                    categoryList += it.category
-                //Create full list
-//                if (it.type != TYPE_CATEGORY && it.type != TYPE_NOTE)
-//                    allItemList.add(it)
-                //Create Month list
-                if (it.month != EMPTY_STRING)
-                    monthList += it.month
-            }
-            performSearch()
-
-            categoryList = categoryList.distinct().toTypedArray()
-            initAutoCompleteEditText()
-
-//            setAmountBar(list)
-//            setListAdapter(allItemList)
-        }
-    }
-
     private fun performSearch() {
-//        viewModel.getAll()
-//        val list: ArrayList<BillsItem> = allItemList.clone() as ArrayList<BillsItem>
         var list: ArrayList<BillsItem> = ArrayList()
         if(checkViewsEmpty() && viewModel.list.value!!.isNotEmpty()) {
         viewModel.list.value?.forEach {
@@ -604,15 +579,16 @@ class SearchFragment : Fragment() {
     }
 
     private fun imageRoll() {
+        val card = requireView().findViewById<CardView>(R.id.cardView_search)
         binding.imRollViews.setOnClickListener {
             if (imageRoll) {
+                slideView(card,0, heightSearch)
                 binding.imRollViews.setImageResource(R.drawable.ic_arrow_up)
                 imageRoll = false
-                binding.cardViewSearch.visibility = View.VISIBLE
             } else {
+                slideView(card, heightSearch, 0)
                 binding.imRollViews.setImageResource(R.drawable.ic_arrow_down)
                 imageRoll = true
-                binding.cardViewSearch.visibility = View.GONE
             }
             chipGroup()
         }
@@ -624,7 +600,6 @@ class SearchFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun initRecView() {
         with(binding.recViewBillSearch) {
             layoutManager = LinearLayoutManager(
@@ -671,7 +646,6 @@ class SearchFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun dialogDeleteItems(){
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog =  builder
@@ -688,17 +662,24 @@ class SearchFragment : Fragment() {
 
     private fun setViewsVisibility(b: Boolean) {
         if (b) {
-            binding.bSearchDelete.visibility = View.GONE
-            binding.cardViewSearch.visibility = View.VISIBLE
-            binding.cardViewSearchBar.visibility = View.VISIBLE
-            binding.cardViewRollImage.visibility = View.VISIBLE
+            fadeInView(binding.bSearchDelete)
             binding.cardViewSearchBudget.visibility = View.VISIBLE
+            if(!imageRoll) {
+                slideView(binding.cardViewSearch, 0, heightSearch)
+                binding.cardViewRollImage.visibility = View.VISIBLE
+            }else{
+                slideView(binding.cardViewRollImage, 0, heightRoll)
+            }
         } else {
-            binding.bSearchDelete.visibility = View.VISIBLE
-            binding.cardViewSearch.visibility = View.GONE
-            binding.cardViewSearchBar.visibility = View.GONE
-            binding.cardViewRollImage.visibility = View.GONE
+            fadeOutView(binding.bSearchDelete)
             binding.cardViewSearchBudget.visibility = View.GONE
+            if(!imageRoll) {
+                slideView(binding.cardViewSearch, heightSearch, 0)
+                binding.cardViewRollImage.visibility = View.GONE
+            }else{
+                slideView(binding.cardViewRollImage, heightRoll, 0)
+            }
+
         }
     }
 
