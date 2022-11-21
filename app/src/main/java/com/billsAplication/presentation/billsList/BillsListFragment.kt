@@ -686,8 +686,8 @@ class BillsListFragment : Fragment() {
         if(!scope.isActive) {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory()
-            (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
         }
+        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
     }
 
     override fun onPause() {
