@@ -1,8 +1,6 @@
 package com.billsAplication.presentation.billsList
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
+import android.animation.*
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -56,6 +54,8 @@ class BillsListFragment : Fragment() {
     lateinit var sortingAsc: SortingAsc
     @Inject
     lateinit var slideView: SlideView
+    @Inject
+    lateinit var crossfade: CrossFade
 
     lateinit var spinnerAdapter: ArrayAdapter<String>
     private var deleteItem = false
@@ -75,6 +75,10 @@ class BillsListFragment : Fragment() {
     private val PREV_MONTH = false
     private val CREATE_TYPE = 100
     private val UPDATE_TYPE = 101
+
+    private val heightNavBottom by lazy {
+        (context as InterfaceMainActivity).navBottom().height
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -573,15 +577,15 @@ class BillsListFragment : Fragment() {
             deleteItem = it
             if (it) {
                 deleteItem = it
-                binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_delete_forever)
+                crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
                 binding.cardViewBar.visibility = View.GONE
                 binding.cardViewBudget.visibility = View.GONE
-                (context as InterfaceMainActivity).navBottom().visibility = View.GONE
+                slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
             } else {
-                binding.buttonAddBill.imageButton.setImageResource(R.drawable.ic_add)
+                crossfade(binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
                 binding.cardViewBar.visibility = View.VISIBLE
                 binding.cardViewBudget.visibility = View.VISIBLE
-                (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+                slideView((context as InterfaceMainActivity).navBottom(), 0, heightNavBottom)
                 //set a new list
                 setNewList(viewModel.currentDate)
             }
