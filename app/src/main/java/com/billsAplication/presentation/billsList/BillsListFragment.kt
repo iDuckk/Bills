@@ -22,6 +22,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,6 +57,10 @@ class BillsListFragment : Fragment() {
     lateinit var slideView: SlideView
     @Inject
     lateinit var crossfade: CrossFade
+    @Inject
+    lateinit var fadeOutView: FadeOutView
+    @Inject
+    lateinit var fadeInView: FadeInView
 
     lateinit var spinnerAdapter: ArrayAdapter<String>
     private var deleteItem = false
@@ -78,6 +83,9 @@ class BillsListFragment : Fragment() {
 
     private val heightNavBottom by lazy {
         (context as InterfaceMainActivity).navBottom().height
+    }
+    private val heightBudget by lazy {
+        binding.cardViewBudget.height
     }
 
     private val component by lazy {
@@ -574,21 +582,45 @@ class BillsListFragment : Fragment() {
         }
         //Highlight item
         billAdapter.isHighlight.observe(viewLifecycleOwner) {
-            deleteItem = it
-            if (it) {
                 deleteItem = it
-                crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
-                binding.cardViewBar.visibility = View.GONE
-                binding.cardViewBudget.visibility = View.GONE
-                slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
-            } else {
-                crossfade(binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
-                binding.cardViewBar.visibility = View.VISIBLE
-                binding.cardViewBudget.visibility = View.VISIBLE
-                slideView((context as InterfaceMainActivity).navBottom(), 0, heightNavBottom)
-                //set a new list
-                setNewList(viewModel.currentDate)
-            }
+                if (it) {
+                    deleteItem = it
+                    //AddButton
+                    crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
+                    //Bar
+                    binding.cardViewBar.visibility = View.GONE
+                    //NavBottom
+                    slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
+
+                    //BudgetBar
+                    if (visibilityFilterCard) {
+                        binding.cardViewBudget.visibility = View.GONE
+                        slideView(binding.cardViewFilter, 100, 0)
+                    }else{
+                        slideView(binding.cardViewBudget, heightBudget, 0)
+                    }
+                } else {
+                    //AddButton
+                    if(binding.cardViewBar.visibility == View.GONE || binding.cardViewBar.visibility == View.INVISIBLE) {
+                        crossfade(
+                            binding.buttonAddBill.imageButton,
+                            binding.buttonAddBill.imageButtonBas
+                        )
+                        //Bar
+                        binding.cardViewBar.visibility = View.VISIBLE
+                        //NavBottom
+                        slideView(
+                            (context as InterfaceMainActivity).navBottom(),
+                            0,
+                            heightNavBottom
+                        )
+                        //BudgetBar
+                        slideView(binding.cardViewBudget, 0, heightBudget)
+
+                        //set a new list
+                        setNewList(viewModel.currentDate)
+                    }
+                }
         }
     }
 
@@ -691,7 +723,9 @@ class BillsListFragment : Fragment() {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory()
         }
-        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+        if((context as InterfaceMainActivity).navBottom().visibility == View.GONE ||
+            (context as InterfaceMainActivity).navBottom().visibility == View.INVISIBLE)
+            (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
     }
 
     override fun onPause() {
