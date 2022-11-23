@@ -168,8 +168,10 @@ class SearchFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+
                     if(!deleteItem){
-                        findNavController().navigate(R.id.action_searchFragment_to_billsListFragment)
+                        isEnabled = false
+                        requireActivity().onBackPressed()
                     }else{
                         deleteItem = false
                         listDeleteItems.clear()

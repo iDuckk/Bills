@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -58,7 +57,6 @@ class BookmarksFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -94,7 +92,6 @@ class BookmarksFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun initRecView() {
         with(binding.recViewBookmarks) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
