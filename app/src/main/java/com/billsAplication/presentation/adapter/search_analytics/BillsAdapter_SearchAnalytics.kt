@@ -32,6 +32,8 @@ class BillsAdapter_SearchAnalytics @Inject constructor() :
 
 
     private var isClicked = false //If selected item for adapter
+    var isListened = true
+        set(value) {field = value}
 
     private var mIsHighlight = MutableLiveData<Boolean>()
     val isHighlight: LiveData<Boolean>
@@ -94,17 +96,18 @@ class BillsAdapter_SearchAnalytics @Inject constructor() :
                 holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
             )
         }
+        if(isListened) {
+            holderBill.itemView.setOnClickListener {
+                if (isClicked)
+                    highlightItem(item, holderBill)
+                else onClickListenerBillItem?.invoke(item)
+            }
 
-        holderBill.itemView.setOnClickListener {
-            if (isClicked)
+            holderBill.itemView.setOnLongClickListener {
+                onLongClickListenerBillItem?.invoke(electedItemsList)
                 highlightItem(item, holderBill)
-            else onClickListenerBillItem?.invoke(item)
-        }
-
-        holderBill.itemView.setOnLongClickListener {
-            onLongClickListenerBillItem?.invoke(electedItemsList)
-            highlightItem(item, holderBill)
-            true
+                true
+            }
         }
 
     }
