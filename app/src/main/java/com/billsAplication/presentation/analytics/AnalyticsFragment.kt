@@ -3,14 +3,12 @@ package com.billsAplication.presentation.analytics
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -76,7 +74,6 @@ class AnalyticsFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -90,7 +87,6 @@ class AnalyticsFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun firstEntrance() {
         //SetColor state
         binding.tvExpense.setBackgroundResource(R.drawable.textview_fullbackground_expense)
@@ -106,17 +102,16 @@ class AnalyticsFragment : Fragment() {
         setListMonth()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun initRecView() {
         with(binding.recViewAnalytics) {
             layoutManager = LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false)
+            billAdapter.isListened = false
             adapter = billAdapter
             binding.recViewAnalytics.itemAnimator = null
         }
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getList(type: Int) {
         viewModel.getMonth(binding.tvMonthAnalytics.text.toString())
         //if list has old values
@@ -147,7 +142,6 @@ class AnalyticsFragment : Fragment() {
     }
 
     @SuppressLint("ResourceAsColor")
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun titleBar() {
         //Set month`s text in bar
         binding.tvMonthAnalytics.text = viewModel.currentDate
@@ -203,7 +197,6 @@ class AnalyticsFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setListMonth() {
         billAdapter.submitList(null)
         binding.pieChart.onTouchListener.setLastHighlighted(null)
@@ -229,7 +222,6 @@ class AnalyticsFragment : Fragment() {
                 binding.pieChart.centerText = getString(R.string.bills_list_income)
         }
     }
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun initPieChart() {
         binding.pieChart.apply {
             setUsePercentValues(true)
@@ -274,7 +266,6 @@ class AnalyticsFragment : Fragment() {
         })
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun setDataToPieChart() {
         val dataEntries = ArrayList<PieEntry>()
         val colors: ArrayList<Int> = ArrayList()
