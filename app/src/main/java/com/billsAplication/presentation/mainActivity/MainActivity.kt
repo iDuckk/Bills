@@ -5,20 +5,23 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.billsAplication.R
 import com.billsAplication.databinding.ActivityMainBinding
+import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
-import com.billsAplication.utils.CurrentCurrency
-import com.billsAplication.utils.InterfaceMainActivity
-import com.billsAplication.utils.Language
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
 
 /*
     TYPE_EXPENSES = 0
@@ -116,6 +119,17 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     override fun navBottom(): BottomNavigationView {
         return binding.bottomNavigation
+    }
+
+    override suspend fun splash() {
+        if(binding.splash.visibility == View.VISIBLE) {
+            withContext(Dispatchers.Main){
+                delay(1000)
+                FadeInView().invoke(binding.splash)
+                binding.cardViewContainer.isEnabled = true
+                binding.cardViewNavBottom.isEnabled = true
+            }
+        }
     }
 
     override fun onResume() {
