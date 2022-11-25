@@ -43,6 +43,7 @@ class BillsListFragment : Fragment() {
     private val binding: FragmentBillsListBinding get() = _binding!!
 
     private val bundle = Bundle()
+
     @Inject
     lateinit var viewModel: BillsListViewModel
     @Inject
@@ -407,7 +408,7 @@ class BillsListFragment : Fragment() {
         binding.imBillsFilter.setOnClickListener {
             filterViewsColor()
             if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter),100, 0)
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
                 setDefaultSortingViews()
                 //Cause without remove List, it scrolls down to the end
@@ -426,7 +427,7 @@ class BillsListFragment : Fragment() {
                 binding.tvMonth.text = viewModel.currentDate
                 viewModel.defaultMonth()
                 //Set off filter card
-                if(visibilityFilterCard) {
+                if (visibilityFilterCard) {
                     slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                     visibilityFilterCard = false
                     setDefaultSortingViews()
@@ -440,7 +441,7 @@ class BillsListFragment : Fragment() {
             viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             //Set off filter card
-            if(visibilityFilterCard) {
+            if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
                 setDefaultSortingViews()
@@ -453,7 +454,7 @@ class BillsListFragment : Fragment() {
             viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
             binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
             //Set off filter card
-            if(visibilityFilterCard) {
+            if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
                 setDefaultSortingViews()
@@ -574,7 +575,7 @@ class BillsListFragment : Fragment() {
         billAdapter.onLongClickListenerBillItem = {
             listDeleteItems = it
             //Set off filter card
-            if(visibilityFilterCard) {
+            if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
                 setDefaultSortingViews()
@@ -582,45 +583,45 @@ class BillsListFragment : Fragment() {
         }
         //Highlight item
         billAdapter.isHighlight.observe(viewLifecycleOwner) {
+            deleteItem = it
+            if (it) {
                 deleteItem = it
-                if (it) {
-                    deleteItem = it
-                    //AddButton
-                    crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
-                    //Bar
-                    binding.cardViewBar.visibility = View.GONE
-                    //NavBottom
-                    slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
+                //AddButton
+                crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
+                //Bar
+                binding.cardViewBar.visibility = View.GONE
+                //NavBottom
+                slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
 
-                    //BudgetBar
-                    if (visibilityFilterCard) {
-                        binding.cardViewBudget.visibility = View.GONE
-                        slideView(binding.cardViewFilter, 100, 0)
-                    }else{
-                        slideView(binding.cardViewBudget, heightBudget, 0)
-                    }
+                //BudgetBar
+                if (visibilityFilterCard) {
+                    binding.cardViewBudget.visibility = View.GONE
+                    slideView(binding.cardViewFilter, 100, 0)
                 } else {
-                    //AddButton
-                    if(binding.cardViewBar.visibility == View.GONE || binding.cardViewBar.visibility == View.INVISIBLE) {
-                        crossfade(
-                            binding.buttonAddBill.imageButton,
-                            binding.buttonAddBill.imageButtonBas
-                        )
-                        //Bar
-                        binding.cardViewBar.visibility = View.VISIBLE
-                        //NavBottom
-                        slideView(
-                            (context as InterfaceMainActivity).navBottom(),
-                            0,
-                            heightNavBottom
-                        )
-                        //BudgetBar
-                        slideView(binding.cardViewBudget, 0, heightBudget)
-
-                        //set a new list
-                        setNewList(viewModel.currentDate)
-                    }
+                    slideView(binding.cardViewBudget, heightBudget, 0)
                 }
+            } else {
+                //AddButton
+                if (binding.cardViewBar.visibility == View.GONE || binding.cardViewBar.visibility == View.INVISIBLE) {
+                    crossfade(
+                        binding.buttonAddBill.imageButton,
+                        binding.buttonAddBill.imageButtonBas
+                    )
+                    //Bar
+                    binding.cardViewBar.visibility = View.VISIBLE
+                    //NavBottom
+                    slideView(
+                        (context as InterfaceMainActivity).navBottom(),
+                        0,
+                        heightNavBottom
+                    )
+                    //BudgetBar
+                    slideView(binding.cardViewBudget, 0, heightBudget)
+
+                    //set a new list
+                    setNewList(viewModel.currentDate)
+                }
+            }
         }
     }
 
@@ -645,20 +646,26 @@ class BillsListFragment : Fragment() {
 
     private fun setNewList(month: String) {
         //set a new list
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             viewModel.getMonth(month)
-            viewModel.list.observe(viewLifecycleOwner) {
-                //If list null
-                if (it.isNullOrEmpty())
-                    billAdapter.setAmount()
-                //Set list to Adapter
-                try {
-                    billAdapter.submitList(sortingDesc(it.toMutableList()))
-                } catch (e: NumberFormatException) {
-                    Log.w("TAG", e.message!!)
+            withContext(Dispatchers.Main) {
+                viewModel.list.observe(viewLifecycleOwner) {
+                    //If list null
+                    if (it.isNullOrEmpty())
+                        billAdapter.setAmount()
+                    //Set list to Adapter
+                    try {
+                        scope.launch {
+                            billAdapter.submitList(sortingDesc(it.toMutableList()))
+                            (context as InterfaceMainActivity).splash()
+                        }
+                    } catch (e: NumberFormatException) {
+                        Log.w("TAG", e.message!!)
+                    }
                 }
             }
         }
+
     }
 
     private fun setDefaultSortingViews() {
@@ -719,11 +726,11 @@ class BillsListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(!scope.isActive) {
+        if (!scope.isActive) {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory()
         }
-        if((context as InterfaceMainActivity).navBottom().visibility == View.GONE ||
+        if ((context as InterfaceMainActivity).navBottom().visibility == View.GONE ||
             (context as InterfaceMainActivity).navBottom().visibility == View.INVISIBLE)
             (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
     }
@@ -731,7 +738,7 @@ class BillsListFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         //Set off filter card
-        if(visibilityFilterCard) {
+        if (visibilityFilterCard) {
             slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
             visibilityFilterCard = false
             setDefaultSortingViews()

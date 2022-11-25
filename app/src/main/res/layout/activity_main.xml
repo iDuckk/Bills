@@ -6,10 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".presentation.mainActivity.MainActivity">
 
+    <ImageView
+        android:id="@+id/splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_splash"
+        android:elevation="20sp"
+        android:focusable="true"
+        android:background="?colorOnPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewContainer"
         android:layout_width="match_parent"
         android:layout_height="0sp"
+        android:enabled="false"
         app:layout_constraintBottom_toTopOf="@+id/cardView_navBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,6 +62,7 @@
         android:id="@+id/cardView_navBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:enabled="false"
         android:backgroundTint="@color/background_cv_filter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
