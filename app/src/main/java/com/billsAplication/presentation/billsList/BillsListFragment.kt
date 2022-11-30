@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -140,12 +141,15 @@ class BillsListFragment : Fragment() {
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginTop = screenHeight - (screenHeight * 21 / 100)
+        val marginBottom = 20
+        val marginTop = screenHeight - (screenHeight * 21 / 100) - marginBottom
         val marginEnd = screenWidth * 4 / 100
         layoutParams.topToTop = requireView().top
         layoutParams.endToEnd = requireView().right
+        layoutParams.bottomToBottom = requireView().bottom
         layoutParams.marginEnd = marginEnd
         layoutParams.topMargin = marginTop
+        layoutParams.bottomMargin = marginBottom
         binding.buttonAddBill.root.layoutParams = layoutParams
 
         binding.buttonAddBill.mainLayout.setOnClickListener {
