@@ -20,6 +20,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -211,6 +212,17 @@ class ShopListFragment : Fragment() {
 
     @SuppressLint("ResourceType")
     private fun addButtons() {
+        val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddNote.root.layoutParams)
+        val screenHeight = resources.displayMetrics.heightPixels
+        val screenWidth = resources.displayMetrics.widthPixels
+        val marginTop = screenHeight - (screenHeight * 21 / 100)
+        val marginEnd = screenWidth * 4 / 100
+        layoutParams.topToTop = requireView().top
+        layoutParams.endToEnd = requireView().right
+        layoutParams.marginEnd = marginEnd
+        layoutParams.topMargin = marginTop
+        binding.buttonAddNote.root.layoutParams = layoutParams
+
         val colorState = ColorStateList
             .valueOf(stateColorButton.colorButtons!!)
         binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton

@@ -12,6 +12,7 @@
     <color name="default_background">#8A8A8A</color>
     <color name="background_cv_filter">#728A8A8A</color>
     <color name="line_scroll">#83AAAAAA</color>
+    <color name="transparent">#00FFFFFF</color>
 <!--  Theme colors  -->
     <color name="springGreen">#02EEA2</color>
     <color name="mediumSpringGreen">#00FF7F</color>

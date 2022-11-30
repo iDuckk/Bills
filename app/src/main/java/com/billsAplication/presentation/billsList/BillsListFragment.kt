@@ -1,28 +1,23 @@
 package com.billsAplication.presentation.billsList
 
-import android.animation.*
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.LinearInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
-import androidx.core.view.children
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,6 +57,8 @@ class BillsListFragment : Fragment() {
     lateinit var fadeOutView: FadeOutView
     @Inject
     lateinit var fadeInView: FadeInView
+    @Inject
+    lateinit var motionViewY: MotionViewY
 
     lateinit var spinnerAdapter: ArrayAdapter<String>
     private var deleteItem = false
@@ -139,6 +136,18 @@ class BillsListFragment : Fragment() {
     }
 
     private fun addButton() {
+        //Set button position. That it does not change its place. When navBot is gone
+        val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
+        val screenHeight = resources.displayMetrics.heightPixels
+        val screenWidth = resources.displayMetrics.widthPixels
+        val marginTop = screenHeight - (screenHeight * 21 / 100)
+        val marginEnd = screenWidth * 4 / 100
+        layoutParams.topToTop = requireView().top
+        layoutParams.endToEnd = requireView().right
+        layoutParams.marginEnd = marginEnd
+        layoutParams.topMargin = marginTop
+        binding.buttonAddBill.root.layoutParams = layoutParams
+
         binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {
                 dialogDeleteItems()
@@ -545,6 +554,7 @@ class BillsListFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ResourceType")
     private fun initRecView() {
         with(binding.recViewBill) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -591,8 +601,8 @@ class BillsListFragment : Fragment() {
                 //Bar
                 binding.cardViewBar.visibility = View.GONE
                 //NavBottom
+                motionViewY((context as InterfaceMainActivity).navBottom(), 0f, heightNavBottom.toFloat())
                 slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
-
                 //BudgetBar
                 if (visibilityFilterCard) {
                     binding.cardViewBudget.visibility = View.GONE
@@ -603,18 +613,13 @@ class BillsListFragment : Fragment() {
             } else {
                 //AddButton
                 if (binding.cardViewBar.visibility == View.GONE || binding.cardViewBar.visibility == View.INVISIBLE) {
-                    crossfade(
-                        binding.buttonAddBill.imageButton,
-                        binding.buttonAddBill.imageButtonBas
-                    )
+                        crossfade(
+                            binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
                     //Bar
                     binding.cardViewBar.visibility = View.VISIBLE
                     //NavBottom
-                    slideView(
-                        (context as InterfaceMainActivity).navBottom(),
-                        0,
-                        heightNavBottom
-                    )
+                    slideView((context as InterfaceMainActivity).navBottom(), 0, heightNavBottom)
+                    motionViewY((context as InterfaceMainActivity).navBottom(), heightNavBottom.toFloat(), 0f)
                     //BudgetBar
                     slideView(binding.cardViewBudget, 0, heightBudget)
 
