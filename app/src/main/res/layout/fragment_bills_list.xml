@@ -121,6 +121,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/cardView_budget">
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraint_main_bar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
@@ -202,9 +203,26 @@
                         app:layout_constraintEnd_toStartOf="@+id/im_bills_search"
                         app:layout_constraintStart_toStartOf="@+id/guideline_centre"
                         app:layout_constraintTop_toTopOf="@+id/im_bills_search" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraint_delete_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/im_close_del"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_close"
+                        android:layout_marginEnd="15dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

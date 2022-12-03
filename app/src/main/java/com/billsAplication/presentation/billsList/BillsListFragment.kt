@@ -417,6 +417,13 @@ class BillsListFragment : Fragment() {
     }
 
     private fun titleBar() {
+        //Close delete mode
+        binding.imCloseDel.setOnClickListener {
+            deleteItem = false
+            listDeleteItems.clear()
+            billAdapter.deleteItemsAfterRemovedItemFromDB()
+            billAdapter.notifyDataSetChanged()
+        }
         //Sorting
         binding.imBillsFilter.setOnClickListener {
             filterViewsColor()
@@ -603,29 +610,25 @@ class BillsListFragment : Fragment() {
                 //AddButton
                 crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
                 //Bar
-                binding.cardViewBar.visibility = View.GONE
+                slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
+                fadeOutView(binding.imCloseDel)
                 //NavBottom
                 motionViewY((context as InterfaceMainActivity).navBottom(), 0f, heightNavBottom.toFloat())
                 slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
                 //BudgetBar
                 if (visibilityFilterCard) {
-                    binding.cardViewBudget.visibility = View.GONE
                     slideView(binding.cardViewFilter, 100, 0)
-                } else {
-                    slideView(binding.cardViewBudget, heightBudget, 0)
                 }
             } else {
                 //AddButton
-                if (binding.cardViewBar.visibility == View.GONE || binding.cardViewBar.visibility == View.INVISIBLE) {
-                        crossfade(
-                            binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
+                if (binding.imCloseDel.visibility == View.VISIBLE) {
+                    crossfade(binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
                     //Bar
-                    binding.cardViewBar.visibility = View.VISIBLE
+                    slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
+                    fadeInView(binding.imCloseDel)
                     //NavBottom
                     slideView((context as InterfaceMainActivity).navBottom(), 0, heightNavBottom)
                     motionViewY((context as InterfaceMainActivity).navBottom(), heightNavBottom.toFloat(), 0f)
-                    //BudgetBar
-                    slideView(binding.cardViewBudget, 0, heightBudget)
 
                     //set a new list
                     setNewList(viewModel.currentDate)
