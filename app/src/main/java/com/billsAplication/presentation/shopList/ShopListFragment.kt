@@ -215,15 +215,19 @@ class ShopListFragment : Fragment() {
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddNote.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginBottom = 20
-        val marginTop = screenHeight - (screenHeight * 21 / 100) - marginBottom
         val marginEnd = screenWidth * 4 / 100
+
+        //If screen is small
+        var marginTop = 0
+        if(screenHeight < 800)
+            marginTop = screenHeight - (screenHeight * 35 / 100)
+        else
+            marginTop = screenHeight - (screenHeight * 20 / 100)
+
         layoutParams.topToTop = requireView().top
         layoutParams.endToEnd = requireView().right
-        layoutParams.bottomToBottom = requireView().bottom
         layoutParams.marginEnd = marginEnd
         layoutParams.topMargin = marginTop
-        layoutParams.bottomMargin = marginBottom
         binding.buttonAddNote.root.layoutParams = layoutParams
 
         val colorState = ColorStateList

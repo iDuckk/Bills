@@ -83,8 +83,9 @@ class BillsListFragment : Fragment() {
     private val heightNavBottom by lazy {
         (context as InterfaceMainActivity).navBottom().height
     }
-    private val heightBudget by lazy {
-        binding.cardViewBudget.height
+
+    private val navBot by lazy {
+        (context as InterfaceMainActivity)
     }
 
     private val component by lazy {
@@ -141,15 +142,19 @@ class BillsListFragment : Fragment() {
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginBottom = 20
-        val marginTop = screenHeight - (screenHeight * 21 / 100) - marginBottom
         val marginEnd = screenWidth * 4 / 100
+
+        //If screen is small
+        var marginTop = 0
+        if(screenHeight < 800)
+            marginTop = screenHeight - (screenHeight * 35 / 100)
+        else
+            marginTop = screenHeight - (screenHeight * 20 / 100)
+
         layoutParams.topToTop = requireView().top
         layoutParams.endToEnd = requireView().right
-        layoutParams.bottomToBottom = requireView().bottom
         layoutParams.marginEnd = marginEnd
         layoutParams.topMargin = marginTop
-        layoutParams.bottomMargin = marginBottom
         binding.buttonAddBill.root.layoutParams = layoutParams
 
         binding.buttonAddBill.mainLayout.setOnClickListener {
@@ -498,18 +503,18 @@ class BillsListFragment : Fragment() {
 
         if (check.toDouble() > 0) {
             //set color of icon nav bottom income
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemIconTintList =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //set color of text nav bottom income
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemTextColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //set background income
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_income)
 //            //set color effect
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemRippleColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //Send color for ShopList
@@ -520,18 +525,18 @@ class BillsListFragment : Fragment() {
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
         } else if (check.toDouble() < 0) {
             //set color of icon nav bottom expenses
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemIconTintList =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set color of text nav bottom expenses
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemTextColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set background expenses
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_expenses)
 //            //set color effect
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemRippleColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
@@ -542,18 +547,18 @@ class BillsListFragment : Fragment() {
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
         } else {
             //set color of icon nav bottom
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemIconTintList =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set color of text nav bottom
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemTextColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //set background
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button)
             //set color effect
-            (context as InterfaceMainActivity).navBottom()
+            navBot.navBottom()
                 .itemRippleColor =
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
@@ -613,8 +618,8 @@ class BillsListFragment : Fragment() {
                 slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
                 fadeOutView(binding.imCloseDel)
                 //NavBottom
-                motionViewY((context as InterfaceMainActivity).navBottom(), 0f, heightNavBottom.toFloat())
-                slideView((context as InterfaceMainActivity).navBottom(), heightNavBottom, 0)
+                motionViewY(navBot.navBottom(), 0f, heightNavBottom.toFloat())
+                slideView(navBot.navBottom(), heightNavBottom, 0)
                 //BudgetBar
                 if (visibilityFilterCard) {
                     slideView(binding.cardViewFilter, 100, 0)
@@ -627,8 +632,9 @@ class BillsListFragment : Fragment() {
                     slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
                     fadeInView(binding.imCloseDel)
                     //NavBottom
-                    slideView((context as InterfaceMainActivity).navBottom(), 0, heightNavBottom)
-                    motionViewY((context as InterfaceMainActivity).navBottom(), heightNavBottom.toFloat(), 0f)
+                    Log.d("TAG", heightNavBottom.toString())
+                    slideView(navBot.navBottom(), 0, heightNavBottom)
+                    motionViewY(navBot.navBottom(), heightNavBottom.toFloat(), 0f)
 
                     //set a new list
                     setNewList(viewModel.currentDate)
@@ -669,7 +675,7 @@ class BillsListFragment : Fragment() {
                     try {
                         scope.launch {
                             billAdapter.submitList(sortingDesc(it.toMutableList()))
-                            (context as InterfaceMainActivity).splash()
+                            navBot.splash()
                         }
                     } catch (e: NumberFormatException) {
                         Log.w("TAG", e.message!!)
@@ -742,9 +748,9 @@ class BillsListFragment : Fragment() {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory()
         }
-        if ((context as InterfaceMainActivity).navBottom().visibility == View.GONE ||
-            (context as InterfaceMainActivity).navBottom().visibility == View.INVISIBLE)
-            (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+        if (navBot.navBottom().visibility == View.GONE ||
+            navBot.navBottom().visibility == View.INVISIBLE)
+            navBot.navBottom().visibility = View.VISIBLE
     }
 
     override fun onPause() {
