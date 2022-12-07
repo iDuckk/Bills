@@ -30,9 +30,7 @@
         android:layout_alignParentBottom="true"
         android:contentDescription="@string/choose_type_of_add_note"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="24sp"
-        android:layout_marginBottom="12sp" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_addNote_micro"

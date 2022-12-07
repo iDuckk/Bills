@@ -1,22 +1,22 @@
 package com.billsAplication.presentation.shopList
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -68,8 +68,11 @@ class ShopListFragment : Fragment() {
     private val COLOR_NOTE_PRIMARY = ""
     private var buttonMotion = true
     lateinit var dialogRecording: AlertDialog
-
     private var speechRecognizer: SpeechRecognizer? = null
+
+    private val navBot by lazy {
+        (context as InterfaceMainActivity).navBottom()
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -198,7 +201,6 @@ class ShopListFragment : Fragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = noteAdapter
             itemAnimator = null
-
         }
 
         noteAdapter.onClickListenerShopListItem = {
@@ -212,24 +214,64 @@ class ShopListFragment : Fragment() {
 
     @SuppressLint("ResourceType")
     private fun addButtons() {
+        setColorStateAddButtons()
+        //Size AddButton
+        val bSize = requireContext()
+            .resources.getDimensionPixelSize(com.google.android
+                .material.R.dimen.design_fab_size_normal)
+        //Size Nav Bottom
+        val nbSize = requireContext()
+            .resources.getDimensionPixelSize(com.google.android
+                .material.R.dimen.design_bottom_navigation_height)
+        //Set parameters
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddNote.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
         val marginEnd = screenWidth * 4 / 100
-
-        //If screen is small
-        var marginTop = 0
-        if(screenHeight < 800)
-            marginTop = screenHeight - (screenHeight * 35 / 100)
-        else
-            marginTop = screenHeight - (screenHeight * 20 / 100)
-
+        val marginTop = (screenHeight - nbSize - bSize - marginEnd)
+        //Set layout Parameters
         layoutParams.topToTop = requireView().top
         layoutParams.endToEnd = requireView().right
         layoutParams.marginEnd = marginEnd
         layoutParams.topMargin = marginTop
         binding.buttonAddNote.root.layoutParams = layoutParams
 
+        binding.buttonAddNote.mainLayout.setOnClickListener {
+            //Get pixels for button's motion
+            val marginX = -(marginEnd + bSize)
+            val marginY = -(marginEnd + bSize  - (bSize * 5 / 100))
+
+            if (buttonMotion) {
+                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 0f, 45f)
+                motionViewY(
+                    requireView().findViewById<ImageView>(R.id.button_addNote_micro),
+                    0f,
+                    marginY.toFloat()
+                )
+                motionViewX(
+                    requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
+                    0f,
+                    marginX.toFloat()
+                )
+                buttonMotion = false
+            } else {
+                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
+                motionViewY(
+                    requireView().findViewById<ImageView>(R.id.button_addNote_micro),
+                    marginY.toFloat(),
+                    0f
+                )
+                motionViewX(
+                    requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
+                    marginX.toFloat(),
+                    0f
+                )
+                buttonMotion = true
+            }
+        }
+    }
+
+    private fun setColorStateAddButtons() {
         val colorState = ColorStateList
             .valueOf(stateColorButton.colorButtons!!)
         binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton
@@ -237,20 +279,6 @@ class ShopListFragment : Fragment() {
         binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
         binding.buttonAddNoteMicro.backgroundTintList = colorState
         binding.buttonAddNoteKeyboard.backgroundTintList = colorState
-
-        binding.buttonAddNote.mainLayout.setOnClickListener {
-            if (buttonMotion) {
-                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 0f, 45f)
-                motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), 0f,  -170f)
-                motionViewX(requireView().findViewById<ImageView>(R.id.button_addNote_keyboard), 0f, -200f)
-                buttonMotion = false
-            } else {
-                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
-                motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), -170f, 0f)
-                motionViewX(requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),-200f, 0f)
-                buttonMotion = true
-            }
-        }
     }
 
     private fun setEnabledViewsFOrRec(enabled: Boolean) {
@@ -297,16 +325,6 @@ class ShopListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(!buttonMotion) {
-            rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
-            motionViewY(requireView().findViewById<ImageView>(R.id.button_addNote_micro), -170f, 0f)
-            motionViewX(
-                requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
-                -200f,
-                0f
-            )
-            buttonMotion = true
-        }
     }
 
     override fun onDestroyView() {

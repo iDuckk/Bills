@@ -138,18 +138,20 @@ class BillsListFragment : Fragment() {
     }
 
     private fun addButton() {
+        //Size AddButton
+        val bSize = requireContext()
+            .resources.getDimensionPixelSize(com.google.android
+                .material.R.dimen.design_fab_size_normal)
+        //Size Nav Bottom
+        val nbSize = requireContext()
+            .resources.getDimensionPixelSize(com.google.android
+                .material.R.dimen.design_bottom_navigation_height)
         //Set button position. That it does not change its place. When navBot is gone
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
         val marginEnd = screenWidth * 4 / 100
-
-        //If screen is small
-        var marginTop = 0
-        if(screenHeight < 800)
-            marginTop = screenHeight - (screenHeight * 35 / 100)
-        else
-            marginTop = screenHeight - (screenHeight * 20 / 100)
+        val marginTop = (screenHeight - nbSize - bSize - marginEnd)
 
         layoutParams.topToTop = requireView().top
         layoutParams.endToEnd = requireView().right
