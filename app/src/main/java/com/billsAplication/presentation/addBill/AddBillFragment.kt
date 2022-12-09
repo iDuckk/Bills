@@ -938,7 +938,7 @@ class AddBillFragment : Fragment() {
         binding.bAddSave.backgroundTintList = colorState
         binding.imAddBillBookmark.visibility = View.VISIBLE
         isFocusEditText()
-        if(TYPE_ENTRENCE == TYPE_EXPENSE || TYPE_ENTRENCE == TYPE_INCOME) {
+        if(TYPE_ENTRENCE == TYPE_ADD) {
             scope.launch {
                 motionViewX(binding.tvAddExpenses, 0f, binding.tvAddExpenses.width.toFloat())
                 motionViewX(binding.tvAddIncome, 0f, -binding.tvAddExpenses.width.toFloat())
