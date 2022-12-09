@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.GridLayoutManager
 import com.billsAplication.BillsApplication
+import com.billsAplication.R
 import com.billsAplication.databinding.FragmentDialogCategoryBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.dialogCategory.DialogCategoryAdapter
@@ -33,6 +34,7 @@ class FragmentDialogCategory : DialogFragment() {
     private val BUNDLEKEY_CATEGORY_ITEM = "BundleKey_Category_item"
 
     private val KEY_CATEGORY_ITEM_SEND = "RequestKey_Category_item_SEND"
+    private val TYPE_CATEGORY_INCOME = 4
 
     private var typeCategory = 2 // 2 - this is default value
 
@@ -59,6 +61,9 @@ class FragmentDialogCategory : DialogFragment() {
 
         //get type of categories
         typeCategory = requireArguments().getInt(KEY_CATEGORY_ITEM_SEND)
+
+        if(typeCategory == TYPE_CATEGORY_INCOME)
+            binding.constraintDialogBar.setBackgroundColor(requireContext().getColor(R.color.text_income))
 
         viewModel.getCategoryType(typeCategory)
 

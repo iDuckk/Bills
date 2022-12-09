@@ -93,7 +93,7 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setDefaultValues()
+        setDefaultValues() //TODO после смены темы, открывается сплэш и не закрывавется
 
         setButtonText()
 
