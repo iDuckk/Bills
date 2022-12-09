@@ -14,8 +14,7 @@
         android:layout_marginBottom="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/cardView_Add_third_part">
+        app:layout_constraintTop_toTopOf="parent">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -45,6 +44,7 @@
                 android:id="@+id/im_addBill_bookmark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:layout_marginEnd="10sp"
                 android:src="@drawable/ic_bookmark_disable"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -55,10 +55,65 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_type_bill"
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        app:cardElevation="3sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView_Add_Bar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_type_bill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".5"/>
+
+            <TextView
+                android:id="@+id/tv_add_expenses"
+                android:layout_width="392dp"
+                android:layout_height="50sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="5sp"
+                android:gravity="center"
+                android:background="@drawable/textview_fullbackground_expense"
+                android:text="@string/bill_list_expense"
+                android:textColor="?colorOnPrimary"
+                app:layout_constraintBottom_toTopOf="@+id/guideline_type_bill"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_add_income"
+                android:layout_width="392dp"
+                android:layout_height="50sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="5sp"
+                android:gravity="center"
+                android:text="@string/bills_list_income"
+                android:background="@drawable/textview_fullbackground_income"
+                android:textColor="?colorOnPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline_type_bill" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardView_Add_third_part"
         android:layout_width="match_parent"
         android:layout_height="0sp"
-        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        android:layout_marginTop="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,35 +138,6 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-
-                    <TextView
-                        android:id="@+id/tv_add_expenses"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="5sp"
-                        android:background="@drawable/textview_border_expense"
-                        android:gravity="center"
-                        android:text="@string/bill_list_expense"
-                        android:textColor="@color/text_expense"
-                        app:layout_constraintBottom_toTopOf="@+id/ed_Date_add"
-                        app:layout_constraintEnd_toStartOf="@id/tv_add_income"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tv_add_income"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5sp"
-                        android:layout_marginEnd="10dp"
-                        android:gravity="center"
-                        android:text="@string/bills_list_income"
-                        android:textColor="@color/text_income"
-                        app:layout_constraintBottom_toBottomOf="@+id/tv_add_expenses"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_add_expenses"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/tv_add_date"
@@ -153,10 +179,10 @@
                         android:maxLines="1"
                         android:minHeight="48dp"
                         android:textSize="16sp"
-                        app:layout_constraintBottom_toTopOf="@+id/ed_add_amount"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_category"
                         app:layout_constraintEnd_toStartOf="@+id/edTime_add"
                         app:layout_constraintStart_toEndOf="@+id/tv_add_date"
-                        app:layout_constraintTop_toBottomOf="@+id/tv_add_expenses"
+                        app:layout_constraintTop_toTopOf="parent"
                         tools:hint="@string/title_date" />
 
                     <TextView
@@ -178,11 +204,10 @@
                         android:maxLines="1"
                         android:minHeight="48dp"
                         android:textSize="16sp"
-                        app:layout_constraintBottom_toTopOf="@+id/ed_add_note"
-                        app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_add_amount"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_amount"
+                        app:layout_constraintEnd_toEndOf="@+id/edTime_add"
+                        app:layout_constraintStart_toStartOf="@+id/ed_Date_add"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_Date_add"
                         tools:hint="@string/title_category" />
 
                     <TextView
@@ -206,10 +231,10 @@
                         android:maxLines="1"
                         android:minHeight="48dp"
                         android:textSize="16sp"
-                        app:layout_constraintBottom_toTopOf="@+id/ed_add_category"
-                        app:layout_constraintEnd_toEndOf="@+id/edTime_add"
-                        app:layout_constraintStart_toStartOf="@+id/ed_Date_add"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_Date_add"
+                        app:layout_constraintBottom_toTopOf="@+id/ed_add_note"
+                        app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
+                        app:layout_constraintStart_toStartOf="@+id/ed_add_category"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category"
                         app:localeTag="en-NG"
                         tools:hint="@string/title_amount" />
 
@@ -220,7 +245,7 @@
                         android:text="@string/title_note"
                         app:layout_constraintBottom_toBottomOf="@+id/ed_add_note"
                         app:layout_constraintStart_toStartOf="@+id/tv_add_category"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category" />
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_amount" />
 
                     <AutoCompleteTextView
                         android:id="@+id/ed_add_note"
@@ -236,9 +261,9 @@
                         android:textCursorDrawable="@drawable/color_cursor"
                         android:textSize="16sp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@+id/ed_add_category"
-                        app:layout_constraintStart_toStartOf="@+id/ed_add_category"
-                        app:layout_constraintTop_toBottomOf="@+id/ed_add_category"
+                        app:layout_constraintEnd_toEndOf="@+id/ed_add_amount"
+                        app:layout_constraintStart_toStartOf="@+id/ed_add_amount"
+                        app:layout_constraintTop_toBottomOf="@+id/ed_add_amount"
                         tools:hint="@string/title_note" />
 
                     <TextView

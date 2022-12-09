@@ -48,4 +48,36 @@
 <!--        <item name="itemTextColor">@drawable/selector_item_bot_nav</item>-->
 =    </style>
 
+    <style name="DialogTheme_income" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorAccent">@color/text_income</item>                   <!--header background-->
+        <item name="colorAccent">@color/text_income</item>                   <!--header background-->
+        <item name="android:windowBackground">?colorOnPrimary</item>     <!--calendar background-->
+        <item name="android:colorControlActivated">@color/text_income</item> <!--selected day-->
+        <item name="android:textColorPrimary">@color/default_background</item> <!--days of the month-->
+        <item name="android:textColorSecondary">@color/text_income</item>
+        <item name="android:textColor">@color/default_background</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Button_income</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Button_income</item>
+    </style>
+
+    <style name="Button_income" parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/text_income</item>
+    </style>
+
+    <style name="DialogTheme_expense" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorAccent">@color/text_expense</item>                   <!--header background-->
+        <item name="colorAccent">@color/text_expense</item>                   <!--header background-->
+        <item name="android:windowBackground">?colorOnPrimary</item>     <!--calendar background-->
+        <item name="android:colorControlActivated">@color/text_expense</item> <!--selected day-->
+        <item name="android:textColorPrimary">@color/default_background</item> <!--days of the month-->
+        <item name="android:textColorSecondary">@color/text_expense</item>
+        <item name="android:textColor">@color/default_background</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Button_expense</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Button_expense</item>
+    </style>
+
+    <style name="Button_expense" parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/text_expense</item>
+    </style>
+
 </resources>

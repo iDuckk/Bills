@@ -8,6 +8,7 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -28,11 +29,15 @@ import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.allViews
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
@@ -50,9 +55,8 @@ import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCat
 import com.billsAplication.utils.*
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
@@ -92,7 +96,7 @@ class AddBillFragment : Fragment() {
     private val MAX_PHOTO = 5
     private val EMPTY_STRING = ""
     private val widthPhoto = 600f
-    private val  heightPhoto = 800f
+    private val heightPhoto = 800f
     private val providerPackageApp = "com.billsAplication.fileprovider"
 
     private val imageList: MutableList<ImageItem> = ArrayList()
@@ -110,6 +114,8 @@ class AddBillFragment : Fragment() {
     private val UPDATE_TYPE_SEARCH = 103
     private var TYPE_ENTRENCE = 0
     private var TIME_FORMAT_24 = ""
+    private var scope = CoroutineScope(Dispatchers.Main)
+
 
     lateinit var colorState : ColorStateList
     @Inject
@@ -124,6 +130,12 @@ class AddBillFragment : Fragment() {
     lateinit var viewModel: AddBillViewModel
     @Inject
     lateinit var imageAdapter: ImageAdapter
+    @Inject
+    lateinit var fadeOutView: FadeOutView
+    @Inject
+    lateinit var fadeInView: FadeInView
+    @Inject
+    lateinit var motionViewX: MotionViewX
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -323,7 +335,7 @@ class AddBillFragment : Fragment() {
                 dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM){ requestKey, bundle ->
                     // We use a String here, but any type that can be put in a Bundle is supported
                     binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
-                    binding.edAddNote.requestFocus()
+                    binding.edAddAmount.requestFocus()
                 }
                 checkFocus = false
             }
@@ -347,12 +359,10 @@ class AddBillFragment : Fragment() {
     private fun textViewListeners(){
         binding.tvAddExpenses.setOnClickListener {
             setTypeExpense()
-            binding.edAddCategory.text.clear()
         }
 
         binding.tvAddIncome.setOnClickListener {
             setTypeIncome()
-            binding.edAddCategory.text.clear()
         }
     }
     //set views when create type
@@ -363,8 +373,6 @@ class AddBillFragment : Fragment() {
         binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(Calendar.getInstance().time))
         //Save time format 24 for DB
         TIME_FORMAT_24 = SimpleDateFormat("HH:mm").format(Calendar.getInstance().time)
-        //Set Expense TextView as default
-        setTypeExpense()
         //Add new Item
         clickListenerButtonAddSave()
     }
@@ -636,12 +644,13 @@ class AddBillFragment : Fragment() {
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
-        val dpd = DatePickerDialog(requireActivity(), { view, year, monthOfYear, dayOfMonth ->
+        val dpd = DatePickerDialog(requireActivity(),
+            if(TYPE_BILL == TYPE_INCOME)R.style.DialogTheme_income else R.style.DialogTheme_expense,
+            { view, year, monthOfYear, dayOfMonth ->
             c.set(year, monthOfYear, dayOfMonth)
             binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(c.time))
             binding.edAddAmount.requestFocus()
         }, year, month, day)
-
         dpd.show()
     }
 
@@ -651,6 +660,7 @@ class AddBillFragment : Fragment() {
         val cMinute = c.get(Calendar.MINUTE)
 
         val mTimePicker = TimePickerDialog(requireContext(),
+            if(TYPE_BILL == TYPE_INCOME)R.style.DialogTheme_income else R.style.DialogTheme_expense,
             { view, hour, minute ->
                 c.set(Calendar.HOUR_OF_DAY, hour)
                 c.set(Calendar.MINUTE, minute)
@@ -911,33 +921,45 @@ class AddBillFragment : Fragment() {
 
     //Set expense type after join to fragment
     private fun setTypeExpense(){
-        binding.tvAddExpenses.setBackgroundResource(R.drawable.textview_border_expense)
-        binding.tvAddIncome.setBackgroundResource(0)
         TYPE_BILL = TYPE_EXPENSE
         colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_expense))
-        binding.bAddSave.backgroundTintList = colorState
-        binding.tvAddExpenses.isEnabled = false
-        binding.tvAddIncome.isEnabled = true
-        //if type is Edit
-        binding.bAddSave.isEnabled = true
-        isFocusEditText()
-
-
+        binding.tvAddBillSearch.setText(requireContext().getString(R.string.bill_list_expense))
+        chooseTpe()
     }
     //set income type after join to fragment
     private fun setTypeIncome(){
-        binding.tvAddIncome.setBackgroundResource(R.drawable.textview_border_income)
-        binding.tvAddExpenses.setBackgroundResource(0)
         TYPE_BILL = TYPE_INCOME
         colorState = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.text_income))
-        binding.bAddSave.backgroundTintList = colorState
-        binding.tvAddExpenses.isEnabled = true
-        binding.tvAddIncome.isEnabled = false
-        //if type is Edit
-        binding.bAddSave.isEnabled = true
-        isFocusEditText()
+        binding.tvAddBillSearch.setText(requireContext().getString(R.string.bills_list_income))
+        chooseTpe()
     }
 
+    private fun chooseTpe(){
+        binding.bAddSave.backgroundTintList = colorState
+        binding.imAddBillBookmark.visibility = View.VISIBLE
+        isFocusEditText()
+        if(TYPE_ENTRENCE == TYPE_EXPENSE || TYPE_ENTRENCE == TYPE_INCOME) {
+            scope.launch {
+                motionViewX(binding.tvAddExpenses, 0f, binding.tvAddExpenses.width.toFloat())
+                motionViewX(binding.tvAddIncome, 0f, -binding.tvAddExpenses.width.toFloat())
+                delay(300)
+                binding.cardViewTypeBill.visibility = View.GONE
+                binding.cardViewAddThirdPart.visibility = View.VISIBLE
+            }
+        }else{
+            binding.cardViewTypeBill.visibility = View.GONE
+            binding.cardViewAddThirdPart.visibility = View.VISIBLE
+        }
+    }
+
+    @ColorInt
+    fun Context.getColorFromAttr(@AttrRes attrColor: Int
+    ): Int {
+        val typedArray = theme.obtainStyledAttributes(intArrayOf(attrColor))
+        val textColor = typedArray.getColor(0, 0)
+        typedArray.recycle()
+        return textColor
+    }
 
     // extension function to convert bitmap to byte array
     fun Bitmap.toByteArray():ByteArray{
@@ -945,6 +967,12 @@ class AddBillFragment : Fragment() {
             compress(Bitmap.CompressFormat.JPEG,100,this)
             return toByteArray()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
+        _binding = null
     }
 
 }
