@@ -24,20 +24,16 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import androidx.core.view.allViews
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
@@ -63,7 +59,6 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
-import kotlin.math.log
 
 
 @SuppressLint("UseCompatLoadingForDrawables", "SimpleDateFormat")
@@ -131,11 +126,15 @@ class AddBillFragment : Fragment() {
     @Inject
     lateinit var imageAdapter: ImageAdapter
     @Inject
-    lateinit var fadeOutView: FadeOutView
-    @Inject
     lateinit var fadeInView: FadeInView
     @Inject
+    lateinit var fadeOutView: FadeOutView
+    @Inject
     lateinit var motionViewX: MotionViewX
+
+    private val navBot by lazy {
+        (context as InterfaceMainActivity).navBottom()
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -159,7 +158,7 @@ class AddBillFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //Set Bottom bar - invisible
-        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
+        fadeOutView(navBot)
         //Set recView invisible
         binding.recViewPhoto.visibility = View.GONE
 

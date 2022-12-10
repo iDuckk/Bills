@@ -13,7 +13,10 @@
         <action
             android:id="@+id/action_billsListFragment_to_addBillFragment"
             app:destination="@id/addBillFragment"
-            app:exitAnim="@animator/nav_default_exit_anim" />
+            app:enterAnim="@anim/fall_down"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/to_up" />
         <argument
             android:name="add_bill"
             app:argType="integer" />
@@ -24,10 +27,18 @@
             android:defaultValue="@null" />
         <action
             android:id="@+id/action_billsListFragment_to_bookmarksFragment"
-            app:destination="@id/bookmarksFragment" />
+            app:destination="@id/bookmarksFragment"
+            app:enterAnim="@anim/fall_down"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/to_up"/>
         <action
             android:id="@+id/action_billsListFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
+            app:destination="@id/searchFragment"
+            app:enterAnim="@anim/fall_down"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/to_up"/>
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"

@@ -12,11 +12,11 @@ class FadeOutView @Inject constructor() {
     operator fun invoke(view: View) {
 
         view.animate()
-            .alpha(1f)
+            .alpha(0f)
             .setDuration(150)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    view.visibility = View.VISIBLE
+                    view.visibility = View.GONE
                 }
             })
     }

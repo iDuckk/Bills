@@ -1,12 +1,10 @@
 package com.billsAplication.presentation.bookmarks
 
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -14,6 +12,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBookmarksBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bookmarks.BookmarksAdapter
+import com.billsAplication.utils.FadeOutView
 import com.billsAplication.utils.InterfaceMainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +35,14 @@ class BookmarksFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BookmarksViewModel
-
     @Inject
     lateinit var bookmarkAdapter: BookmarksAdapter
+    @Inject
+    lateinit var fadeOutView: FadeOutView
+
+    private val navBot by lazy {
+        (context as InterfaceMainActivity).navBottom()
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -60,7 +64,8 @@ class BookmarksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
+        //Set Bottom bar - invisible
+        fadeOutView(navBot)
         binding.imBookmarksDelete.visibility = View.GONE
 
         binding.imBookmarksBack.setOnClickListener {
