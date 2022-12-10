@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -55,9 +54,9 @@ class BillsListFragment : Fragment() {
     @Inject
     lateinit var crossfade: CrossFade
     @Inject
-    lateinit var fadeOutView: FadeOutView
-    @Inject
     lateinit var fadeInView: FadeInView
+    @Inject
+    lateinit var fadeOutView: FadeOutView
     @Inject
     lateinit var motionViewY: MotionViewY
 
@@ -618,7 +617,7 @@ class BillsListFragment : Fragment() {
                 crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
                 //Bar
                 slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
-                fadeOutView(binding.imCloseDel)
+                fadeInView(binding.imCloseDel)
                 //NavBottom
                 motionViewY(navBot.navBottom(), 0f, heightNavBottom.toFloat())
                 slideView(navBot.navBottom(), heightNavBottom, 0)
@@ -632,7 +631,7 @@ class BillsListFragment : Fragment() {
                     crossfade(binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
                     //Bar
                     slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
-                    fadeInView(binding.imCloseDel)
+                    fadeOutView(binding.imCloseDel)
                     //NavBottom
                     Log.d("TAG", heightNavBottom.toString())
                     slideView(navBot.navBottom(), 0, heightNavBottom)
@@ -752,7 +751,7 @@ class BillsListFragment : Fragment() {
         }
         if (navBot.navBottom().visibility == View.GONE ||
             navBot.navBottom().visibility == View.INVISIBLE)
-            navBot.navBottom().visibility = View.VISIBLE
+            fadeInView(navBot.navBottom())
     }
 
     override fun onPause() {

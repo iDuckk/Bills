@@ -52,9 +52,9 @@ class SearchFragment : Fragment() {
     @Inject
     lateinit var slideView: SlideView
     @Inject
-    lateinit var fadeOutView: FadeOutView
-    @Inject
     lateinit var fadeInView: FadeInView
+    @Inject
+    lateinit var fadeOutView: FadeOutView
 
     private val bundle = Bundle()
     private val UPDATE_TYPE_SEARCH = 103
@@ -86,13 +86,15 @@ class SearchFragment : Fragment() {
     private var titleTotal = MutableLiveData<BigDecimal>()
     private var imageRoll = false
     private var deleteItem = false
-//    private var allItemList = ArrayList<BillsItem>()
     private var listDeleteItems = ArrayList<BillsItem>()
     private var categoryList = arrayOf<String>()
     private var monthList = arrayOf<String>()
     private var chosenItemsCategory = booleanArrayOf()
     private var chosenItemsMonth = booleanArrayOf()
 
+    private val navBot by lazy {
+        (context as InterfaceMainActivity).navBottom()
+    }
 
     private val heightSearch by lazy {
         binding.cardViewSearch.height
@@ -122,7 +124,8 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
+        //Set Bottom bar - invisible
+        fadeOutView(navBot)
 
         viewModel.list.observe(viewLifecycleOwner) { list ->
 //            allItemList.clear()
@@ -257,36 +260,36 @@ class SearchFragment : Fragment() {
             //Chip of note
             if (binding.edSearchNote.text.isNotEmpty()) {
                 binding.chipNote.text = binding.edSearchNote.text
-                fadeOutView(binding.chipNote)
+                fadeInView(binding.chipNote)
             }
             //chip of category
             if (binding.etSearchCategory.text.isNotEmpty()) {
                 binding.chipCategory.text = binding.etSearchCategory.text
-                fadeOutView(binding.chipCategory)
+                fadeInView(binding.chipCategory)
             }
             //Chip of min
             if (binding.etSearchAmountMin.text!!.isNotEmpty()) {
                 binding.chipMin.text =
                     getString(R.string.amount_min) + binding.etSearchAmountMin.text
-                fadeOutView(binding.chipMin)
+                fadeInView(binding.chipMin)
             }
             //Chip of max
             if (binding.etSearchAmountMax.text!!.isNotEmpty()) {
                 binding.chipMax.text =
                     getString(R.string.amount_max) + binding.etSearchAmountMax.text
-                fadeOutView(binding.chipMax)
+                fadeInView(binding.chipMax)
             }
             //chip of period
             if (binding.etSearchPeriod.text.isNotEmpty()) {
                 binding.chipPeriod.text = binding.etSearchPeriod.text
-                fadeOutView(binding.chipPeriod)
+                fadeInView(binding.chipPeriod)
             }
         } else {
-            fadeInView(binding.chipNote)
-            fadeInView(binding.chipCategory)
-            fadeInView(binding.chipMin)
-            fadeInView(binding.chipMax)
-            fadeInView(binding.chipPeriod)
+            fadeOutView(binding.chipNote)
+            fadeOutView(binding.chipCategory)
+            fadeOutView(binding.chipMin)
+            fadeOutView(binding.chipMax)
+            fadeOutView(binding.chipPeriod)
         }
     }
 
@@ -664,7 +667,7 @@ class SearchFragment : Fragment() {
 
     private fun setViewsVisibility(b: Boolean) {
         if (b) {
-            fadeInView(binding.bSearchDelete)
+            fadeOutView(binding.bSearchDelete)
             binding.cardViewSearchBudget.visibility = View.VISIBLE
             if(!imageRoll) {
                 slideView(binding.cardViewSearch, 0, heightSearch)
@@ -673,7 +676,7 @@ class SearchFragment : Fragment() {
                 slideView(binding.cardViewRollImage, 0, heightRoll)
             }
         } else {
-            fadeOutView(binding.bSearchDelete)
+            fadeInView(binding.bSearchDelete)
             binding.cardViewSearchBudget.visibility = View.GONE
             if(!imageRoll) {
                 slideView(binding.cardViewSearch, heightSearch, 0)

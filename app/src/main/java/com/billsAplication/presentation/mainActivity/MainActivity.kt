@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
@@ -22,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.*
-import javax.inject.Inject
 
 /*
     TYPE_EXPENSES = 0
@@ -126,7 +124,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         if(binding.splash.visibility == View.VISIBLE) {
             withContext(Dispatchers.Main){
                 delay(1000)
-                FadeInView().invoke(binding.splash)
+                FadeOutView().invoke(binding.splash)
                 binding.cardViewContainer.isEnabled = true
                 binding.cardViewNavBottom.isEnabled = true
             }
