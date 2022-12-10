@@ -39,6 +39,10 @@ import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,24 +58,23 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: SettingsViewModel
-
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
-
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
-
     @Inject
     lateinit var getQueryName: GetQueryName
-
     @Inject
     lateinit var mToast: mToast
-
     @Inject
     lateinit var createExcelFile: CreateExcelFile
+    private var scope = CoroutineScope(Dispatchers.Main)
+
+    private val mainActivity by lazy {
+        (context as InterfaceMainActivity)
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -602,6 +605,9 @@ class SettingsFragment : Fragment() {
             }
         }
         colorNavBot()
+        scope.launch {
+            mainActivity.splash()
+        }
     }
 
     private fun switchTurnOn() {
@@ -643,6 +649,7 @@ class SettingsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        scope.cancel()
         _binding = null
     }
 }
