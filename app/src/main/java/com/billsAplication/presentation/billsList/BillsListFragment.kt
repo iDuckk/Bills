@@ -41,22 +41,31 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
+
     @Inject
     lateinit var billAdapter: BillsAdapter
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var sortingDesc: SortingDesc
+
     @Inject
     lateinit var sortingAsc: SortingAsc
+
     @Inject
     lateinit var slideView: SlideView
+
     @Inject
     lateinit var crossfade: CrossFade
+
     @Inject
     lateinit var fadeInView: FadeInView
+
     @Inject
     lateinit var fadeOutView: FadeOutView
+
     @Inject
     lateinit var motionViewY: MotionViewY
 
@@ -139,12 +148,16 @@ class BillsListFragment : Fragment() {
     private fun addButton() {
         //Size AddButton
         val bSize = requireContext()
-            .resources.getDimensionPixelSize(com.google.android
-                .material.R.dimen.design_fab_size_normal)
+            .resources.getDimensionPixelSize(
+                com.google.android
+                    .material.R.dimen.design_fab_size_normal
+            )
         //Size Nav Bottom
         val nbSize = requireContext()
-            .resources.getDimensionPixelSize(com.google.android
-                .material.R.dimen.design_bottom_navigation_height)
+            .resources.getDimensionPixelSize(
+                com.google.android
+                    .material.R.dimen.design_bottom_navigation_height
+            )
         //Set button position. That it does not change its place. When navBot is gone
         val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
@@ -500,74 +513,66 @@ class BillsListFragment : Fragment() {
     private fun setBackColorAddButton() {
         //check text for null
         val check = binding.tvTotalNum.text.toString().replace(",", "")
-
-
         if (check.toDouble() > 0) {
-            //set color of icon nav bottom income
-            navBot.navBottom()
-                .itemIconTintList =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-            //set color of text nav bottom income
-            navBot.navBottom()
-                .itemTextColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
+            with(navBot.navBottom()) {
+                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income).let {
+                    if (stateColorButton.stateNavBot != it) { //if do it again
+                        itemIconTintList = it //set color of icon nav bottom income
+                        itemTextColor = it //set color of text nav bottom income
+                        itemRippleColor = it //set color effect}
+                    }
+                }
+            }
             //set background income
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_income)
-//            //set color effect
-            navBot.navBottom()
-                .itemRippleColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             //Send color for ShopList
-            stateColorButton.colorAddButton =
-                requireActivity().getDrawable(R.drawable.double_color_button_income)
-            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_income)
-            stateColorButton.stateNavBot =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
+            with(stateColorButton) {
+                colorAddButton =
+                    requireActivity().getDrawable(R.drawable.double_color_button_income)
+                colorButtons = requireActivity().getColor(R.color.text_income)
+                stateNavBot =
+                    requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
+            }
         } else if (check.toDouble() < 0) {
-            //set color of icon nav bottom expenses
-            navBot.navBottom()
-                .itemIconTintList =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
-            //set color of text nav bottom expenses
-            navBot.navBottom()
-                .itemTextColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            with(navBot.navBottom()) {
+                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
+                    if (stateColorButton.stateNavBot != it) { //if do it again
+                        itemIconTintList = it //set color of icon nav bottom income
+                        itemTextColor = it //set color of text nav bottom income
+                        itemRippleColor = it //set color effect}
+                    }
+                }
+            }
             //set background expenses
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button_expenses)
-//            //set color effect
-            navBot.navBottom()
-                .itemRippleColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
-            stateColorButton.colorAddButton =
-                requireActivity().getDrawable(R.drawable.double_color_button_expenses)
-            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
-            stateColorButton.stateNavBot =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            with(stateColorButton) {
+                colorAddButton =
+                    requireActivity().getDrawable(R.drawable.double_color_button_expenses)
+                colorButtons = requireActivity().getColor(R.color.text_expense)
+                stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            }
         } else {
-            //set color of icon nav bottom
-            navBot.navBottom()
-                .itemIconTintList =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
-            //set color of text nav bottom
-            navBot.navBottom()
-                .itemTextColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            with(navBot.navBottom()) {
+                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
+                    if (stateColorButton.stateNavBot != it) { //if do it again
+                        itemIconTintList = it //set color of icon nav bottom income
+                        itemTextColor = it //set color of text nav bottom income
+                        itemRippleColor = it //set color effect}
+                    }
+                }
+            }
             //set background
             binding.buttonAddBill.relativeLayout.background =
                 requireActivity().getDrawable(R.drawable.double_color_button)
-            //set color effect
-            navBot.navBottom()
-                .itemRippleColor =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             //Send color for ShopList
-            stateColorButton.colorAddButton =
-                requireActivity().getDrawable(R.drawable.double_color_button)
-            stateColorButton.colorButtons = requireActivity().getColor(R.color.text_expense)
-            stateColorButton.stateNavBot =
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            with(stateColorButton) {
+                colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button)
+                colorButtons = requireActivity().getColor(R.color.text_expense)
+                stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
+            }
         }
     }
 
@@ -628,12 +633,14 @@ class BillsListFragment : Fragment() {
             } else {
                 //AddButton
                 if (binding.imCloseDel.visibility == View.VISIBLE) {
-                    crossfade(binding.buttonAddBill.imageButton, binding.buttonAddBill.imageButtonBas)
+                    crossfade(
+                        binding.buttonAddBill.imageButton,
+                        binding.buttonAddBill.imageButtonBas
+                    )
                     //Bar
                     slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
                     fadeOutView(binding.imCloseDel)
                     //NavBottom
-                    Log.d("TAG", heightNavBottom.toString())
                     slideView(navBot.navBottom(), 0, heightNavBottom)
                     motionViewY(navBot.navBottom(), heightNavBottom.toFloat(), 0f)
 
@@ -750,7 +757,8 @@ class BillsListFragment : Fragment() {
             createListCategory()
         }
         if (navBot.navBottom().visibility == View.GONE ||
-            navBot.navBottom().visibility == View.INVISIBLE)
+            navBot.navBottom().visibility == View.INVISIBLE
+        )
             fadeInView(navBot.navBottom())
     }
 
