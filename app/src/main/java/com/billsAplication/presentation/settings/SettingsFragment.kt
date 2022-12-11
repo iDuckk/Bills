@@ -96,7 +96,7 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setDefaultValues() //TODO после смены темы, открывается сплэш и не закрывавется
+        setDefaultValues()
 
         setButtonText()
 
@@ -603,8 +603,8 @@ class SettingsFragment : Fragment() {
             } else {
                 setTheme(AppCompatDelegate.MODE_NIGHT_NO, LIGHT_THEME)
             }
+            colorNavBot()
         }
-        colorNavBot()
         scope.launch {
             mainActivity.splash()
         }
