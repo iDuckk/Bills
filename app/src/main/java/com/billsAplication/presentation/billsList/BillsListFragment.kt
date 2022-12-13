@@ -41,31 +41,22 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
-
     @Inject
     lateinit var billAdapter: BillsAdapter
-
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var sortingDesc: SortingDesc
-
     @Inject
     lateinit var sortingAsc: SortingAsc
-
     @Inject
     lateinit var slideView: SlideView
-
     @Inject
     lateinit var crossfade: CrossFade
-
     @Inject
     lateinit var fadeInView: FadeInView
-
     @Inject
     lateinit var fadeOutView: FadeOutView
-
     @Inject
     lateinit var motionViewY: MotionViewY
 
@@ -159,17 +150,9 @@ class BillsListFragment : Fragment() {
                     .material.R.dimen.design_bottom_navigation_height
             )
         //Set button position. That it does not change its place. When navBot is gone
-        val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddBill.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
-        val screenWidth = resources.displayMetrics.widthPixels
-        val marginEnd = screenWidth * 4 / 100
-        val marginTop = (screenHeight - nbSize - bSize - marginEnd)
-
-        layoutParams.topToTop = requireView().top
-        layoutParams.endToEnd = requireView().right
-        layoutParams.marginEnd = marginEnd
-        layoutParams.topMargin = marginTop
-        binding.buttonAddBill.root.layoutParams = layoutParams
+        val marginTop = (screenHeight - nbSize - bSize - (screenHeight * 5 / 100))
+        binding.guidelineAddBill.setGuidelineBegin(marginTop)
 
         binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {

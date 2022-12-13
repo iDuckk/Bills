@@ -23,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -223,23 +224,17 @@ class ShopListFragment : Fragment() {
         val nbSize = requireContext()
             .resources.getDimensionPixelSize(com.google.android
                 .material.R.dimen.design_bottom_navigation_height)
-        //Set parameters
-        val layoutParams = ConstraintLayout.LayoutParams(binding.buttonAddNote.root.layoutParams)
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginEnd = screenWidth * 4 / 100
-        val marginTop = (screenHeight - nbSize - bSize - marginEnd)
-        //Set layout Parameters
-        layoutParams.topToTop = requireView().top
-        layoutParams.endToEnd = requireView().right
-        layoutParams.marginEnd = marginEnd
-        layoutParams.topMargin = marginTop
-        binding.buttonAddNote.root.layoutParams = layoutParams
+        val marginTop = (screenHeight - nbSize - bSize - (screenHeight * 5 / 100))
+        binding.guidelineAddNote.setGuidelineBegin(marginTop)
 
         binding.buttonAddNote.mainLayout.setOnClickListener {
+            val rectf = Rect()
+            binding.buttonAddNote.root.getGlobalVisibleRect(rectf)
             //Get pixels for button's motion
-            val marginX = -(marginEnd + bSize)
-            val marginY = -(marginEnd + bSize  - (bSize * 5 / 100))
+            val marginX = -(screenWidth - rectf.left)
+            val marginY = -(bSize / 2 + (screenHeight * 5 / 100))
 
             if (buttonMotion) {
                 rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 0f, 45f)

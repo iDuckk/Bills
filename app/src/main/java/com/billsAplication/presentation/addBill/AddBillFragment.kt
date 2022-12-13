@@ -24,6 +24,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.ArrayAdapter
@@ -618,7 +619,6 @@ class AddBillFragment : Fragment() {
                 4 -> image5 = imageItem.stringImage
             }
         }
-
         return BillsItem(
             if(TYPE_ENTRENCE == TYPE_ADD || TYPE_ENTRENCE == TYPE_BOOKMARK) 0 else billItem!!.id,
             TYPE_BILL,
@@ -941,9 +941,9 @@ class AddBillFragment : Fragment() {
             scope.launch {
                 motionViewX(binding.tvAddExpenses, 0f, binding.tvAddExpenses.width.toFloat())
                 motionViewX(binding.tvAddIncome, 0f, -binding.tvAddExpenses.width.toFloat())
-                delay(300)
-                binding.cardViewTypeBill.visibility = View.GONE
-                binding.cardViewAddThirdPart.visibility = View.VISIBLE
+                delay(100)
+                fadeOutView(binding.cardViewTypeBill, 400)
+                fadeInView(binding.cardViewAddThirdPart, 200)
             }
         }else{
             binding.cardViewTypeBill.visibility = View.GONE

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
@@ -64,6 +65,8 @@ class BookmarksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        onBackPressed()
+
         //Set Bottom bar - invisible
         fadeOutView(navBot)
         binding.imBookmarksDelete.visibility = View.GONE
@@ -91,6 +94,27 @@ class BookmarksFragment : Fragment() {
             bookmarkAdapter.submitList(it)
         }
 
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+
+                    if(!deleteItem){
+//                        isEnabled = false
+//                        requireActivity().onBackPressed()
+                        findNavController().navigate(R.id.action_bookmarksFragment_to_billsListFragment)
+                    }else{
+                        deleteItem = false
+                        listDeleteItems.clear()
+                        bookmarkAdapter.deleteItemsAfterRemovedItemFromDB()
+                        bookmarkAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {
