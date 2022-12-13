@@ -304,13 +304,21 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView_TitleViews"
         tools:listitem="@layout/bill_item" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_add_bill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="627dp" />
+
     <include
         android:id="@+id/button_addBill"
         layout="@layout/float_button_gradient"
         android:layout_width="56sp"
         android:layout_height="56sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_marginEnd="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline_add_bill" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

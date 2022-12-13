@@ -21,16 +21,24 @@
         app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/note_item" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_add_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="627dp" />
+
     <include
         android:id="@+id/button_addNote"
         layout="@layout/float_button_gradient"
         android:layout_width="56sp"
         android:layout_height="56sp"
+        android:layout_marginEnd="12sp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:contentDescription="@string/choose_type_of_add_note"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline_add_note" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_addNote_micro"

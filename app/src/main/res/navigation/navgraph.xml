@@ -96,10 +96,16 @@
         tools:layout="@layout/fragment_bookmarks" >
         <action
             android:id="@+id/action_bookmarksFragment_to_billsListFragment"
-            app:destination="@id/billsListFragment" />
+            app:destination="@id/billsListFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/to_up"/>
         <action
             android:id="@+id/action_bookmarksFragment_to_addBillFragment"
-            app:destination="@id/addBillFragment" />
+            app:destination="@id/addBillFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"/>
         <argument
             android:name="add_bill"
             app:argType="integer" />
@@ -119,7 +125,11 @@
             app:destination="@id/billsListFragment" />
         <action
             android:id="@+id/action_searchFragment_to_addBillFragment"
-            app:destination="@id/addBillFragment" />
+            app:destination="@id/addBillFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"/>
         <argument
             android:name="add_bill"
             app:argType="integer" />

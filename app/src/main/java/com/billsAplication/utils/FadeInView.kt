@@ -9,11 +9,11 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import javax.inject.Inject
 
 class FadeInView @Inject constructor() {
-    operator fun invoke(view: View) {
+    operator fun invoke(view: View, duration: Long = 150) {
 
         view.animate()
             .alpha(1f)
-            .setDuration(150)
+            .setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     view.visibility = View.VISIBLE
