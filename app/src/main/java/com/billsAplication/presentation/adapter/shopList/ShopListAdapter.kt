@@ -2,6 +2,7 @@ package com.billsAplication.presentation.adapter.shopList
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.AttrRes
@@ -54,8 +55,9 @@ class ShopListAdapter  @Inject constructor(): ListAdapter<BillsItem, ShopListVie
         }
 
         holder.tv_note.text = item.note
+        holder.tv_note.setLinkTextColor(holder.itemView.context.getColor(R.color.text_income))
 
-        holder.itemView.setOnClickListener {
+        holder.im_edit.setOnClickListener {
             onClickListenerShopListItem?.invoke(item)
         }
 
