@@ -20,10 +20,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginTop
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -63,16 +62,18 @@ class ShopListFragment : Fragment() {
 
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
-    private val CREATE_TYPE = 10
+    private val NOTE_KEY = "note"
+    private val CREATE_TYPE_NOTE = 10
     private val UPDATE_TYPE = 20
     private val RECORD_AOUDIO_REQUEST = 110
     private val COLOR_NOTE_PRIMARY = ""
     private var buttonMotion = true
     lateinit var dialogRecording: AlertDialog
     private var speechRecognizer: SpeechRecognizer? = null
+    private var scope = CoroutineScope(Dispatchers.Main)
 
-    private val navBot by lazy {
-        (context as InterfaceMainActivity).navBottom()
+    private val mainActivity by lazy {
+        (context as InterfaceMainActivity)
     }
 
     private val component by lazy {
@@ -104,8 +105,32 @@ class ShopListFragment : Fragment() {
 
         initRecView()
 
+        intentActionSendText()
+
         viewModel.list.observe(viewLifecycleOwner) {
             noteAdapter.submitList(it.toList())
+        }
+    }
+
+    private fun intentActionSendText() {
+        val intent = requireActivity().intent
+        if (intent.action == Intent.ACTION_SEND) {
+            if ("text/plain" == intent.type) {
+                handleSendText(intent)
+            }
+        }
+    }
+
+    private fun handleSendText(intent: Intent) {
+        intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
+            // Update UI to reflect text being shared
+            scope.launch {
+                bundleOf(NOTE_KEY to it, ADD_NOTE_KEY to CREATE_TYPE_NOTE).let {
+                    requireActivity().intent.action = null
+                    findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, it)
+                }
+            }
+
         }
     }
 
@@ -190,7 +215,7 @@ class ShopListFragment : Fragment() {
 
     private fun buttonKeyboard() {
         val bundle = Bundle().apply {
-            putInt(ADD_NOTE_KEY, CREATE_TYPE)
+            putInt(ADD_NOTE_KEY, CREATE_TYPE_NOTE)
         }
         binding.buttonAddNoteKeyboard.setOnClickListener {
             findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundle)
@@ -320,11 +345,14 @@ class ShopListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        if (!scope.isActive)
+            scope = CoroutineScope(Dispatchers.Main)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         speechRecognizer?.destroy()
+        scope.cancel()
         _binding = null
     }
 }

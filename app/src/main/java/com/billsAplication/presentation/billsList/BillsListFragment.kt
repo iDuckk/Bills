@@ -3,6 +3,7 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
@@ -17,9 +18,12 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavArgument
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navArgument
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
@@ -69,11 +73,12 @@ class BillsListFragment : Fragment() {
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
+    private val ADD_NOTE_KEY = "add_note_key"
+    private val CREATE_TYPE_NOTE = 10
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_FULL_LIST_SORT = 101
     private val NONE = "None"
-
     private val NEXT_MONTH = true
     private val PREV_MONTH = false
     private val CREATE_TYPE = 100
@@ -83,7 +88,7 @@ class BillsListFragment : Fragment() {
         (context as InterfaceMainActivity).navBottom().height
     }
 
-    private val navBot by lazy {
+    private val mainActivity by lazy {
         (context as InterfaceMainActivity)
     }
 
@@ -126,6 +131,15 @@ class BillsListFragment : Fragment() {
 
         filterBar()
 
+    }
+
+    private fun intentActionSendText() {
+        val intent = requireActivity().intent
+        if (intent.action == Intent.ACTION_SEND) {
+            if ("text/plain" == intent.type) {
+                mainActivity.navBottom().setSelectedItemId(R.id.shopListFragment)
+            }
+        }
     }
 
     private fun searchButton() {
@@ -497,7 +511,7 @@ class BillsListFragment : Fragment() {
         //check text for null
         val check = binding.tvTotalNum.text.toString().replace(",", "")
         if (check.toDouble() > 0) {
-            with(navBot.navBottom()) {
+            with(mainActivity.navBottom()) {
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income).let {
                     if (stateColorButton.stateNavBot != it) { //if do it again
                         itemIconTintList = it //set color of icon nav bottom income
@@ -518,7 +532,7 @@ class BillsListFragment : Fragment() {
                     requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
             }
         } else if (check.toDouble() < 0) {
-            with(navBot.navBottom()) {
+            with(mainActivity.navBottom()) {
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
                     if (stateColorButton.stateNavBot != it) { //if do it again
                         itemIconTintList = it //set color of icon nav bottom income
@@ -538,7 +552,7 @@ class BillsListFragment : Fragment() {
                 stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
             }
         } else {
-            with(navBot.navBottom()) {
+            with(mainActivity.navBottom()) {
                 requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
                     if (stateColorButton.stateNavBot != it) { //if do it again
                         itemIconTintList = it //set color of icon nav bottom income
@@ -607,8 +621,8 @@ class BillsListFragment : Fragment() {
                 slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
                 fadeInView(binding.imCloseDel)
                 //NavBottom
-                motionViewY(navBot.navBottom(), 0f, heightNavBottom.toFloat())
-                slideView(navBot.navBottom(), heightNavBottom, 0)
+                motionViewY(mainActivity.navBottom(), 0f, heightNavBottom.toFloat())
+                slideView(mainActivity.navBottom(), heightNavBottom, 0)
                 //BudgetBar
                 if (visibilityFilterCard) {
                     slideView(binding.cardViewFilter, 100, 0)
@@ -624,8 +638,8 @@ class BillsListFragment : Fragment() {
                     slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
                     fadeOutView(binding.imCloseDel)
                     //NavBottom
-                    slideView(navBot.navBottom(), 0, heightNavBottom)
-                    motionViewY(navBot.navBottom(), heightNavBottom.toFloat(), 0f)
+                    slideView(mainActivity.navBottom(), 0, heightNavBottom)
+                    motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
 
                     //set a new list
                     setNewList(viewModel.currentDate)
@@ -666,7 +680,9 @@ class BillsListFragment : Fragment() {
                     try {
                         scope.launch {
                             billAdapter.submitList(sortingDesc(it.toMutableList()))
-                            navBot.splash()
+                            //if we receive note string from other app
+                            intentActionSendText()
+                            mainActivity.splash()
                         }
                     } catch (e: NumberFormatException) {
                         Log.w("TAG", e.message!!)
@@ -739,10 +755,10 @@ class BillsListFragment : Fragment() {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory()
         }
-        if (navBot.navBottom().visibility == View.GONE ||
-            navBot.navBottom().visibility == View.INVISIBLE
+        if (mainActivity.navBottom().visibility == View.GONE ||
+            mainActivity.navBottom().visibility == View.INVISIBLE
         )
-            fadeInView(navBot.navBottom())
+            fadeInView(mainActivity.navBottom())
     }
 
     override fun onPause() {

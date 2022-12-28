@@ -8,5 +8,6 @@ import com.billsAplication.databinding.NoteItemBinding
 class ShopListViewHolder(binding: NoteItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
     val tv_note = binding.tvNote
+    val im_edit = binding.imRENote
 
 }

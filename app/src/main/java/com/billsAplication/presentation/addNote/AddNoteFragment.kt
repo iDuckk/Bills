@@ -15,10 +15,9 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddNoteBinding
 import com.billsAplication.utils.InterfaceMainActivity
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AddNoteFragment : Fragment() {
@@ -29,10 +28,10 @@ class AddNoteFragment : Fragment() {
     @Inject
     lateinit var viewModel: AddNoteViewModel
 
-    private val TYPE_NOTE = 3
+    private val NOTE_KEY = "note"
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
-    private val CREATE_TYPE = 10
+    private val CREATE_TYPE_NOTE = 10
     private val UPDATE_TYPE = 20
     private val EMPTY_STRING = ""
     private val COLOR_NOTE_BLUE = "blue"
@@ -42,8 +41,13 @@ class AddNoteFragment : Fragment() {
     private val COLOR_NOTE_YELLOW = "yellow"
     private val COLOR_NOTE_PURPLE = "purple"
     private val COLOR_NOTE_PRIMARY = ""
+    private var scope = CoroutineScope(Dispatchers.Main)
 
     private var COLOR_NOTE = ""
+
+    private val mainActivity by lazy {
+        (context as InterfaceMainActivity)
+    }
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -72,6 +76,14 @@ class AddNoteFragment : Fragment() {
         typeMode()
 
         noteColors()
+
+        val note = arguments?.getString(NOTE_KEY)
+        if(!note.isNullOrEmpty()) {
+            binding.etAddNote.setText(note)
+            scope.launch {
+                mainActivity.splash()
+            }
+        }
     }
 
     @SuppressLint("ResourceAsColor")
@@ -108,7 +120,7 @@ class AddNoteFragment : Fragment() {
 
     private fun typeMode() {
         when (arguments?.getInt(ADD_NOTE_KEY)) {
-            CREATE_TYPE -> addItemMode()
+            CREATE_TYPE_NOTE -> addItemMode()
             UPDATE_TYPE -> updateItemMode()
         }
     }
@@ -186,8 +198,15 @@ class AddNoteFragment : Fragment() {
         return textColor
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!scope.isActive)
+            scope = CoroutineScope(Dispatchers.Main)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        scope.cancel()
         (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
         _binding = null
     }
