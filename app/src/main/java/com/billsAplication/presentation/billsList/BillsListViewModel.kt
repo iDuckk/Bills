@@ -4,21 +4,22 @@ import android.app.Application
 import android.content.res.Configuration
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.billsAplication.R
-import com.billsAplication.di.ApplicationScope
 import com.billsAplication.domain.billsUseCases.*
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.utils.Result
+import com.billsAplication.utils.StateBillsList
 import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 //@ApplicationScope
 class BillsListViewModel @Inject constructor(
     private val getAllDatabase: GetAllDataListUseCase,
+    private val getMonthLD: GetMonthLDUseCase,
     private val getMonth: GetMonthListUseCase,
     private val delete: DeleteBillItemUseCase,
     private val getTypeUseCase: GetTypeUseCase,
@@ -29,7 +30,14 @@ class BillsListViewModel @Inject constructor(
     private var date = LocalDate.now()
 
     lateinit var list: LiveData<List<BillsItem>>
-    lateinit var listCategory: LiveData<List<BillsItem>>
+    private val _stateList = MutableLiveData<StateBillsList>()
+    val stateList: LiveData<StateBillsList>
+        get() = _stateList
+
+    private val exception = CoroutineExceptionHandler{ _, e ->
+        _stateList.value = com.billsAplication.utils.Error("BillsListViewModel:getStateList: {$e.message!!}")
+    }
+    private var scope = CoroutineScope(Dispatchers.Main + exception)
 
     var currentDate: String
 
@@ -49,11 +57,9 @@ class BillsListViewModel @Inject constructor(
     private var NOVEMBER = "NOVEMBER"
     private var DECEMBER = "DECEMBER"
 
-    private val TYPE_CATEGORY_EXPENSES = 2
-    private val TYPE_CATEGORY_INCOME = 4
-
     init {
         currentDate = currentDate()
+        getStateList(currentDate)
     }
 
     fun defaultMonth() {
@@ -61,25 +67,24 @@ class BillsListViewModel @Inject constructor(
         changeYear = 0
     }
 
-    fun getAll() {
-        list = getAllDatabase.invoke()
+    fun getStateList(month: String) {
+        scope.launch() {
+            withContext(Dispatchers.IO) {
+                val result = Result(getMonth.invoke(mapMonthToSQL(month)))
+                withContext(Dispatchers.Main) {
+                    _stateList.value = result
+                }
+            }
+        }
     }
 
     suspend fun getTypeList(type: Int): List<BillsItem> {
         return getTypeListUseCase.invoke(type)
     }
 
-    fun getCategoryExpenses() {
-        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_EXPENSES)
-    }
-
-    fun getCategoryIncome() {
-        listCategory = getTypeUseCase.invoke(TYPE_CATEGORY_INCOME)
-    }
-
     suspend fun getMonth(month: String) {
-        list = withContext(Dispatchers.IO){
-            getMonth.invoke(mapMonthToSQL(month))
+        list = withContext(Dispatchers.IO) {
+            getMonthLD.invoke(mapMonthToSQL(month))
         }
     }
 
@@ -188,5 +193,10 @@ class BillsListViewModel @Inject constructor(
             DECEMBER -> application.getString(R.string.calendar_december)
             else -> ""
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        scope.cancel()
     }
 }

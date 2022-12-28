@@ -14,7 +14,9 @@ interface BillsListRepository {
 
     suspend fun getItem(id : Int) : BillsItem
 
-    fun getMonthList(month : String) : LiveData<List<BillsItem>>
+    fun getMonthLD(month : String) : LiveData<List<BillsItem>>
+
+    fun getMonthList(month : String) : ArrayList<BillsItem>
 
     suspend fun updateItem(item : BillsItem)
 

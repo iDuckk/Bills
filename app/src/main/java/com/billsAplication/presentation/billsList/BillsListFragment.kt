@@ -31,6 +31,7 @@ import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.*
+import com.billsAplication.utils.Result
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 import javax.inject.Inject
@@ -113,7 +114,7 @@ class BillsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setNewList(viewModel.currentDate)
+        observerList()
 
         binding.tvMonth.text = viewModel.currentDate
 
@@ -131,6 +132,29 @@ class BillsListFragment : Fragment() {
 
         filterBar()
 
+    }
+
+    private fun observerList() {
+        viewModel.stateList.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is Result -> {
+                    billAdapter.submitList(sortingDesc(state.list))
+                    //if list is empty
+                    if(state.list.isNullOrEmpty())
+                        billAdapter.setAmount()
+                }
+                is Error -> {
+                    Log.w("TAG", state.exception)
+                }
+                is Progress -> {}
+            }
+            //if we receive note string from other app
+            intentActionSendText()
+            //Get off splash
+            scope.launch {
+                mainActivity.splash()
+            }
+        }
     }
 
     private fun intentActionSendText() {
@@ -407,7 +431,7 @@ class BillsListFragment : Fragment() {
                 if (viewModel.list.value != null)
                     setDescentSorting(viewModel.list.value!!)
                 else {
-                    setNewList(viewModel.currentDate)
+                    viewModel.getStateList(viewModel.currentDate)
                 }
                 createListCategory()
             }
@@ -469,7 +493,7 @@ class BillsListFragment : Fragment() {
                     setDefaultSortingViews()
                 }
                 //set a new list
-                setNewList(viewModel.currentDate)
+                viewModel.getStateList(viewModel.currentDate)
             }
         }
         //Previous month
@@ -483,7 +507,7 @@ class BillsListFragment : Fragment() {
                 setDefaultSortingViews()
             }
             //set a new list
-            setNewList(viewModel.currentDate)
+            viewModel.getStateList(viewModel.currentDate)
         }
         //Next month
         binding.imNextMonth.setOnClickListener {
@@ -496,7 +520,7 @@ class BillsListFragment : Fragment() {
                 setDefaultSortingViews()
             }
             //set a new list
-            setNewList(viewModel.currentDate)
+            viewModel.getStateList(viewModel.currentDate)
         }
 
         binding.imBookmarks.setOnClickListener {
@@ -642,7 +666,7 @@ class BillsListFragment : Fragment() {
                     motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
 
                     //set a new list
-                    setNewList(viewModel.currentDate)
+                    viewModel.getStateList(viewModel.currentDate)
                 }
             }
         }
@@ -665,32 +689,6 @@ class BillsListFragment : Fragment() {
                 }
             }
         )
-    }
-
-    private fun setNewList(month: String) {
-        //set a new list
-        scope.launch(Dispatchers.IO) {
-            viewModel.getMonth(month)
-            withContext(Dispatchers.Main) {
-                viewModel.list.observe(viewLifecycleOwner) {
-                    //If list null
-                    if (it.isNullOrEmpty())
-                        billAdapter.setAmount()
-                    //Set list to Adapter
-                    try {
-                        scope.launch {
-                            billAdapter.submitList(sortingDesc(it.toMutableList()))
-                            //if we receive note string from other app
-                            intentActionSendText()
-                            mainActivity.splash()
-                        }
-                    } catch (e: NumberFormatException) {
-                        Log.w("TAG", e.message!!)
-                    }
-                }
-            }
-        }
-
     }
 
     private fun setDefaultSortingViews() {

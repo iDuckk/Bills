@@ -13,7 +13,10 @@ interface BillDao {
     fun getAll(): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list WHERE month = :month")
-    fun getMonth(month : String): LiveData<List<BillEntity>>
+    fun getMonthLD(month : String): LiveData<List<BillEntity>>
+
+    @Query("SELECT * FROM bills_list WHERE month = :month")
+    fun getMonthList(month : String): List<BillEntity>
 
     @Query("SELECT * FROM bills_list WHERE type = :type")
     fun getType(type : Int): LiveData<List<BillEntity>>

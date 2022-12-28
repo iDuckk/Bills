@@ -32,13 +32,15 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         return mapper.mapBillEntityToBillItem(billDao.getItem(id))
     }
 
-    override fun getMonthList(month : String): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getMonth(month)){
+    override fun getMonthLD(month : String): LiveData<List<BillsItem>> {
+        return Transformations.map(billDao.getMonthLD(month)){
             it.map{
                 mapper.mapBillEntityToBillItem(it)
             }
         }
     }
+
+    override fun getMonthList(month: String) = mapper.mapBillEntityToBillItemList(billDao.getMonthList(month))
 
     override fun getType(type: Int): LiveData<List<BillsItem>> {
         return Transformations.map(billDao.getType(type)){

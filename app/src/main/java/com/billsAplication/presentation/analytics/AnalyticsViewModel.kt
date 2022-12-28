@@ -2,14 +2,12 @@ package com.billsAplication.presentation.analytics
 
 import android.app.Application
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.R
-import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
+import com.billsAplication.domain.billsUseCases.GetMonthLDUseCase
 import com.billsAplication.domain.model.BillsItem
 import java.time.LocalDate
 import java.util.*
@@ -17,7 +15,7 @@ import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 class AnalyticsViewModel @Inject constructor(
-    private val getMonth : GetMonthListUseCase,
+    private val getMonth : GetMonthLDUseCase,
     private val application: Application
 ) : ViewModel() {
 
