@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.billsAplication.R
 import com.billsAplication.domain.billsUseCases.*
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.utils.ColorState
 import com.billsAplication.utils.Result
 import com.billsAplication.utils.StateBillsList
 import com.billsAplication.utils.TotalAmountBar
@@ -21,11 +22,8 @@ import kotlin.collections.ArrayList
 
 //@ApplicationScope
 class BillsListViewModel @Inject constructor(
-    private val getAllDatabase: GetAllDataListUseCase,
-    private val getMonthLD: GetMonthLDUseCase,
     private val getMonth: GetMonthListUseCase,
     private val delete: DeleteBillItemUseCase,
-    private val getTypeUseCase: GetTypeUseCase,
     private val getTypeListUseCase: GetTypeListUseCase,
     private val application: Application
 ) : ViewModel() {
@@ -65,6 +63,7 @@ class BillsListViewModel @Inject constructor(
 
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+    private val TYPE_EQUALS = 2
 
     init {
         currentDate = currentDate()
@@ -90,6 +89,8 @@ class BillsListViewModel @Inject constructor(
                 "%,.2f".format(Locale.ENGLISH, exp),
                 "%,.2f".format(Locale.ENGLISH, inc),
                 "%,.2f".format(Locale.ENGLISH, (inc - exp)))
+
+            colorState(inc, exp)
         }
 
     }
@@ -126,6 +127,13 @@ class BillsListViewModel @Inject constructor(
             }
             expense
         }
+    }
+
+    private fun colorState(inc: BigDecimal, exp: BigDecimal){
+        if(inc > exp) _stateList.value = ColorState(TYPE_INCOME)
+        else if (inc < exp)  _stateList.value = ColorState(TYPE_EXPENSES)
+        else _stateList.value = ColorState(TYPE_EQUALS)
+
     }
 
     private fun getCategoriesLists(){

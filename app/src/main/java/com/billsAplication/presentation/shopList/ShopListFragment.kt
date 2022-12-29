@@ -66,6 +66,8 @@ class ShopListFragment : Fragment() {
     private val ITEM_NOTE_KEY = "item_note_key"
     private val KEY_NOTE_RECEIVE = "key_note_receive"
     private val TYPE_NOTE_RECEIVE = "type_note_receive"
+    private val TYPE_EQUALS = 2
+    private var TYPE_BILL = "type_bill"
     private val NOTE_KEY = "note"
     private val CREATE_TYPE_NOTE = 10
     private val UPDATE_TYPE = 20
@@ -295,13 +297,17 @@ class ShopListFragment : Fragment() {
     }
 
     private fun setColorStateAddButtons() {
+        //get saved type
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val type = sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
+
         val colorState = ColorStateList
-            .valueOf(stateColorButton.colorButtons!!)
-        binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton
-        binding.buttonAddNoteMicro.size = FloatingActionButton.SIZE_MINI
-        binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
+            .valueOf(stateColorButton.colorButtons(type))
         binding.buttonAddNoteMicro.backgroundTintList = colorState
         binding.buttonAddNoteKeyboard.backgroundTintList = colorState
+        binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton(type)
+        binding.buttonAddNoteMicro.size = FloatingActionButton.SIZE_MINI
+        binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
     }
 
     private fun setEnabledViewsFOrRec(enabled: Boolean) {

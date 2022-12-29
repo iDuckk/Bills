@@ -71,6 +71,8 @@ class SettingsFragment : Fragment() {
     @Inject
     lateinit var createExcelFile: CreateExcelFile
     private var scope = CoroutineScope(Dispatchers.Main)
+    private val TYPE_EQUALS = 2
+    private var TYPE_BILL = "type_bill"
 
     private val mainActivity by lazy {
         (context as InterfaceMainActivity)
@@ -78,6 +80,12 @@ class SettingsFragment : Fragment() {
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
+    }
+
+    private val type by lazy {
+        //get saved type
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -208,9 +216,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun backupToExcelButtonsColorState() {
-        binding.bExportExcel.setBackgroundColor(stateColorButton.colorButtons!!)
-        binding.bImportExcel.setBackgroundColor(stateColorButton.colorButtons!!)
-        binding.bSendExcel.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bExportExcel.setBackgroundColor(stateColorButton.colorButtons(type))
+        binding.bImportExcel.setBackgroundColor(stateColorButton.colorButtons(type))
+        binding.bSendExcel.setBackgroundColor(stateColorButton.colorButtons(type))
     }
 
     private fun backup() {
@@ -358,9 +366,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun backupButtonsColorState() {
-        binding.bExport.setBackgroundColor(stateColorButton.colorButtons!!)
-        binding.bImport.setBackgroundColor(stateColorButton.colorButtons!!)
-        binding.bSendDb.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bExport.setBackgroundColor(stateColorButton.colorButtons(type))
+        binding.bImport.setBackgroundColor(stateColorButton.colorButtons(type))
+        binding.bSendDb.setBackgroundColor(stateColorButton.colorButtons(type))
     }
 
     private fun setDefaultValues() {
@@ -561,7 +569,7 @@ class SettingsFragment : Fragment() {
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
         val currentLanguagePosition = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
         binding.bLanguage.text = Language.values().get(currentLanguagePosition).Name
-        binding.bLanguage.setBackgroundColor(stateColorButton.colorButtons!!)
+        binding.bLanguage.setBackgroundColor(stateColorButton.colorButtons(type))
     }
 
     private fun switchColorState() {
@@ -572,7 +580,7 @@ class SettingsFragment : Fragment() {
                 intArrayOf()
             ), intArrayOf(
                 requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons!!,
+                stateColorButton.colorButtons(type),
                 requireActivity().getColor(R.color.default_background)
             )
         )
@@ -588,7 +596,7 @@ class SettingsFragment : Fragment() {
                 intArrayOf()
             ), intArrayOf(
                 requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons!!,
+                stateColorButton.colorButtons(type),
                 requireActivity().getColor(R.color.default_background)
             )
         )
@@ -623,13 +631,13 @@ class SettingsFragment : Fragment() {
     private fun colorNavBot() {
         //set color of icon  nav bottom
         (context as InterfaceMainActivity).navBottom()
-            .itemIconTintList = stateColorButton.stateNavBot!!
+            .itemIconTintList = stateColorButton.stateNavBot(type)
         //set color of text nav bottom
         (context as InterfaceMainActivity).navBottom()
-            .itemTextColor = stateColorButton.stateNavBot!!
+            .itemTextColor = stateColorButton.stateNavBot(type)
         //set color effect
         (context as InterfaceMainActivity).navBottom()
-            .itemRippleColor = stateColorButton.stateNavBot
+            .itemRippleColor = stateColorButton.stateNavBot(type)
     }
 
     private fun setTheme(themeMode: Int, prefsMode: Int) {

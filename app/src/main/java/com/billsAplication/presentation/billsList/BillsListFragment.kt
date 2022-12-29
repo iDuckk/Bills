@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -25,6 +26,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Result
 import kotlinx.coroutines.*
@@ -41,22 +43,31 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
+
     @Inject
     lateinit var billAdapter: BillsAdapter
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var sortingDesc: SortingDesc
+
     @Inject
     lateinit var sortingAsc: SortingAsc
+
     @Inject
     lateinit var slideView: SlideView
+
     @Inject
     lateinit var crossfade: CrossFade
+
     @Inject
     lateinit var fadeInView: FadeInView
+
     @Inject
     lateinit var fadeOutView: FadeOutView
+
     @Inject
     lateinit var motionViewY: MotionViewY
 
@@ -73,6 +84,8 @@ class BillsListFragment : Fragment() {
 
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
+    private val TYPE_EQUALS = 2
+    private var TYPE_BILL = "type_bill"
     private val TYPE_FULL_LIST_SORT = 101
     private val NONE = "None"
     private val NEXT_MONTH = true
@@ -142,8 +155,10 @@ class BillsListFragment : Fragment() {
                     binding.tvIncomeNum.text = state.inc
                     binding.tvExpenseNum.text = state.exp
                     binding.tvTotalNum.text = state.tot
-                    setBackColorAddButton()
                     resizeText()
+                }
+                is ColorState -> {
+                    setBackColorAddButton(state.type)
                 }
             }
             //Get off splash
@@ -463,7 +478,6 @@ class BillsListFragment : Fragment() {
         }
         //Sorting
         binding.imBillsFilter.setOnClickListener {
-            filterViewsColor()
             if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
@@ -528,69 +542,55 @@ class BillsListFragment : Fragment() {
     }
 
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
-    private fun setBackColorAddButton() {
-        //check text for null
-        val check = binding.tvTotalNum.text.toString().replace(",", "")
-        if (check.toDouble() > 0) {
+    private fun setBackColorAddButton(type: Int) {
+        val t = if (binding.tvMonth.text == viewModel.currentDate()) {
+                type
+            } else {
+                //get saved type
+                val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+                sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
+            }
+        with(stateColorButton) {
             with(mainActivity.navBottom()) {
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income).let {
-                    if (stateColorButton.stateNavBot != it) { //if do it again
+                stateNavBot(t).let {
+                    if (itemIconTintList != it) { //if do it again
                         itemIconTintList = it //set color of icon nav bottom income
                         itemTextColor = it //set color of text nav bottom income
-                        itemRippleColor = it //set color effect}
+                        itemRippleColor = it //set color effect
                     }
                 }
             }
             //set background income
-            binding.buttonAddBill.relativeLayout.background =
-                requireActivity().getDrawable(R.drawable.double_color_button_income)
-            //Send color for ShopList
-            with(stateColorButton) {
-                colorAddButton =
-                    requireActivity().getDrawable(R.drawable.double_color_button_income)
-                colorButtons = requireActivity().getColor(R.color.text_income)
-                stateNavBot =
-                    requireActivity().getColorStateList(R.drawable.selector_item_bot_nav_income)
-            }
-        } else if (check.toDouble() < 0) {
-            with(mainActivity.navBottom()) {
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
-                    if (stateColorButton.stateNavBot != it) { //if do it again
-                        itemIconTintList = it //set color of icon nav bottom income
-                        itemTextColor = it //set color of text nav bottom income
-                        itemRippleColor = it //set color effect}
-                    }
-                }
-            }
-            //set background expenses
-            binding.buttonAddBill.relativeLayout.background =
-                requireActivity().getDrawable(R.drawable.double_color_button_expenses)
-            //Send color for ShopList
-            with(stateColorButton) {
-                colorAddButton =
-                    requireActivity().getDrawable(R.drawable.double_color_button_expenses)
-                colorButtons = requireActivity().getColor(R.color.text_expense)
-                stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
-            }
-        } else {
-            with(mainActivity.navBottom()) {
-                requireActivity().getColorStateList(R.drawable.selector_item_bot_nav).let {
-                    if (stateColorButton.stateNavBot != it) { //if do it again
-                        itemIconTintList = it //set color of icon nav bottom income
-                        itemTextColor = it //set color of text nav bottom income
-                        itemRippleColor = it //set color effect}
-                    }
-                }
-            }
-            //set background
-            binding.buttonAddBill.relativeLayout.background =
-                requireActivity().getDrawable(R.drawable.double_color_button)
-            //Send color for ShopList
-            with(stateColorButton) {
-                colorAddButton = requireActivity().getDrawable(R.drawable.double_color_button)
-                colorButtons = requireActivity().getColor(R.color.text_expense)
-                stateNavBot = requireActivity().getColorStateList(R.drawable.selector_item_bot_nav)
-            }
+            binding.buttonAddBill.relativeLayout.background = colorAddButton(t)
+            //Set filter colors
+            filterViewsColor(t)
+            //Save type colors
+            setSharePrefColors(t)
+        }
+    }
+
+    private fun filterViewsColor(type: Int) {
+        val buttonStates = ColorStateList(
+            arrayOf(
+                intArrayOf(-android.R.attr.state_enabled),
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ), intArrayOf(
+                requireActivity().getColor(R.color.default_background), //track unChecked
+                stateColorButton.colorButtons(type),
+                requireActivity().getColor(R.color.default_background)
+            )
+        )
+        binding.checkBoxIncome.buttonTintList = buttonStates
+        binding.checkBoxExpense.buttonTintList = buttonStates
+        binding.checkBoxDecDate.buttonTintList = buttonStates
+    }
+
+    private fun setSharePrefColors(type: Int) {
+        val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putInt(TYPE_BILL, type)
+            apply()
         }
     }
 
@@ -683,23 +683,6 @@ class BillsListFragment : Fragment() {
         binding.checkBoxExpense.isChecked = false
         binding.checkBoxDecDate.isChecked = false
         binding.spinnerFilter.setSelection(0)
-    }
-
-    private fun filterViewsColor() {
-        val buttonStates = ColorStateList(
-            arrayOf(
-                intArrayOf(-android.R.attr.state_enabled),
-                intArrayOf(android.R.attr.state_checked),
-                intArrayOf()
-            ), intArrayOf(
-                requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons!!,
-                requireActivity().getColor(R.color.default_background)
-            )
-        )
-        binding.checkBoxIncome.buttonTintList = buttonStates
-        binding.checkBoxExpense.buttonTintList = buttonStates
-        binding.checkBoxDecDate.buttonTintList = buttonStates
     }
 
     @SuppressLint("SetTextI18n")
