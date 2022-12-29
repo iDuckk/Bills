@@ -30,6 +30,7 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
+import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Result
 import kotlinx.coroutines.*
@@ -74,8 +75,8 @@ class BillsListFragment : Fragment() {
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
-    private val ADD_NOTE_KEY = "add_note_key"
-    private val CREATE_TYPE_NOTE = 10
+    private val TYPE_NOTE_RECEIVE = "type_note_receive"
+
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_FULL_LIST_SORT = 101
@@ -148,21 +149,20 @@ class BillsListFragment : Fragment() {
                 }
                 is Progress -> {}
             }
-            //if we receive note string from other app
-            intentActionSendText()
             //Get off splash
             scope.launch {
                 mainActivity.splash()
+                //if we receive note string from other app
+                intentActionSendText()
             }
         }
     }
 
     private fun intentActionSendText() {
-        val intent = requireActivity().intent
-        if (intent.action == Intent.ACTION_SEND) {
-            if ("text/plain" == intent.type) {
-                mainActivity.navBottom().setSelectedItemId(R.id.shopListFragment)
-            }
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
+        if(typeAction){
+            mainActivity.navBottom().selectedItemId = R.id.shopListFragment
         }
     }
 
@@ -679,7 +679,10 @@ class BillsListFragment : Fragment() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun handleOnBackPressed() {
                     if (!deleteItem) {
+                        requireActivity().finishAffinity()
                         requireActivity().finish()
+//                        isEnabled = false
+//                        requireActivity().onBackPressed()
                     } else {
                         deleteItem = false
                         listDeleteItems.clear()
@@ -690,6 +693,8 @@ class BillsListFragment : Fragment() {
             }
         )
     }
+
+
 
     private fun setDefaultSortingViews() {
         binding.checkBoxIncome.isChecked = false

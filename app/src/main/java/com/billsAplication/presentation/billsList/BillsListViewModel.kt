@@ -35,7 +35,7 @@ class BillsListViewModel @Inject constructor(
         get() = _stateList
 
     private val exception = CoroutineExceptionHandler{ _, e ->
-        _stateList.value = com.billsAplication.utils.Error("BillsListViewModel:getStateList: {$e.message!!}")
+        _stateList.value = com.billsAplication.utils.Error("BillsListViewModel:getStateList: ${e.message!!}")
     }
     private var scope = CoroutineScope(Dispatchers.Main + exception)
 
