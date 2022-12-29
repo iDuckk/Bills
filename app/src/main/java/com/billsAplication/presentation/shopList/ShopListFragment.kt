@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -30,6 +31,7 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
+import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
@@ -62,6 +64,8 @@ class ShopListFragment : Fragment() {
 
     private val ADD_NOTE_KEY = "add_note_key"
     private val ITEM_NOTE_KEY = "item_note_key"
+    private val KEY_NOTE_RECEIVE = "key_note_receive"
+    private val TYPE_NOTE_RECEIVE = "type_note_receive"
     private val NOTE_KEY = "note"
     private val CREATE_TYPE_NOTE = 10
     private val UPDATE_TYPE = 20
@@ -104,7 +108,7 @@ class ShopListFragment : Fragment() {
         buttonSpeechToText()
 
         initRecView()
-
+        //if we receive note string from other app
         intentActionSendText()
 
         viewModel.list.observe(viewLifecycleOwner) {
@@ -113,24 +117,23 @@ class ShopListFragment : Fragment() {
     }
 
     private fun intentActionSendText() {
-        val intent = requireActivity().intent
-        if (intent.action == Intent.ACTION_SEND) {
-            if ("text/plain" == intent.type) {
-                handleSendText(intent)
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
+        val note = sharedPref.getString(KEY_NOTE_RECEIVE, "")
+        if(typeAction){
+            bundleOf(NOTE_KEY to note, ADD_NOTE_KEY to CREATE_TYPE_NOTE).let {
+                setSharePrefSetActionFalse()
+                findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, it)
             }
         }
     }
 
-    private fun handleSendText(intent: Intent) {
-        intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
-            // Update UI to reflect text being shared
-            scope.launch {
-                bundleOf(NOTE_KEY to it, ADD_NOTE_KEY to CREATE_TYPE_NOTE).let {
-                    requireActivity().intent.action = null
-                    findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, it)
-                }
-            }
-
+    private fun setSharePrefSetActionFalse() {
+        //Save statement of Currency in Share preference
+        val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putBoolean(TYPE_NOTE_RECEIVE, false)
+            apply()
         }
     }
 
