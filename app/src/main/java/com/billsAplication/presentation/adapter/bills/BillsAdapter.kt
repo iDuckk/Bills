@@ -36,27 +36,6 @@ class BillsAdapter @Inject constructor() :
     private val TYPE_INCOME = 1
     private val TYPE_NOTE = 3
 
-    private val scope = CoroutineScope(Dispatchers.Default)
-
-    private var income = BigDecimal(0)
-    private var expense = BigDecimal(0)
-
-    private var titleIncome = MutableLiveData<String>()
-    val isTitleIncome: LiveData<String>
-        get() = titleIncome
-
-    private var titleExpense = MutableLiveData<String>()
-    val isTitleExpense: LiveData<String>
-        get() = titleExpense
-
-    private var titleTotal = MutableLiveData<String>()
-    val isTitleTotal: LiveData<String>
-        get() = titleTotal
-
-
-    private var textViewAmountDay: TextView? = null
-    private var cardViewTotal: CardView? = null
-
     private var totalAmount: BigDecimal = BigDecimal(0)
     private var isClicked = false //If selected item for adapter
 
@@ -91,9 +70,6 @@ class BillsAdapter @Inject constructor() :
         holderBill.cardVIewTitle.setBackgroundResource(R.drawable.background_selector)
         //Choose select item or not
         holderBill.cardVIewTitle.isSelected = electedItemsList.find { it == item } == item
-
-        //Set Amount views
-        setAmountViews(position, holderBill)
 
         setViews(item, position, holderBill)
 
@@ -151,43 +127,6 @@ class BillsAdapter @Inject constructor() :
                 holderBill.itemView.context.getString(R.string.attention_billsAdapter_notfoundType)
             )
         }
-    }
-
-    private fun setAmountViews(
-        position: Int,
-        holderBill: BillViewHolder
-    ) {
-        if (position == 0) {
-            scope.launch {
-                //Income amount
-                withContext(Dispatchers.IO) {
-                    currentList.forEachIndexed { index, billsItem ->
-                        if (billsItem.type == TYPE_INCOME) {
-                            income += BigDecimal(billsItem.amount.replace(",", ""))
-                        }
-                    }
-                }
-                //Expenses amount
-                withContext(Dispatchers.IO) {
-                    currentList.forEachIndexed { index, billsItem ->
-                        if (billsItem.type == TYPE_EXPENSES) {
-                            expense -= BigDecimal(billsItem.amount.replace(",", ""))
-                        }
-                    }
-                }
-                withContext(Dispatchers.IO) {
-
-                    titleIncome.postValue("%,.2f".format(Locale.ENGLISH, income))
-                    titleExpense.postValue("%,.2f".format(Locale.ENGLISH, expense))
-                    titleTotal.postValue("%,.2f".format(Locale.ENGLISH, (income + expense)))
-                }
-                withContext(Dispatchers.IO) {
-                    income = 0.0.toBigDecimal()
-                    expense = 0.0.toBigDecimal()
-                }
-            }
-        }
-
     }
 
         private fun timeFormat(time: String): String {
@@ -296,14 +235,4 @@ class BillsAdapter @Inject constructor() :
             isClicked = false
         }
 
-        fun setAmount() {
-            titleIncome.postValue("0.00")
-            titleExpense.postValue("0.00")
-            titleTotal.postValue("0.00")
-        }
-
-        override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-            super.onDetachedFromRecyclerView(recyclerView)
-            scope.cancel()
-        }
     }

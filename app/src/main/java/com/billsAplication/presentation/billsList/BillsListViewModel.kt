@@ -11,10 +11,13 @@ import com.billsAplication.domain.billsUseCases.*
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.Result
 import com.billsAplication.utils.StateBillsList
+import com.billsAplication.utils.TotalAmountBar
 import kotlinx.coroutines.*
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 //@ApplicationScope
 class BillsListViewModel @Inject constructor(
@@ -29,17 +32,20 @@ class BillsListViewModel @Inject constructor(
 
     private var date = LocalDate.now()
 
-    lateinit var list: LiveData<List<BillsItem>>
     private val _stateList = MutableLiveData<StateBillsList>()
     val stateList: LiveData<StateBillsList>
         get() = _stateList
 
-    private val exception = CoroutineExceptionHandler{ _, e ->
-        _stateList.value = com.billsAplication.utils.Error("BillsListViewModel:getStateList: ${e.message!!}")
+    private val exception = CoroutineExceptionHandler { _, e ->
+        _stateList.value =
+            com.billsAplication.utils.Error("BillsListViewModel:getStateList: ${e.message!!}")
     }
     private var scope = CoroutineScope(Dispatchers.Main + exception)
 
     var currentDate: String
+    var listBills = ArrayList<BillsItem>()
+    var listIncome = ArrayList<BillsItem>()
+    var listExpense = ArrayList<BillsItem>()
 
     private var changeMonth = 0
     private var changeYear = 0
@@ -57,6 +63,9 @@ class BillsListViewModel @Inject constructor(
     private var NOVEMBER = "NOVEMBER"
     private var DECEMBER = "DECEMBER"
 
+    private val TYPE_EXPENSES = 0
+    private val TYPE_INCOME = 1
+
     init {
         currentDate = currentDate()
         getStateList(currentDate)
@@ -68,24 +77,66 @@ class BillsListViewModel @Inject constructor(
     }
 
     fun getStateList(month: String) {
+        //month's list
+        getMainList(month)
+        //Get lists for spinner
+        getCategoriesLists()
+        //Total amounts values
+        scope.launch {
+            val exp = getExpenseList(month)
+            val inc = getIncomeList(month)
+
+            _stateList.value = TotalAmountBar(
+                "%,.2f".format(Locale.ENGLISH, exp),
+                "%,.2f".format(Locale.ENGLISH, inc),
+                "%,.2f".format(Locale.ENGLISH, (inc - exp)))
+        }
+
+    }
+
+    private fun getMainList(month: String) {
         scope.launch() {
             withContext(Dispatchers.IO) {
                 val result = Result(getMonth.invoke(mapMonthToSQL(month)))
                 withContext(Dispatchers.Main) {
+                    listBills = result.list //This list for Spinner
                     _stateList.value = result
                 }
             }
         }
     }
 
-    suspend fun getTypeList(type: Int): List<BillsItem> {
-        return getTypeListUseCase.invoke(type)
+    private suspend fun getIncomeList(month: String): BigDecimal {
+        return withContext(Dispatchers.IO) {
+            var income = BigDecimal(0.0)
+            getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
+                if(TYPE_INCOME == billsItem.type)
+                    income += BigDecimal(billsItem.amount.replace(",", ""))
+            }
+            income
+        }
     }
 
-    suspend fun getMonth(month: String) {
-        list = withContext(Dispatchers.IO) {
-            getMonthLD.invoke(mapMonthToSQL(month))
+    private suspend fun getExpenseList(month: String): BigDecimal {
+        return withContext(Dispatchers.IO) {
+            var expense = BigDecimal(0.0)
+            getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
+                if(TYPE_EXPENSES == billsItem.type)
+                    expense += BigDecimal(billsItem.amount.replace(",", ""))
+            }
+            expense
         }
+    }
+
+    private fun getCategoriesLists(){
+        scope.launch {
+            listExpense = getTypeListUseCase.invoke(TYPE_EXPENSES) as ArrayList<BillsItem>
+            listIncome = getTypeListUseCase.invoke(TYPE_INCOME) as ArrayList<BillsItem>
+        }
+    }
+
+    suspend fun getTypeList(type: Int): List<BillsItem> {
+        return getTypeListUseCase.invoke(type)
     }
 
     suspend fun delete(item: BillsItem) {

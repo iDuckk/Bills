@@ -3,7 +3,6 @@ package com.billsAplication.presentation.billsList
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
@@ -18,19 +17,14 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavArgument
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navArgument
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Result
 import kotlinx.coroutines.*
@@ -140,14 +134,17 @@ class BillsListFragment : Fragment() {
             when (state) {
                 is Result -> {
                     billAdapter.submitList(sortingDesc(state.list))
-                    //if list is empty
-                    if(state.list.isNullOrEmpty())
-                        billAdapter.setAmount()
                 }
                 is Error -> {
                     Log.w("TAG", state.exception)
                 }
-                is Progress -> {}
+                is TotalAmountBar -> {
+                    binding.tvIncomeNum.text = state.inc
+                    binding.tvExpenseNum.text = state.exp
+                    binding.tvTotalNum.text = state.tot
+                    setBackColorAddButton()
+                    resizeText()
+                }
             }
             //Get off splash
             scope.launch {
@@ -161,7 +158,7 @@ class BillsListFragment : Fragment() {
     private fun intentActionSendText() {
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
-        if(typeAction){
+        if (typeAction) {
             mainActivity.navBottom().selectedItemId = R.id.shopListFragment
         }
     }
@@ -259,7 +256,7 @@ class BillsListFragment : Fragment() {
     //Get list Type (Income or Expense)
     private fun getSortList(type: Int): ArrayList<BillsItem> {
         val list = ArrayList<BillsItem>()
-        viewModel.list.value?.forEach {
+        viewModel.listBills.forEach {
             if (it.type == type)
                 list.add(it)
         }
@@ -428,8 +425,8 @@ class BillsListFragment : Fragment() {
                 setDescentSorting(getSortList(TYPE_EXPENSES))
                 createListCategoryExpenses()
             } else {
-                if (viewModel.list.value != null)
-                    setDescentSorting(viewModel.list.value!!)
+                if (viewModel.listBills != null)
+                    setDescentSorting(viewModel.listBills)
                 else {
                     viewModel.getStateList(viewModel.currentDate)
                 }
@@ -443,7 +440,7 @@ class BillsListFragment : Fragment() {
         val listCat = ArrayList<BillsItem>()
         //If chosen "None"
         if (type == TYPE_FULL_LIST_SORT) {
-            viewModel.list.value?.forEach {
+            viewModel.listBills.forEach {
                 if (it.category == value)
                     listCat += it
             }
@@ -473,8 +470,8 @@ class BillsListFragment : Fragment() {
                 setDefaultSortingViews()
                 //Cause without remove List, it scrolls down to the end
                 billAdapter.submitList(null)
-                if (viewModel.list.value != null)
-                    billAdapter.submitList(sortingDesc(viewModel.list.value!!.toMutableList()))
+                if (viewModel.listBills != null)
+                    billAdapter.submitList(sortingDesc(viewModel.listBills.toMutableList()))
             } else {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 0, 100)
                 visibilityFilterCard = true
@@ -605,20 +602,6 @@ class BillsListFragment : Fragment() {
             binding.recViewBill.itemAnimator = null
         }
 
-        billAdapter.isTitleIncome.observe(viewLifecycleOwner) {
-            binding.tvIncomeNum.text = it
-        }
-
-        billAdapter.isTitleExpense.observe(viewLifecycleOwner) {
-            binding.tvExpenseNum.text = it
-        }
-
-        billAdapter.isTitleTotal.observe(viewLifecycleOwner) {
-            binding.tvTotalNum.text = it
-            setBackColorAddButton()
-            resizeText()
-        }
-
         billAdapter.onClickListenerBillItem = {
             bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE)
             bundle.putParcelable(BILL_ITEM_KEY, it)
@@ -693,7 +676,6 @@ class BillsListFragment : Fragment() {
             }
         )
     }
-
 
 
     private fun setDefaultSortingViews() {
