@@ -2,7 +2,6 @@ package com.billsAplication.presentation.billsList
 
 import android.app.Application
 import android.content.res.Configuration
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,6 +32,9 @@ class BillsListViewModel @Inject constructor(
     private val _stateList = MutableLiveData<StateBillsList>()
     val stateList: LiveData<StateBillsList>
         get() = _stateList
+    private val _month = MutableLiveData<String>()
+    val month: LiveData<String>
+        get() = _month
 
     private val exception = CoroutineExceptionHandler { _, e ->
         _stateList.value =
@@ -40,7 +42,6 @@ class BillsListViewModel @Inject constructor(
     }
     private var scope = CoroutineScope(Dispatchers.Main + exception)
 
-    var currentDate: String
     var listBills = ArrayList<BillsItem>()
     var listIncome = ArrayList<BillsItem>()
     var listExpense = ArrayList<BillsItem>()
@@ -60,19 +61,32 @@ class BillsListViewModel @Inject constructor(
     private var OCTOBER = "OCTOBER"
     private var NOVEMBER = "NOVEMBER"
     private var DECEMBER = "DECEMBER"
-
     private val TYPE_EXPENSES = 0
     private val TYPE_INCOME = 1
     private val TYPE_EQUALS = 2
+    private val NEXT_MONTH = 20
+    private val PREV_MONTH = 21
+    private val CURRENT_MONTH = 22
+    private val DIRACTION_NEXT_MONTH = true
+    private val DIRACTION_PREV_MONTH = false
 
     init {
-        currentDate = currentDate()
-        getStateList(currentDate)
+        getStateList(currentDate())
+        _month.value = currentDate()
     }
 
-    fun defaultMonth() {
-        changeMonth = 0
-        changeYear = 0
+    fun changeMonth(direction: Int) {
+        val month = when (direction) {
+                NEXT_MONTH -> changeMonthBar(DIRACTION_NEXT_MONTH)
+                PREV_MONTH -> changeMonthBar(DIRACTION_PREV_MONTH)
+                else -> {
+                    changeMonth = 0
+                    changeYear = 0
+                    currentDate()
+                }
+            }
+        getStateList(month)
+        _month.value = month
     }
 
     fun getStateList(month: String) {
@@ -88,7 +102,8 @@ class BillsListViewModel @Inject constructor(
             _stateList.value = TotalAmountBar(
                 "%,.2f".format(Locale.ENGLISH, exp),
                 "%,.2f".format(Locale.ENGLISH, inc),
-                "%,.2f".format(Locale.ENGLISH, (inc - exp)))
+                "%,.2f".format(Locale.ENGLISH, (inc - exp))
+            )
 
             colorState(inc, exp)
         }
@@ -111,7 +126,7 @@ class BillsListViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             var income = BigDecimal(0.0)
             getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
-                if(TYPE_INCOME == billsItem.type)
+                if (TYPE_INCOME == billsItem.type)
                     income += BigDecimal(billsItem.amount.replace(",", ""))
             }
             income
@@ -122,21 +137,21 @@ class BillsListViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             var expense = BigDecimal(0.0)
             getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
-                if(TYPE_EXPENSES == billsItem.type)
+                if (TYPE_EXPENSES == billsItem.type)
                     expense += BigDecimal(billsItem.amount.replace(",", ""))
             }
             expense
         }
     }
 
-    private fun colorState(inc: BigDecimal, exp: BigDecimal){
-        if(inc > exp) _stateList.value = ColorState(TYPE_INCOME)
-        else if (inc < exp)  _stateList.value = ColorState(TYPE_EXPENSES)
+    private fun colorState(inc: BigDecimal, exp: BigDecimal) {
+        if (inc > exp) _stateList.value = ColorState(TYPE_INCOME)
+        else if (inc < exp) _stateList.value = ColorState(TYPE_EXPENSES)
         else _stateList.value = ColorState(TYPE_EQUALS)
 
     }
 
-    private fun getCategoriesLists(){
+    private fun getCategoriesLists() {
         scope.launch {
             listExpense = getTypeListUseCase.invoke(TYPE_EXPENSES) as ArrayList<BillsItem>
             listIncome = getTypeListUseCase.invoke(TYPE_INCOME) as ArrayList<BillsItem>
@@ -155,7 +170,7 @@ class BillsListViewModel @Inject constructor(
         return mapMonthToTextView(date.month.toString()) + " " + date.year.toString()
     }
 
-    fun changeMonthBar(typeChanges: Boolean): String {
+    private fun changeMonthBar(typeChanges: Boolean): String {
         if (typeChanges) changeMonth++ else changeMonth--
         //Set Year
         if (date.month.plus(changeMonth.toLong()).toString() == JANUARY
