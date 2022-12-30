@@ -26,7 +26,6 @@ import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Result
 import kotlinx.coroutines.*
@@ -88,8 +87,9 @@ class BillsListFragment : Fragment() {
     private var TYPE_BILL = "type_bill"
     private val TYPE_FULL_LIST_SORT = 101
     private val NONE = "None"
-    private val NEXT_MONTH = true
-    private val PREV_MONTH = false
+    private val NEXT_MONTH = 20
+    private val PREV_MONTH = 21
+    private val CURRENT_MONTH = 22
     private val CREATE_TYPE = 100
     private val UPDATE_TYPE = 101
 
@@ -123,8 +123,6 @@ class BillsListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observerList()
-
-        binding.tvMonth.text = viewModel.currentDate
 
         binding.cardViewFilter.visibility = View.VISIBLE
 
@@ -359,7 +357,7 @@ class BillsListFragment : Fragment() {
         scope.launch {
             //remove previous data
             spinnerAdapter.clear()
-            spinnerAdapter.add(NONE)
+            spinnerAdapter.add(NONE) //TODO убрать getTypeList
             withContext(Dispatchers.IO) {
                 viewModel.getTypeList(TYPE_EXPENSES).forEach {
                     list.add(it.category)
@@ -443,7 +441,7 @@ class BillsListFragment : Fragment() {
                 if (viewModel.listBills != null)
                     setDescentSorting(viewModel.listBills)
                 else {
-                    viewModel.getStateList(viewModel.currentDate)
+                    viewModel.getStateList(viewModel.currentDate())
                 }
                 createListCategory()
             }
@@ -491,47 +489,30 @@ class BillsListFragment : Fragment() {
                 visibilityFilterCard = true
             }
         }
+
+        viewModel.month.observe(viewLifecycleOwner) {
+            binding.tvMonth.text = it
+            //Set off filter card
+            if (visibilityFilterCard) {
+                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
+                visibilityFilterCard = false
+                setDefaultSortingViews()
+            }
+        }
+
         //Set month`s text in bar
         binding.tvMonth.setOnClickListener {
-            viewModel.currentDate = viewModel.currentDate()
-            if (viewModel.currentDate != binding.tvMonth.text.toString()) {
-                binding.tvMonth.text = viewModel.currentDate
-                viewModel.defaultMonth()
-                //Set off filter card
-                if (visibilityFilterCard) {
-                    slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                    visibilityFilterCard = false
-                    setDefaultSortingViews()
-                }
-                //set a new list
-                viewModel.getStateList(viewModel.currentDate)
+            if (viewModel.currentDate() != binding.tvMonth.text.toString()) {
+                viewModel.changeMonth(CURRENT_MONTH)
             }
         }
         //Previous month
         binding.imBackMonth.setOnClickListener {
-            viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
-            binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
-            //Set off filter card
-            if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                visibilityFilterCard = false
-                setDefaultSortingViews()
-            }
-            //set a new list
-            viewModel.getStateList(viewModel.currentDate)
+            viewModel.changeMonth(PREV_MONTH)
         }
         //Next month
         binding.imNextMonth.setOnClickListener {
-            viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
-            binding.tvMonth.text = viewModel.currentDate //Set month`s text in bar
-            //Set off filter card
-            if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                visibilityFilterCard = false
-                setDefaultSortingViews()
-            }
-            //set a new list
-            viewModel.getStateList(viewModel.currentDate)
+            viewModel.changeMonth(NEXT_MONTH)
         }
 
         binding.imBookmarks.setOnClickListener {
@@ -544,12 +525,12 @@ class BillsListFragment : Fragment() {
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
     private fun setBackColorAddButton(type: Int) {
         val t = if (binding.tvMonth.text == viewModel.currentDate()) {
-                type
-            } else {
-                //get saved type
-                val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-                sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
-            }
+            type
+        } else {
+            //get saved type
+            val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+            sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
+        }
         with(stateColorButton) {
             with(mainActivity.navBottom()) {
                 stateNavBot(t).let {
@@ -649,7 +630,7 @@ class BillsListFragment : Fragment() {
                     motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
 
                     //set a new list
-                    viewModel.getStateList(viewModel.currentDate)
+                    viewModel.getStateList(viewModel.currentDate())
                 }
             }
         }
