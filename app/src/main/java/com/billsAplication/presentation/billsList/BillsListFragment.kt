@@ -42,31 +42,22 @@ class BillsListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: BillsListViewModel
-
     @Inject
     lateinit var billAdapter: BillsAdapter
-
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var sortingDesc: SortingDesc
-
     @Inject
     lateinit var sortingAsc: SortingAsc
-
     @Inject
     lateinit var slideView: SlideView
-
     @Inject
     lateinit var crossfade: CrossFade
-
     @Inject
     lateinit var fadeInView: FadeInView
-
     @Inject
     lateinit var fadeOutView: FadeOutView
-
     @Inject
     lateinit var motionViewY: MotionViewY
 
@@ -286,25 +277,9 @@ class BillsListFragment : Fragment() {
             billAdapter.submitList(sortingDesc(list.toMutableList()))
     }
 
-    //Sort list after submit if ViewModel.list.value!!
-    private fun setDescentSorting(list: List<BillsItem>) {
-        //Cause without remove List, it scrolls down to hte end
-        billAdapter.submitList(null)
-        if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(sortingAsc(list.toMutableList()))
-        else
-            billAdapter.submitList(sortingDesc(list.toMutableList()))
-
-    }
-
     private fun spinnerCategory() {
-
         createSpinnerAdapter()
-
-        createListCategory()
-
         onItemSelectListSpinner()
-
     }
 
     private fun onItemSelectListSpinner() {
@@ -329,62 +304,24 @@ class BillsListFragment : Fragment() {
         }
     }
 
-    private fun createListCategory() {
-        scope.launch {
-            //remove previous data
-            spinnerAdapter.clear()
-            spinnerAdapter.add(NONE)
-            //set new list
-            val list = ArrayList<String>()
-            withContext(Dispatchers.IO) {
-                viewModel.getTypeList(TYPE_INCOME).forEach {
-                    list.add(it.category)
-                }
-                withContext(Dispatchers.IO) {
-                    viewModel.getTypeList(TYPE_EXPENSES).forEach {
-                        list.add(it.category)
-                    }
-                    withContext(Dispatchers.Main) {
-                        spinnerAdapter.addAll(list.distinct().sorted())
-                    }
-                }
+    private fun createListCategory(type: Int) {
+        //remove previous data
+        spinnerAdapter.clear()
+        spinnerAdapter.add(NONE)
+        //set new list
+        val list = when(type){
+            TYPE_INCOME -> viewModel.incomeCategorySpinner()
+            TYPE_EXPENSES -> viewModel.expenseCategorySpinner()
+            else -> {
+                val wholeList = ArrayList<String>()
+                wholeList.addAll(viewModel.incomeCategorySpinner())
+                wholeList.addAll(viewModel.expenseCategorySpinner())
+                wholeList
             }
         }
+        spinnerAdapter.addAll(list.distinct().sorted())
     }
 
-    private fun createListCategoryExpenses() {
-        val list = ArrayList<String>()
-        scope.launch {
-            //remove previous data
-            spinnerAdapter.clear()
-            spinnerAdapter.add(NONE) //TODO убрать getTypeList
-            withContext(Dispatchers.IO) {
-                viewModel.getTypeList(TYPE_EXPENSES).forEach {
-                    list.add(it.category)
-                }
-                withContext(Dispatchers.Main) {
-                    spinnerAdapter.addAll(list.distinct().sorted())
-                }
-            }
-        }
-    }
-
-    private fun createListCategoryIncome() {
-        val list = ArrayList<String>()
-        scope.launch {
-            //remove previous data
-            spinnerAdapter.clear()
-            spinnerAdapter.add(NONE)
-            withContext(Dispatchers.IO) {
-                viewModel.getTypeList(TYPE_INCOME).forEach {
-                    list.add(it.category)
-                }
-                withContext(Dispatchers.Main) {
-                    spinnerAdapter.addAll(list.distinct().sorted())
-                }
-            }
-        }
-    }
 
     private fun createSpinnerAdapter() {
         val listCategory = ArrayList<String>()
@@ -416,8 +353,8 @@ class BillsListFragment : Fragment() {
                 )
                 return view
             }
-        }
 
+        }
         binding.spinnerFilter.adapter = spinnerAdapter
     }
 
@@ -433,17 +370,17 @@ class BillsListFragment : Fragment() {
         } else {
             if (binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
                 setDescentSorting(getSortList(TYPE_INCOME))
-                createListCategoryIncome()
+                createListCategory(TYPE_INCOME)
             } else if (binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
                 setDescentSorting(getSortList(TYPE_EXPENSES))
-                createListCategoryExpenses()
+                createListCategory(TYPE_EXPENSES)
             } else {
                 if (viewModel.listBills != null)
                     setDescentSorting(viewModel.listBills)
                 else {
                     viewModel.getStateList(viewModel.currentDate())
                 }
-                createListCategory()
+                createListCategory(TYPE_FULL_LIST_SORT)
             }
         }
     }
@@ -476,6 +413,9 @@ class BillsListFragment : Fragment() {
         }
         //Sorting
         binding.imBillsFilter.setOnClickListener {
+
+            createListCategory(TYPE_FULL_LIST_SORT)
+
             if (visibilityFilterCard) {
                 slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
                 visibilityFilterCard = false
@@ -702,7 +642,7 @@ class BillsListFragment : Fragment() {
         super.onResume()
         if (!scope.isActive) {
             scope = CoroutineScope(Dispatchers.Main)
-            createListCategory()
+            createListCategory(TYPE_FULL_LIST_SORT)
         }
         if (mainActivity.navBottom().visibility == View.GONE ||
             mainActivity.navBottom().visibility == View.INVISIBLE

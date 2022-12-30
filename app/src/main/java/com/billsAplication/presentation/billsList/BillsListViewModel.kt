@@ -158,8 +158,20 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
-    suspend fun getTypeList(type: Int): List<BillsItem> {
-        return getTypeListUseCase.invoke(type)
+    fun incomeCategorySpinner(): ArrayList<String>{
+        val list = ArrayList<String>()
+        listIncome.forEach {
+            list.add(it.category)
+        }
+        return list
+    }
+
+    fun expenseCategorySpinner(): ArrayList<String>{
+        val list = ArrayList<String>()
+        listExpense.forEach {
+            list.add(it.category)
+        }
+        return list
     }
 
     suspend fun delete(item: BillsItem) {
