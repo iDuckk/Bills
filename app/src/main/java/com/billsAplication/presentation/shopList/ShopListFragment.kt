@@ -223,6 +223,7 @@ class ShopListFragment : Fragment() {
             putInt(ADD_NOTE_KEY, CREATE_TYPE_NOTE)
         }
         binding.buttonAddNoteKeyboard.setOnClickListener {
+            buttonMotion = true
             findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundle)
         }
     }
