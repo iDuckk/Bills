@@ -201,7 +201,7 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
-    private fun mapMonthToSQL(month: String): String {
+    fun mapMonthToSQL(month: String): String {
         return when (month.dropLast(5)) {
             application.getString(R.string.calendar_January) -> JANUARY + month.removePrefix(
                 month.dropLast(5)
@@ -255,7 +255,7 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
-    private fun mapMonthToTextView(month: String): String {
+    fun mapMonthToTextView(month: String): String {
         //Update resources for new language
         val config = Configuration()
         val locale = Locale(Locale.getDefault().language)
