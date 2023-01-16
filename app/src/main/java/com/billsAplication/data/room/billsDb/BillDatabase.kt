@@ -38,7 +38,7 @@ abstract class BillDatabase : RoomDatabase() {
 
         fun destroyInstance() {
             if (INSTANCE != null) {
-                if (INSTANCE!!.isOpen()) {
+                if (INSTANCE!!.isOpen) {
                     INSTANCE!!.close()
                 }
                 INSTANCE = null
