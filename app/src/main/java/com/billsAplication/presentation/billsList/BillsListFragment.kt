@@ -135,7 +135,7 @@ class BillsListFragment : Fragment() {
         viewModel.stateList.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is Result -> {
-                    billAdapter.submitList(sortingDesc(state.list))
+                    state.list.let { billAdapter.submitList(sortingDesc(state.list)) }
                 }
                 is Error -> {
                     Log.w("TAG", state.exception)
@@ -648,6 +648,7 @@ class BillsListFragment : Fragment() {
             mainActivity.navBottom().visibility == View.INVISIBLE
         )
             fadeInView(mainActivity.navBottom())
+        viewModel.getStateList(binding.tvMonth.text.toString())
     }
 
     override fun onPause() {
