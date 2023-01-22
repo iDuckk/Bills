@@ -2,6 +2,7 @@ package com.billsAplication.presentation.billsList
 
 import android.app.Application
 import android.content.res.Configuration
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -77,27 +78,29 @@ class BillsListViewModel @Inject constructor(
 
     fun changeMonth(direction: Int) {
         val month = when (direction) {
-                NEXT_MONTH -> changeMonthBar(DIRACTION_NEXT_MONTH)
-                PREV_MONTH -> changeMonthBar(DIRACTION_PREV_MONTH)
-                else -> {
-                    changeMonth = 0
-                    changeYear = 0
-                    currentDate()
-                }
+            NEXT_MONTH -> changeMonthBar(DIRACTION_NEXT_MONTH)
+            PREV_MONTH -> changeMonthBar(DIRACTION_PREV_MONTH)
+            else -> {
+                changeMonth = 0
+                changeYear = 0
+                currentDate()
             }
+        }
         getStateList(month)
         _month.value = month
     }
 
     fun getStateList(month: String) {
-        //month's list
-        getMainList(month)
         //Get lists for spinner
-        getCategoriesLists()
+        getCategoriesListExpenses()
+        getCategoriesListIncome()
         //Total amounts values
         scope.launch {
-            val exp = getExpenseList(month)
-            val inc = getIncomeList(month)
+            //month's list
+            getMainList(month = month)
+
+            val exp = getExpenseList(month = month)
+            val inc = getIncomeList(month = month)
 
             _stateList.value = TotalAmountBar(
                 "%,.2f".format(Locale.ENGLISH, exp),
@@ -110,22 +113,17 @@ class BillsListViewModel @Inject constructor(
 
     }
 
-    private fun getMainList(month: String) {
-        scope.launch() {
-            withContext(Dispatchers.IO) {
-                val result = Result(getMonth.invoke(mapMonthToSQL(month)))
-                withContext(Dispatchers.Main) {
-                    listBills = result.list //This list for Spinner
-                    _stateList.value = result
-                }
-            }
-        }
+    suspend fun getMainList(month: String) {
+        _stateList.value = withContext(Dispatchers.IO) {
+            listBills = getMonth.invoke(mapMonthToSQL(month = month))
+            Result(listBills)
+        }!!
     }
 
-    private suspend fun getIncomeList(month: String): BigDecimal {
+    suspend fun getIncomeList(month: String): BigDecimal {
         return withContext(Dispatchers.IO) {
             var income = BigDecimal(0.0)
-            getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
+            getMonth.invoke(mapMonthToSQL(month = month)).forEachIndexed { index, billsItem ->
                 if (TYPE_INCOME == billsItem.type)
                     income += BigDecimal(billsItem.amount.replace(",", ""))
             }
@@ -133,10 +131,10 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getExpenseList(month: String): BigDecimal {
+    suspend fun getExpenseList(month: String): BigDecimal {
         return withContext(Dispatchers.IO) {
             var expense = BigDecimal(0.0)
-            getMonth.invoke(mapMonthToSQL(month)).forEachIndexed { index, billsItem ->
+            getMonth.invoke(mapMonthToSQL(month = month)).forEachIndexed { index, billsItem ->
                 if (TYPE_EXPENSES == billsItem.type)
                     expense += BigDecimal(billsItem.amount.replace(",", ""))
             }
@@ -144,21 +142,26 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
-    private fun colorState(inc: BigDecimal, exp: BigDecimal) {
-        if (inc > exp) _stateList.value = ColorState(TYPE_INCOME)
-        else if (inc < exp) _stateList.value = ColorState(TYPE_EXPENSES)
-        else _stateList.value = ColorState(TYPE_EQUALS)
+    fun colorState(inc: BigDecimal, exp: BigDecimal) {
+        if (inc > exp) _stateList.value = ColorState(type = TYPE_INCOME)
+        else if (inc < exp) _stateList.value = ColorState(type = TYPE_EXPENSES)
+        else _stateList.value = ColorState(type = TYPE_EQUALS)
 
     }
 
-    private fun getCategoriesLists() {
+    fun getCategoriesListExpenses() {
         scope.launch {
-            listExpense = getTypeListUseCase.invoke(TYPE_EXPENSES) as ArrayList<BillsItem>
-            listIncome = getTypeListUseCase.invoke(TYPE_INCOME) as ArrayList<BillsItem>
+            listExpense = getTypeListUseCase.invoke(type = TYPE_EXPENSES) as ArrayList<BillsItem>
         }
     }
 
-    fun incomeCategorySpinner(): ArrayList<String>{
+    fun getCategoriesListIncome() {
+        scope.launch {
+            listIncome = getTypeListUseCase.invoke(type = TYPE_INCOME) as ArrayList<BillsItem>
+        }
+    }
+
+    fun incomeCategorySpinner(): ArrayList<String> {
         val list = ArrayList<String>()
         listIncome.forEach {
             list.add(it.category)
@@ -166,7 +169,7 @@ class BillsListViewModel @Inject constructor(
         return list
     }
 
-    fun expenseCategorySpinner(): ArrayList<String>{
+    fun expenseCategorySpinner(): ArrayList<String> {
         val list = ArrayList<String>()
         listExpense.forEach {
             list.add(it.category)
@@ -175,14 +178,14 @@ class BillsListViewModel @Inject constructor(
     }
 
     suspend fun delete(item: BillsItem) {
-        delete.invoke(item)
+        delete.invoke(item = item)
     }
 
     fun currentDate(): String {
-        return mapMonthToTextView(date.month.toString()) + " " + date.year.toString()
+        return mapMonthToTextView(month = date.month.toString()) + " " + date.year.toString()
     }
 
-    private fun changeMonthBar(typeChanges: Boolean): String {
+    fun changeMonthBar(typeChanges: Boolean): String {
         if (typeChanges) changeMonth++ else changeMonth--
         //Set Year
         if (date.month.plus(changeMonth.toLong()).toString() == JANUARY

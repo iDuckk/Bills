@@ -17,33 +17,37 @@ class AddNoteViewModel@Inject constructor(
     private val TYPE_NOTE = 3
 
     suspend fun getItem(id : Int): BillsItem{
-        return getBill.invoke(id)
+        return getBill.invoke(id = id)
     }
 
     suspend fun add(note : String, color: String){
-        addBill.invoke(newItem(0, note, color))
+        addBill.invoke(newItem(id = 0, textNote = note, color = color))
     }
 
     suspend fun updateNotesList(billItem : BillsItem){
-        update.invoke(billItem)
+        update.invoke(item = billItem)
     }
 
     suspend fun delete(billItem : BillsItem){
-        delete.invoke(billItem)
+        delete.invoke(item = billItem)
     }
 
     fun newItem(id: Int, textNote: String, color: String): BillsItem {
         return BillsItem(
-            id,
-            TYPE_NOTE,
-            "",
-            "",
-            "",
-            "",
-            "",
-            textNote,
-            color,
-            false, "", "", "", "", ""
+            id = id,
+            type = TYPE_NOTE,
+            month = "",
+            date = "",
+            time = "",
+            category = "",
+            amount = "",
+            note = textNote,
+            description = color,
+            bookmark = false, image1 = "",
+            image2 = "",
+            image3 = "",
+            image4 = "",
+            image5 = ""
         )
     }
 
