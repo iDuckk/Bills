@@ -49,6 +49,8 @@
 
                 <action android:name="android.media.action.IMAGE_CAPTURE" />
 
+                <action android:name="android.speech.RecognitionService" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>

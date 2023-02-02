@@ -1,6 +1,7 @@
 package com.billsAplication.presentation.shopList
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -31,7 +33,6 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
@@ -141,7 +142,7 @@ class ShopListFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun buttonSpeechToText() {
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext());
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext())
 
         val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(
@@ -189,7 +190,6 @@ class ShopListFragment : Fragment() {
 //                Log.d("TAG", data!![0])
                 CoroutineScope(Main).launch {
                     viewModel.add(data!![0], COLOR_NOTE_PRIMARY)
-
                 }
             }
 
@@ -320,7 +320,7 @@ class ShopListFragment : Fragment() {
                 )
             binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-            (context as InterfaceMainActivity).navBottom().isEnabled = true
+            mainActivity.navBottom().isEnabled = true
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.dismiss()
         } else {
@@ -330,7 +330,7 @@ class ShopListFragment : Fragment() {
                 )
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
-            (context as InterfaceMainActivity).navBottom().isEnabled = false
+            mainActivity.navBottom().isEnabled = false
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.show()
         }
