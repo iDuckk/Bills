@@ -1,6 +1,5 @@
 package com.billsAplication.presentation.shopList
 
-// ********   For childOfViewAtPositionWithMatcher
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
@@ -281,6 +280,7 @@ class ShopListFragmentTest {
 
         intended(expectedIntent)
         Intents.release()
+
     }
 
     fun childOfViewAtPositionWithMatcher(childId: Int, position: Int, childMatcher: Matcher<View>) : Matcher<View> {
@@ -298,28 +298,6 @@ class ShopListFragmentTest {
                 return viewHolder != null && matcher.matches(viewHolder.itemView)
             }
 
-        }
-    }
-
-    private fun speechRecognizerListener(): RecognitionListener {
-        return object : RecognitionListener {
-            override fun onReadyForSpeech(bundle: Bundle) {}
-            override fun onBeginningOfSpeech() {
-//                Log.d("TAG", "Beginning")
-            }
-
-            override fun onRmsChanged(v: Float) {}
-            override fun onBufferReceived(bytes: ByteArray) {}
-            override fun onEndOfSpeech() {}
-            override fun onError(i: Int) {}
-            override fun onResults(bundle: Bundle) {
-                val data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                Log.d("TAG", data!![0])
-
-            }
-
-            override fun onPartialResults(bundle: Bundle) {}
-            override fun onEvent(i: Int, bundle: Bundle) {}
         }
     }
 

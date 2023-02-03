@@ -320,7 +320,9 @@ class ShopListFragment : Fragment() {
                 )
             binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-            mainActivity.navBottom().isEnabled = true
+            if(requireActivity() is InterfaceMainActivity){
+                mainActivity.navBottom().isEnabled = true
+            }
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.dismiss()
         } else {
@@ -330,7 +332,9 @@ class ShopListFragment : Fragment() {
                 )
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
-            mainActivity.navBottom().isEnabled = false
+            if(requireActivity() is InterfaceMainActivity) {
+                mainActivity.navBottom().isEnabled = false
+            }
             binding.buttonAddNoteMicro.backgroundTintList = colorState
             dialogRecording.show()
         }
