@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAddNoteBinding
-import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.InterfaceMainActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -46,7 +45,7 @@ class AddNoteFragment : Fragment() {
 
     private var COLOR_NOTE = ""
 
-    private val mainActivity by lazy {
+    val mainActivity by lazy {
         (context as InterfaceMainActivity)
     }
 
@@ -70,7 +69,9 @@ class AddNoteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (context as InterfaceMainActivity).navBottom().visibility = View.GONE
+        if(requireActivity() is InterfaceMainActivity){
+            mainActivity.navBottom().visibility = View.GONE
+        }
 
         buttonCancel()
 
@@ -208,7 +209,9 @@ class AddNoteFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         scope.cancel()
-        (context as InterfaceMainActivity).navBottom().visibility = View.VISIBLE
+        if(requireActivity() is InterfaceMainActivity){
+            mainActivity.navBottom().visibility = View.VISIBLE
+        }
         _binding = null
     }
 }

@@ -24,6 +24,10 @@ class AddNoteViewModel@Inject constructor(
         addBill.invoke(newItem(id = 0, textNote = note, color = color))
     }
 
+    suspend fun addItem(item: BillsItem){
+        addBill.invoke(item)
+    }
+
     suspend fun updateNotesList(billItem : BillsItem){
         update.invoke(item = billItem)
     }
