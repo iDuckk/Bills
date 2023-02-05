@@ -152,7 +152,9 @@ class BillsListFragment : Fragment() {
             }
             //Get off splash
             scope.launch {
-                mainActivity.splash()
+                if(requireActivity() is InterfaceMainActivity) {
+                    mainActivity.splash()
+                }
                 //if we receive note string from other app
                 intentActionSendText()
             }
@@ -163,7 +165,9 @@ class BillsListFragment : Fragment() {
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
         if (typeAction) {
-            mainActivity.navBottom().selectedItemId = R.id.shopListFragment
+            if(requireActivity() is InterfaceMainActivity) {
+                mainActivity.navBottom().selectedItemId = R.id.shopListFragment
+            }
         }
     }
 
@@ -472,12 +476,14 @@ class BillsListFragment : Fragment() {
             sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
         }
         with(stateColorButton) {
-            with(mainActivity.navBottom()) {
-                stateNavBot(t).let {
-                    if (itemIconTintList != it) { //if do it again
-                        itemIconTintList = it //set color of icon nav bottom income
-                        itemTextColor = it //set color of text nav bottom income
-                        itemRippleColor = it //set color effect
+            if(requireActivity() is InterfaceMainActivity) {
+                with(mainActivity.navBottom()) {
+                    stateNavBot(t).let {
+                        if (itemIconTintList != it) { //if do it again
+                            itemIconTintList = it //set color of icon nav bottom income
+                            itemTextColor = it //set color of text nav bottom income
+                            itemRippleColor = it //set color effect
+                        }
                     }
                 }
             }
@@ -549,8 +555,10 @@ class BillsListFragment : Fragment() {
                 slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
                 fadeInView(binding.imCloseDel)
                 //NavBottom
-                motionViewY(mainActivity.navBottom(), 0f, heightNavBottom.toFloat())
-                slideView(mainActivity.navBottom(), heightNavBottom, 0)
+                if(requireActivity() is InterfaceMainActivity) {
+                    motionViewY(mainActivity.navBottom(), 0f, heightNavBottom.toFloat())
+                    slideView(mainActivity.navBottom(), heightNavBottom, 0)
+                }
                 //BudgetBar
                 if (visibilityFilterCard) {
                     slideView(binding.cardViewFilter, 100, 0)
@@ -566,8 +574,10 @@ class BillsListFragment : Fragment() {
                     slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
                     fadeOutView(binding.imCloseDel)
                     //NavBottom
-                    slideView(mainActivity.navBottom(), 0, heightNavBottom)
-                    motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
+                    if(requireActivity() is InterfaceMainActivity) {
+                        slideView(mainActivity.navBottom(), 0, heightNavBottom)
+                        motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
+                    }
 
                     //set a new list
                     viewModel.getStateList(viewModel.currentDate())
@@ -644,10 +654,11 @@ class BillsListFragment : Fragment() {
             scope = CoroutineScope(Dispatchers.Main)
             createListCategory(TYPE_FULL_LIST_SORT)
         }
-        if (mainActivity.navBottom().visibility == View.GONE ||
-            mainActivity.navBottom().visibility == View.INVISIBLE
-        )
-            fadeInView(mainActivity.navBottom())
+        if(requireActivity() is InterfaceMainActivity) {
+            if (mainActivity.navBottom().visibility == View.GONE ||
+                mainActivity.navBottom().visibility == View.INVISIBLE)
+                fadeInView(mainActivity.navBottom())
+        }
         viewModel.getStateList(binding.tvMonth.text.toString())
     }
 
