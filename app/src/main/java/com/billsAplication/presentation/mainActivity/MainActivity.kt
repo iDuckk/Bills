@@ -4,20 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
-import androidx.core.os.bundleOf
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.billsAplication.R
 import com.billsAplication.databinding.ActivityMainBinding
-import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.google.android.gms.ads.AdRequest
@@ -168,6 +163,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         if (binding.splash.visibility == View.VISIBLE) {
             withContext(Dispatchers.Main) {
                 delay(1000)
+//                binding.splash.visibility = View.GONE
                 FadeOutView().invoke(binding.splash)
                 binding.cardViewContainer.isEnabled = true
                 binding.cardViewNavBottom.isEnabled = true
