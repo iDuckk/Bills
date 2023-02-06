@@ -89,8 +89,8 @@ class AnalyticsFragment : Fragment() {
 
     private fun firstEntrance() {
         //SetColor state
-        binding.tvExpense.setBackgroundResource(R.drawable.textview_fullbackground_expense)
-        binding.tvIncome.setBackgroundResource(R.drawable.textview_border_income)
+        binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_expense)
+        binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_income)
         binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
         binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
         binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
@@ -169,8 +169,8 @@ class AnalyticsFragment : Fragment() {
 
         binding.tvExpense.setOnClickListener{
             //SetColor state
-            binding.tvExpense.setBackgroundResource(R.drawable.textview_fullbackground_expense)
-            binding.tvIncome.setBackgroundResource(R.drawable.textview_border_income)
+            binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_expense)
+            binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_income)
             binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
 //            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
@@ -183,8 +183,8 @@ class AnalyticsFragment : Fragment() {
 
         binding.tvIncome.setOnClickListener{
             //SetColor state
-            binding.tvExpense.setBackgroundResource(R.drawable.textview_border_expense)
-            binding.tvIncome.setBackgroundResource(R.drawable.textview_fullbackground_income)
+            binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_expense)
+            binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_income)
             binding.tvIncome.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             binding.tvExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
 //            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_income))
