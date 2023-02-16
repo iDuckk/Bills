@@ -142,6 +142,22 @@ class ShopListFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun buttonSpeechToText() {
+//        val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+//        speechIntent.putExtra(
+//            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+//            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+//        )
+//        speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak please")
+//        startActivityForResult(speechIntent, 1) //RESULT_SPEECH_TO_TEXT
+
+//        @Override
+//        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//            if (requestCode == RESULT_SPEECH_TO_TEXT && resultCode == RESULT_OK) {
+//                ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+//                TextView tvSpeech = (TextView) findViewById(R.id.tv_speech);
+//                tvSpeech.setText(matches.get(0));
+//            }
+//        }
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext())
 
         val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
