@@ -21,6 +21,7 @@ import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.billsAplication.FakeBillsListRepository
 import com.billsAplication.R
 import com.billsAplication.domain.billsUseCases.GetMonthLDUseCase
@@ -31,9 +32,11 @@ import org.hamcrest.Matcher
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.util.ArrayList
 import kotlin.random.Random
 
+@RunWith(AndroidJUnit4::class)
 class AnalyticsFragmentTest{
 
     lateinit var scenario: FragmentScenario<AnalyticsFragment>
