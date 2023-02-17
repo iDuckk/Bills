@@ -47,9 +47,13 @@ class FakeBillsListRepository: BillsListRepository {
         list.add(item)
     }
 
-    override fun getAllDataList(): LiveData<List<BillsItem>> {
+    override fun getAllDataListLD(): LiveData<List<BillsItem>> {
         liveDada.postValue(list)
         return liveDada
+    }
+
+    override fun getAllDataList(): List<BillsItem> {
+        return list
     }
 
     override suspend fun deleteItem(item: BillsItem) {

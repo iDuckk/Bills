@@ -3,12 +3,12 @@ package com.billsAplication.presentation.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
-import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
+import com.billsAplication.domain.billsUseCases.GetAllDataListLDUseCase
 import com.billsAplication.domain.model.BillsItem
 import javax.inject.Inject
 
 class SearchViewModel @Inject constructor(
-    private val getAllDatabase: GetAllDataListUseCase,
+    private val getAllDatabase: GetAllDataListLDUseCase,
     private val delete : DeleteBillItemUseCase
 ): ViewModel() {
 

@@ -3,15 +3,11 @@ package com.billsAplication.presentation.addBill
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.androiddevs.shoppinglisttestingyt.getOrAwaitValue
-import com.billsAplication.domain.billsUseCases.AddBillItemUseCase
-import com.billsAplication.domain.billsUseCases.FakeBillsListRepository
-import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
-import com.billsAplication.domain.billsUseCases.UpdateBillItemUseCase
+import com.billsAplication.domain.billsUseCases.*
 import com.billsAplication.domain.model.BillsItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.*
-import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 internal class AddBillViewModelTest {
@@ -63,18 +59,6 @@ internal class AddBillViewModelTest {
     }
 
     @Test
-    fun getAll() {
-
-        viewModel.getAll()
-
-        val expected = list
-        val actual = viewModel.list.getOrAwaitValue() as ArrayList<BillsItem>
-
-        Assert.assertEquals(expected, actual)
-
-    }
-
-    @Test
     fun add() = runTest{
 
         val newItem = item.copy(id = 4)
@@ -85,7 +69,7 @@ internal class AddBillViewModelTest {
         viewModel.getAll()
 
         val expected = list
-        val actual = viewModel.list.getOrAwaitValue() as ArrayList<BillsItem>
+        val actual = viewModel.list as ArrayList<BillsItem>
 
         Assert.assertEquals(expected, actual)
     }
@@ -104,7 +88,7 @@ internal class AddBillViewModelTest {
         viewModel.getAll()
 
         val expected = list
-        val actual = viewModel.list.getOrAwaitValue() as ArrayList<BillsItem>
+        val actual = viewModel.list as ArrayList<BillsItem>
 
         Assert.assertEquals(expected, actual)
 

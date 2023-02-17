@@ -10,7 +10,9 @@ interface BillsListRepository {
 
     suspend fun deleteItem(item : BillsItem)
 
-    fun getAllDataList() : LiveData<List<BillsItem>>
+    fun getAllDataListLD() : LiveData<List<BillsItem>>
+
+    fun getAllDataList() : List<BillsItem>
 
     suspend fun getItem(id : Int) : BillsItem
 

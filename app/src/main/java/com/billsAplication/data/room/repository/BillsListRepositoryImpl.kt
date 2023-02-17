@@ -20,12 +20,21 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         billDao.delete(mapper.mapBillItemToBillEntity(item))
     }
 
-    override fun getAllDataList(): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getAll()){
+    override fun getAllDataListLD(): LiveData<List<BillsItem>> {
+        return Transformations.map(billDao.getAllLD()){
             it.map {
                 mapper.mapBillEntityToBillItem(it)
             }
         }
+    }
+
+    override fun getAllDataList(): List<BillsItem> {
+        var newList = ArrayList<BillsItem>()
+        val list = billDao.getAll()
+        list.forEach {
+            newList.add(mapper.mapBillEntityToBillItem(it))
+        }
+        return newList
     }
 
     override suspend fun getItem(id: Int) : BillsItem {

@@ -2,7 +2,6 @@ package com.billsAplication.data.room.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
-import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import com.androiddevs.shoppinglisttestingyt.getOrAwaitValue
 import com.billsAplication.data.room.billsDb.BillDao
@@ -12,7 +11,6 @@ import com.billsAplication.domain.model.BillsItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.*
-import kotlin.math.exp
 
 @ExperimentalCoroutinesApi
 class BillsListRepositoryImplTest {
@@ -62,7 +60,7 @@ class BillsListRepositoryImplTest {
 
         billsListRepositoryImpl.addItem(item = item)
 
-        val expected = billsListRepositoryImpl.getAllDataList().getOrAwaitValue()
+        val expected = billsListRepositoryImpl.getAllDataListLD().getOrAwaitValue()
 
         Assert.assertEquals(item, expected[0])
 
@@ -88,7 +86,7 @@ class BillsListRepositoryImplTest {
 
         billsListRepositoryImpl.deleteItem(item = item)
 
-        val expected = billsListRepositoryImpl.getAllDataList().getOrAwaitValue()
+        val expected = billsListRepositoryImpl.getAllDataListLD().getOrAwaitValue()
 
         Assert.assertEquals(0, expected.size)
 
@@ -168,7 +166,7 @@ class BillsListRepositoryImplTest {
 
         billsListRepositoryImpl.updateItem(item = newItem)
 
-        val expected = billsListRepositoryImpl.getAllDataList().getOrAwaitValue()
+        val expected = billsListRepositoryImpl.getAllDataListLD().getOrAwaitValue()
 
         Assert.assertEquals(newItem, expected[0])
 

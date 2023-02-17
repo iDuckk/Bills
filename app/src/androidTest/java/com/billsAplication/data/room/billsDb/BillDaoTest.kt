@@ -55,7 +55,7 @@ class BillDaoTest {
 
         dao.insert(item = item)
 
-        val receivedBillsItem = dao.getAll().getOrAwaitValue()
+        val receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(item, receivedBillsItem[0])
 
@@ -66,13 +66,13 @@ class BillDaoTest {
 
         dao.insert(item = item)
 
-        var receivedBillsItem = dao.getAll().getOrAwaitValue()
+        var receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(1, receivedBillsItem.size)
 
         dao.delete(item = item)
 
-        receivedBillsItem = dao.getAll().getOrAwaitValue()
+        receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(0, receivedBillsItem.size)
 
@@ -83,7 +83,7 @@ class BillDaoTest {
 
         dao.insert(item = item)
 
-        var receivedBillsItem = dao.getAll().getOrAwaitValue()
+        var receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(item, receivedBillsItem[0])
 
@@ -96,7 +96,7 @@ class BillDaoTest {
 
         dao.update(item = newItem)
 
-        receivedBillsItem = dao.getAll().getOrAwaitValue()
+        receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(newItem, receivedBillsItem[0])
 
@@ -196,7 +196,7 @@ class BillDaoTest {
 
         dao.insert(item = item)
 
-        val receivedBillsItem = dao.getAll().getOrAwaitValue()
+        val receivedBillsItem = dao.getAllLD().getOrAwaitValue()
 
         Assert.assertEquals(item, receivedBillsItem[0])
 

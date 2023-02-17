@@ -10,7 +10,10 @@ import com.billsAplication.data.room.model.BillEntity
 interface BillDao {
 
     @Query("SELECT * FROM bills_list")
-    fun getAll(): LiveData<List<BillEntity>>
+    fun getAllLD(): LiveData<List<BillEntity>>
+
+    @Query("SELECT * FROM bills_list")
+    fun getAll(): List<BillEntity>
 
     @Query("SELECT * FROM bills_list WHERE month = :month")
     fun getMonthLD(month : String): LiveData<List<BillEntity>>
