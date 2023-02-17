@@ -1,15 +1,12 @@
 package com.billsAplication.presentation.settings
 
-import android.app.Application
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.domain.billsUseCases.CheckPointDb
 import com.billsAplication.domain.billsUseCases.CloseDb
-import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
-import com.billsAplication.domain.billsUseCases.GetAllDataListUseCase
+import com.billsAplication.domain.billsUseCases.GetAllDataListLDUseCase
 import com.billsAplication.domain.model.BillsItem
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,7 +14,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val checkPoint: CheckPointDb,
     private val closeDb: CloseDb,
-    private val getAllDatabase : GetAllDataListUseCase
+    private val getAllDatabase : GetAllDataListLDUseCase
     ): ViewModel()  {
 
     lateinit var listAll: LiveData<List<BillsItem>>

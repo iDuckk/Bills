@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.repository.BillsListRepository
-import com.billsAplication.presentation.mainActivity.MainActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert
 import org.junit.Before
@@ -16,7 +15,7 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
 @ExperimentalCoroutinesApi
-class GetAllDataListUseCaseTest {
+class GetAllDataListLDUseCaseTest {
 
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
@@ -56,8 +55,8 @@ class GetAllDataListUseCaseTest {
 
         liveData.postValue(list)
 
-        val useCase = GetAllDataListUseCase(repo = billsListRepository)
-        Mockito.`when`(billsListRepository.getAllDataList()).thenReturn(liveData)
+        val useCase = GetAllDataListLDUseCase(repo = billsListRepository)
+        Mockito.`when`(billsListRepository.getAllDataListLD()).thenReturn(liveData)
 
         val actual = useCase.invoke()
 
@@ -67,8 +66,8 @@ class GetAllDataListUseCaseTest {
     @Test
     fun `should return null from repository`(){
 
-        val useCase = GetAllDataListUseCase(repo = billsListRepository)
-        Mockito.`when`(billsListRepository.getAllDataList()).thenReturn(null)
+        val useCase = GetAllDataListLDUseCase(repo = billsListRepository)
+        Mockito.`when`(billsListRepository.getAllDataListLD()).thenReturn(null)
 
         val actual = useCase.invoke()
 
@@ -78,8 +77,8 @@ class GetAllDataListUseCaseTest {
     @Test
     fun `if return empty list from repository`(){
 
-        val useCase = GetAllDataListUseCase(repo = billsListRepository)
-        Mockito.`when`(billsListRepository.getAllDataList()).thenReturn(liveData)
+        val useCase = GetAllDataListLDUseCase(repo = billsListRepository)
+        Mockito.`when`(billsListRepository.getAllDataListLD()).thenReturn(liveData)
 
         val actual = useCase.invoke()
 
