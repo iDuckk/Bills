@@ -1,12 +1,10 @@
 package com.billsAplication.presentation.addBill
 
 import android.annotation.SuppressLint
+import android.app.*
 import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.Dialog
-import android.app.TimePickerDialog
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -20,9 +18,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -87,6 +88,7 @@ class AddBillFragment : Fragment() {
     private val widthPhoto = 600f
     private val heightPhoto = 800f
     private val providerPackageApp = "com.billsAplication.fileprovider"
+    private val TAG = "AddBillFragment"
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -94,7 +96,6 @@ class AddBillFragment : Fragment() {
     private var photoFile: File? = null
     private var TYPE_BILL = TYPE_EXPENSE
     private var bookmark = false
-    private var checkFocus = true
     private var countPhoto = 0
     private var billItem: BillsItem? = null
     private var TYPE_UPDATE = 101
@@ -105,7 +106,8 @@ class AddBillFragment : Fragment() {
     private var TIME_FORMAT_24 = ""
     private var scope = CoroutineScope(Dispatchers.Main)
 
-    lateinit var colorState: ColorStateList
+    private lateinit var colorState: ColorStateList
+
     @Inject
     lateinit var loadImage: LoadImageFromGallery
     @Inject
@@ -278,71 +280,58 @@ class AddBillFragment : Fragment() {
         }
 
         binding.imAddBillBack.setOnClickListener {
+            this.hideKeyboard()
             requireActivity().onBackPressed()
         }
     }
 
     private fun editTextListeners() {
-        binding.edDateAdd.setOnFocusChangeListener { view, b ->
+        binding.edDateAdd.setOnClickListener {
+            this.hideKeyboard()
             setColorStateEditText(DATE)
-            //Picker double calls. Because of setText calls Focus: clearFocus()
-            if (checkFocus) {
-                initDatePickerDialog()
-                checkFocus = false
-            }
-            binding.edDateAdd.clearFocus()
-            checkFocus = true
+            initDatePickerDialog()
         }
 
-        binding.edTimeAdd.setOnFocusChangeListener { view, b ->
+        binding.edTimeAdd.setOnClickListener {
+            this.hideKeyboard()
             setColorStateEditText(TIME)
-            //Picker double calls. Because of setText calls Focus: clearFocus()
-            if (checkFocus) {
-                initTimePicker()
-                checkFocus = false
-            }
-            binding.edTimeAdd.clearFocus()
-            checkFocus = true
+            initTimePicker()
         }
 
-        binding.edAddCategory.setOnFocusChangeListener { view, b ->
+        binding.edAddCategory.setOnClickListener {
             setColorStateEditText(CATEGORY)
-            if (checkFocus) {
-                val dialogCategory = FragmentDialogCategory()
+            val dialogCategory = FragmentDialogCategory()
 
-                val args = Bundle()
-                //sent type Category to Dialog
-                if (TYPE_BILL == TYPE_EXPENSE)
-                    args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_EXPENSES)
-                else
-                    args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_INCOME)
-                dialogCategory.arguments = args
+            val args = Bundle()
+            //sent type Category to Dialog
+            if (TYPE_BILL == TYPE_EXPENSE)
+                args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_EXPENSES)
+            else
+                args.putInt(KEY_CATEGORY_ITEM_SEND, TYPE_CATEGORY_INCOME)
+            dialogCategory.arguments = args
 
-                dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
-                dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM) { requestKey, bundle ->
-                    // We use a String here, but any type that can be put in a Bundle is supported
-                    binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
-                    binding.edAddAmount.requestFocus()
-                }
-                checkFocus = false
+            dialogCategory.show(requireActivity().supportFragmentManager, TAG_DIALOG_CATEGORY)
+            dialogCategory.setFragmentResultListener(REQUESTKEY_CATEGORY_ITEM) { requestKey, bundle ->
+                // We use a String here, but any type that can be put in a Bundle is supported
+                binding.edAddCategory.setText(bundle.getString(BUNDLEKEY_CATEGORY_ITEM))
+                binding.edAddAmount.requestFocus()
+                setColorStateEditText(AMOUNT)
             }
-            binding.edAddCategory.clearFocus()
-            checkFocus = true
-        }
 
+        }
         binding.edAddAmount.setOnFocusChangeListener { view, b ->
             setColorStateEditText(AMOUNT)
         }
-
+        binding.edAddAmount.setOnClickListener {
+            setColorStateEditText(AMOUNT)
+        }
         binding.edAddNote.setOnFocusChangeListener { view, b ->
             setColorStateEditText(NOTE)
         }
-
         binding.edDescription.setOnFocusChangeListener { view, b ->
             setColorStateEditText(DESCRIPTION)
         }
     }
-
     private fun textViewListeners() {
         binding.tvAddExpenses.setOnClickListener {
             setTypeExpense()
@@ -462,33 +451,23 @@ class AddBillFragment : Fragment() {
         if (!billItem?.image1.isNullOrEmpty()) imageList.add(
             ImageItem(
                 billItem!!.image1,
-                ID_IMAGE++
-            )
-        )
+                ID_IMAGE++))
         if (!billItem?.image2.isNullOrEmpty()) imageList.add(
             ImageItem(
                 billItem!!.image2,
-                ID_IMAGE++
-            )
-        )
+                ID_IMAGE++))
         if (!billItem?.image3.isNullOrEmpty()) imageList.add(
             ImageItem(
                 billItem!!.image3,
-                ID_IMAGE++
-            )
-        )
+                ID_IMAGE++))
         if (!billItem?.image4.isNullOrEmpty()) imageList.add(
             ImageItem(
                 billItem!!.image4,
-                ID_IMAGE++
-            )
-        )
+                ID_IMAGE++))
         if (!billItem?.image5.isNullOrEmpty()) imageList.add(
             ImageItem(
                 billItem!!.image5,
-                ID_IMAGE++
-            )
-        )
+                ID_IMAGE++))
         if (imageList.isNotEmpty()) {
             imageAdapter.submitList(imageList.toMutableList())
             binding.recViewPhoto.visibility = View.VISIBLE
@@ -534,7 +513,6 @@ class AddBillFragment : Fragment() {
         binding.edDescription.doAfterTextChanged {
             binding.bAddSave.isEnabled = true
         }
-
     }
 
     //If Focus change color too
@@ -605,11 +583,7 @@ class AddBillFragment : Fragment() {
             binding.edAddNote.text.toString(),
             binding.edDescription.text.toString(),
             bookmark,
-            image1,
-            image2,
-            image3,
-            image4,
-            image5
+            image1, image2, image3, image4, image5
         )
     }
 
@@ -618,16 +592,19 @@ class AddBillFragment : Fragment() {
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
-        val dpd = DatePickerDialog(
+
+        val datePickerDialog = DatePickerDialog(
             requireActivity(),
             if (TYPE_BILL == TYPE_INCOME) R.style.DialogTheme_income else R.style.DialogTheme_expense,
             { view, year, monthOfYear, dayOfMonth ->
                 c.set(year, monthOfYear, dayOfMonth)
                 binding.edDateAdd.setText(SimpleDateFormat("dd/MM/yyyy").format(c.time))
                 binding.edAddAmount.requestFocus()
+                setColorStateEditText(AMOUNT)
+
             }, year, month, day
         )
-        dpd.show()
+        datePickerDialog.show()
     }
 
     private fun initTimePicker() {
@@ -643,9 +620,9 @@ class AddBillFragment : Fragment() {
                 c.set(Calendar.MINUTE, minute)
                 //Save time string that save time in 24 format
                 TIME_FORMAT_24 = SimpleDateFormat("HH:mm").format(c.time)
-
                 binding.edTimeAdd.setText(SimpleDateFormat("hh:mm a").format(c.time))
                 binding.edAddAmount.requestFocus()
+                setColorStateEditText(AMOUNT)
             }, cHour, cMinute, false
         )
 
@@ -954,13 +931,22 @@ class AddBillFragment : Fragment() {
             binding.cardViewAddThirdPart.visibility = View.VISIBLE
         }
     }
-
-    // extension function to convert bitmap to byte array
     fun Bitmap.toByteArray(): ByteArray {
         ByteArrayOutputStream().apply {
             compress(Bitmap.CompressFormat.JPEG, 100, this)
             return toByteArray()
         }
+    }
+    fun Fragment.hideKeyboard() {
+        view?.let { activity?.hideKeyboard(it) }
+    }
+    fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
     override fun onDestroyView() {
         super.onDestroyView()
