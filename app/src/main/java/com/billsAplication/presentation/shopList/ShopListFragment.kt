@@ -74,7 +74,9 @@ class ShopListFragment : Fragment() {
     private val UPDATE_TYPE = 20
     private val RECORD_AOUDIO_REQUEST = 110
     private val COLOR_NOTE_PRIMARY = ""
+    private val TAG = "ShopListFragment"
     private var buttonMotion = true
+    private var type = 0
     lateinit var dialogRecording: AlertDialog
     private var speechRecognizer: SpeechRecognizer? = null
     private var scope = CoroutineScope(Dispatchers.Main)
@@ -103,6 +105,8 @@ class ShopListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        getType()
 
         addButtons()
 
@@ -313,11 +317,13 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    private fun setColorStateAddButtons() {
+    private fun getType(){
         //get saved type
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val type = sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
+        type = sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
+    }
 
+    private fun setColorStateAddButtons() {
         val colorState = ColorStateList
             .valueOf(stateColorButton.colorButtons(type))
         binding.buttonAddNoteMicro.backgroundTintList = colorState
@@ -330,10 +336,7 @@ class ShopListFragment : Fragment() {
     private fun setEnabledViewsFOrRec(enabled: Boolean) {
         if (enabled) {
             val colorState = ColorStateList
-                .valueOf(
-                    requireContext()
-                        .getColorFromAttr(com.google.android.material.R.attr.colorSecondary)
-                )
+                .valueOf(stateColorButton.colorButtons(type))
             binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
             if(requireActivity() is InterfaceMainActivity){
@@ -343,9 +346,7 @@ class ShopListFragment : Fragment() {
             dialogRecording.dismiss()
         } else {
             val colorState = ColorStateList
-                .valueOf(
-                    requireContext().getColor(R.color.default_background)
-                )
+                .valueOf(stateColorButton.colorButtons(type))
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
             if(requireActivity() is InterfaceMainActivity) {

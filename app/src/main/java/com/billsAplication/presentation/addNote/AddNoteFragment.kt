@@ -1,12 +1,14 @@
 package com.billsAplication.presentation.addNote
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -42,6 +44,7 @@ class AddNoteFragment : Fragment() {
     private val COLOR_NOTE_PURPLE = "purple"
     private val COLOR_NOTE_PRIMARY = ""
     private var scope = CoroutineScope(Dispatchers.Main)
+    private val TAG = "AddNoteFragment"
 
     private var COLOR_NOTE = ""
 
@@ -208,10 +211,23 @@ class AddNoteFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        this.hideKeyboard()
         scope.cancel()
         if(requireActivity() is InterfaceMainActivity){
             mainActivity.navBottom().visibility = View.VISIBLE
         }
         _binding = null
+    }
+
+    fun Fragment.hideKeyboard() {
+        view?.let { activity?.hideKeyboard(it) }
+    }
+    fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
