@@ -52,6 +52,10 @@ class FakeBillsListRepository: BillsListRepository {
         return liveDada
     }
 
+    override fun getAllDataList(): List<BillsItem> {
+        return list
+    }
+
     override suspend fun deleteItem(item: BillsItem) {
         list.remove(item)
     }
