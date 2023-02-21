@@ -14,6 +14,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -275,9 +276,11 @@ class ShopListFragment : Fragment() {
         val nbSize = requireContext()
             .resources.getDimensionPixelSize(com.google.android
                 .material.R.dimen.design_bottom_navigation_height)
+        //Size of Ad
+        val adSize = 60.toDp(requireContext())
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginTop = (screenHeight - nbSize - bSize - (screenHeight * 5 / 100))
+        val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))
         binding.guidelineAddNote.setGuidelineBegin(marginTop)
 
         binding.buttonAddNote.mainLayout.setOnClickListener {
@@ -373,6 +376,11 @@ class ShopListFragment : Fragment() {
         typedArray.recycle()
         return textColor
     }
+
+    // Extension method to convert pixels to dp
+    fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
+    ).toInt()
 
     override fun onResume() {
         super.onResume()

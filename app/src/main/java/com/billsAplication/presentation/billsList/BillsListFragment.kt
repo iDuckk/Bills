@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -18,6 +19,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,6 +30,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.adapter.bills.BillsAdapter
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Result
+import com.yandex.mobile.ads.banner.AdSize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 import javax.inject.Inject
@@ -83,6 +86,7 @@ class BillsListFragment : Fragment() {
     private val CURRENT_MONTH = 22
     private val CREATE_TYPE = 100
     private val UPDATE_TYPE = 101
+    private val TAG = "BillsListFragment"
 
     private val heightNavBottom by lazy {
         (context as InterfaceMainActivity).navBottom().height
@@ -192,9 +196,11 @@ class BillsListFragment : Fragment() {
                 com.google.android
                     .material.R.dimen.design_bottom_navigation_height
             )
+        //Size of Ad
+        val adSize = 60.toDp(requireContext())
         //Set button position. That it does not change its place. When navBot is gone
         val screenHeight = resources.displayMetrics.heightPixels
-        val marginTop = (screenHeight - nbSize - bSize - (screenHeight * 5 / 100))
+        val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))
         binding.guidelineAddBill.setGuidelineBegin(marginTop)
 
         binding.buttonAddBill.mainLayout.setOnClickListener {
