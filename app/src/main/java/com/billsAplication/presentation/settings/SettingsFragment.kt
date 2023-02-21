@@ -655,6 +655,11 @@ class SettingsFragment : Fragment() {
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
     ).toInt()
 
+    override fun onResume() {
+        super.onResume()
+        colorNavBot()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         scope.cancel()

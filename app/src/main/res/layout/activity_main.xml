@@ -44,16 +44,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:navGraph="@navigation/navgraph" />
 
-            <com.google.android.gms.ads.AdView
+            <com.yandex.mobile.ads.banner.BannerAdView
                 android:id="@+id/adViewBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:adSize="BANNER"
-                app:adUnitId="ca-app-pub-6299960663345072/1656264507"
+                android:layout_height="60sp"
+                android:minHeight="60sp"
+                android:maxHeight="60sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fragmentContainerViewMain" />
+<!--            app:adSize="BANNER"-->
+            <!--            app:adUnitId="ca-app-pub-6299960663345072/1656264507"-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

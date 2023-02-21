@@ -1,14 +1,15 @@
 package com.billsAplication.presentation.mainActivity
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -16,9 +17,12 @@ import com.billsAplication.R
 import com.billsAplication.databinding.ActivityMainBinding
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.yandex.mobile.ads.banner.AdSize
+import com.yandex.mobile.ads.banner.BannerAdView
+import com.yandex.mobile.ads.common.AdRequest
+import com.yandex.mobile.ads.common.InitializationListener
+import com.yandex.mobile.ads.common.MobileAds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -44,7 +48,9 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initAdMob()
+        adsYandex()
+
+//        initAdMob()
 
         initBottomNavigation()
 
@@ -53,7 +59,6 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         intentActionSendText()
 
     }
-
     companion object {
         private const val TYPE_THEME = "themeType"
         private const val LIGHT_THEME = 0
@@ -65,6 +70,8 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         private const val DEFAULT_TYPE = false
         private const val KEY_NOTE_RECEIVE = "key_note_receive"
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
+        private const val TAG = "MainActivity"
+        private const val AdUnitId = "R-M-1832261-1"
 
     }
 
@@ -97,11 +104,23 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         }
     }
 
-    private fun initAdMob() {
-        MobileAds.initialize(this)
+
+    private fun adsYandex() {
+        MobileAds.initialize(this) { Log.d(TAG, "SDK initialized") }
+
+        binding.adViewBanner.setAdUnitId(AdUnitId)
+        binding.adViewBanner.setAdSize(AdSize.stickySize(resources.displayMetrics.widthPixels))
+
         val adRequest = AdRequest.Builder().build()
         binding.adViewBanner.loadAd(adRequest)
+
     }
+
+//    private fun initAdMob() {
+//        MobileAds.initialize(this)
+//        val adRequest = AdRequest.Builder().build()
+//        binding.adViewBanner.loadAd(adRequest)
+//    }
 
     fun initBottomNavigation() {
         val navHostFragment =
@@ -172,14 +191,19 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         }
     }
 
+    override fun yandexAds(): BannerAdView {
+        return binding.adViewBanner
+    }
+
+
     override fun onResume() {
         super.onResume()
-        binding.adViewBanner.resume()
+//        binding.adViewBanner.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.adViewBanner.pause()
+//        binding.adViewBanner.pause()
     }
 
     override fun onDestroy() {
