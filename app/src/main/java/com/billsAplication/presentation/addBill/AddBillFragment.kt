@@ -44,9 +44,15 @@ import com.billsAplication.presentation.adapter.image.onClickListenerDeleteImage
 import com.billsAplication.presentation.adapter.image.onClickListenerItem
 import com.billsAplication.presentation.adapter.image.onClickListenerSaveImage
 import com.billsAplication.presentation.fragmentDialogCategory.FragmentDialogCategory
+import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.utils.*
 import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
+import com.yandex.mobile.ads.common.AdRequest
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
+import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.io.ByteArrayOutputStream
@@ -89,6 +95,11 @@ class AddBillFragment : Fragment() {
     private val heightPhoto = 800f
     private val providerPackageApp = "com.billsAplication.fileprovider"
     private val TAG = "AddBillFragment"
+    private val AdUnitId = "R-M-1832261-1"
+
+    private val mainActivity by lazy {
+        (context as InterfaceMainActivity)
+    }
 
     private val imageList: MutableList<ImageItem> = ArrayList()
 
@@ -949,6 +960,9 @@ class AddBillFragment : Fragment() {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
     override fun onDestroyView() {
+        if(requireActivity() is InterfaceMainActivity) {
+            mainActivity.yandexFullscreenAds()
+        }
         super.onDestroyView()
         scope.cancel()
         _binding = null

@@ -208,7 +208,11 @@ class SettingsFragment : Fragment() {
 
     private fun finishExportToExcel() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setNegativeButton(getString(R.string.button_ok), null)
+            setPositiveButton(getString(R.string.button_ok)){ _, _ ->
+                if(requireActivity() is InterfaceMainActivity) {
+                    mainActivity.yandexFullscreenAds()
+                }
+            }
             setMessage(getString(R.string.dialog_message_finish_export_excel))
             create()
             show()
@@ -320,7 +324,11 @@ class SettingsFragment : Fragment() {
 
     private fun finishExport() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setNegativeButton(getString(R.string.button_ok), null)
+            setPositiveButton(getString(R.string.button_ok)){dialog, id ->
+                if(requireActivity() is InterfaceMainActivity) {
+                    mainActivity.yandexFullscreenAds()
+                }
+            }
             setMessage(getString(R.string.dialog_message_finish_export))
             create()
             show()

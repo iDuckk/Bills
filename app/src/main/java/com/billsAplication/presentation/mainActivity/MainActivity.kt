@@ -9,8 +9,8 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.billsAplication.R
@@ -21,11 +21,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdView
 import com.yandex.mobile.ads.common.AdRequest
-import com.yandex.mobile.ads.common.InitializationListener
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.common.MobileAds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import com.yandex.mobile.ads.interstitial.InterstitialAd
+import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -41,6 +42,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     private lateinit var binding: ActivityMainBinding
+    private var mInterstitialAd: InterstitialAd? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setLocate()
@@ -49,7 +51,6 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         setContentView(binding.root)
 
         adsYandex()
-
 //        initAdMob()
 
         initBottomNavigation()
@@ -57,8 +58,8 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         setCurrency()
         //if we receive note string from other app
         intentActionSendText()
-
     }
+
     companion object {
         private const val TYPE_THEME = "themeType"
         private const val LIGHT_THEME = 0
@@ -71,7 +72,9 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         private const val KEY_NOTE_RECEIVE = "key_note_receive"
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
         private const val TAG = "MainActivity"
-        private const val AdUnitId = "R-M-1832261-1"
+        private const val AdUnitIdBanner = "R-M-1832261-1"
+        private const val AdUnitIdBanner2 = "R-M-1832261-3"
+        private const val AdUnitIdFullscreen = "R-M-1832261-2"
 
     }
 
@@ -108,12 +111,18 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     private fun adsYandex() {
         MobileAds.initialize(this) { Log.d(TAG, "SDK initialized") }
 
-        binding.adViewBanner.setAdUnitId(AdUnitId)
+        binding.adViewBanner.setAdUnitId(AdUnitIdBanner)
         binding.adViewBanner.setAdSize(AdSize.stickySize(resources.displayMetrics.widthPixels))
 
-        val adRequest = AdRequest.Builder().build()
-        binding.adViewBanner.loadAd(adRequest)
-
+        lifecycleScope.launch(Dispatchers.IO) {
+            while (true){
+                val adRequest = AdRequest.Builder().build()
+                launch (Dispatchers.Main){
+                    binding.adViewBanner.loadAd(adRequest)
+                }
+                delay(3000)
+            }
+        }
     }
 
 //    private fun initAdMob() {
@@ -175,6 +184,34 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         }
     }
 
+    override fun yandexFullscreenAds() {
+        mInterstitialAd = null
+        // Создание экземпляра InterstitialAd.
+        mInterstitialAd = InterstitialAd(this)
+        mInterstitialAd!!.setAdUnitId(AdUnitIdFullscreen) //AdUnitIdBanner
+        // Создание объекта таргетирования рекламы.
+        val adRequest = AdRequest.Builder().build()
+        // Регистрация слушателя для отслеживания событий, происходящих в рекламе.
+        mInterstitialAd!!.setInterstitialAdEventListener(object : InterstitialAdEventListener {
+            override fun onAdLoaded() {
+                mInterstitialAd!!.show()
+            }
+            override fun onAdFailedToLoad(adRequestError: AdRequestError) {
+                mInterstitialAd = null
+                Log.d(TAG, "onAdFailedToLoad: ${adRequestError.description}")
+            }
+            override fun onAdShown() {}
+            override fun onAdDismissed() {}
+            override fun onAdClicked() {}
+            override fun onLeftApplication() {}
+            override fun onReturnedToApplication() {}
+            override fun onImpression(p0: ImpressionData?) {}
+        })
+        // Загрузка объявления.
+        mInterstitialAd!!.loadAd(adRequest)
+
+    }
+
     override fun navBottom(): BottomNavigationView {
         return binding.bottomNavigation
     }
@@ -208,6 +245,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
     override fun onDestroy() {
         super.onDestroy()
+        mInterstitialAd = null
         binding.adViewBanner.destroy()
     }
 

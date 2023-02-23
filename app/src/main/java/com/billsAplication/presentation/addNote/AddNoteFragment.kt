@@ -210,6 +210,9 @@ class AddNoteFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        if(requireActivity() is InterfaceMainActivity) {
+            mainActivity.yandexFullscreenAds()
+        }
         super.onDestroyView()
         this.hideKeyboard()
         scope.cancel()
