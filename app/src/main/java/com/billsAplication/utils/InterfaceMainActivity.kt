@@ -11,4 +11,6 @@ interface InterfaceMainActivity {
 
     fun yandexAds() : BannerAdView
 
+    fun yandexFullscreenAds()
+
 }
