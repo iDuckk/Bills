@@ -36,6 +36,7 @@ import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.yandex.mobile.ads.banner.AdSize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 import java.util.*
@@ -277,7 +278,7 @@ class ShopListFragment : Fragment() {
             .resources.getDimensionPixelSize(com.google.android
                 .material.R.dimen.design_bottom_navigation_height)
         //Size of Ad
-        val adSize = 60.toDp(requireContext())
+        var adSize = AdSize.BANNER_320x50.height.toDp(requireContext())
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
         val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))

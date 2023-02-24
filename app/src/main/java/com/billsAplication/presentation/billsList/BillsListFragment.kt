@@ -197,7 +197,7 @@ class BillsListFragment : Fragment() {
                     .material.R.dimen.design_bottom_navigation_height
             )
         //Size of Ad
-        val adSize = 60.toDp(requireContext())
+        var adSize = AdSize.BANNER_320x50.height.toDp(requireContext())
         //Set button position. That it does not change its place. When navBot is gone
         val screenHeight = resources.displayMetrics.heightPixels
         val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))

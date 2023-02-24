@@ -109,20 +109,23 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 
 
     private fun adsYandex() {
-        MobileAds.initialize(this) { Log.d(TAG, "SDK initialized") }
-
-        binding.adViewBanner.setAdUnitId(AdUnitIdBanner)
-        binding.adViewBanner.setAdSize(AdSize.stickySize(resources.displayMetrics.widthPixels))
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            while (true){
-                val adRequest = AdRequest.Builder().build()
-                launch (Dispatchers.Main){
-                    binding.adViewBanner.loadAd(adRequest)
+        lifecycleScope.launch (Dispatchers.Main){
+            binding.adViewBanner.setAdUnitId(AdUnitIdBanner)
+            binding.adViewBanner.setAdSize(AdSize.BANNER_320x50)
+            launch (Dispatchers.Main){
+                MobileAds.initialize(applicationContext) { Log.d(TAG, "SDK initialized") }
+            }.join()
+            launch(Dispatchers.IO) {
+                while (true){
+                    val adRequest = AdRequest.Builder().build()
+                    launch (Dispatchers.Main){
+                        binding.adViewBanner.loadAd(adRequest)
+                    }
+                    delay(3000)
                 }
-                delay(3000)
             }
         }
+
     }
 
 //    private fun initAdMob() {
