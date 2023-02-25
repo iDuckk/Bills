@@ -184,25 +184,6 @@ class BillsListFragment : Fragment() {
     }
 
     private fun addButton() {
-        //Size AddButton
-        val bSize = requireContext()
-            .resources.getDimensionPixelSize(
-                com.google.android
-                    .material.R.dimen.design_fab_size_normal
-            )
-        //Size Nav Bottom
-        val nbSize = requireContext()
-            .resources.getDimensionPixelSize(
-                com.google.android
-                    .material.R.dimen.design_bottom_navigation_height
-            )
-        //Size of Ad
-        var adSize = AdSize.BANNER_320x50.height.toDp(requireContext())
-        //Set button position. That it does not change its place. When navBot is gone
-        val screenHeight = resources.displayMetrics.heightPixels
-        val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))
-        binding.guidelineAddBill.setGuidelineBegin(marginTop)
-
         binding.buttonAddBill.mainLayout.setOnClickListener {
             if (deleteItem) {
                 dialogDeleteItems()
@@ -553,7 +534,7 @@ class BillsListFragment : Fragment() {
         //Highlight item
         billAdapter.isHighlight.observe(viewLifecycleOwner) {
             deleteItem = it
-            if (it) {
+            if (it) { //GONE VIEWS
                 deleteItem = it
                 //AddButton
                 crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
@@ -562,8 +543,7 @@ class BillsListFragment : Fragment() {
                 fadeInView(binding.imCloseDel)
                 //NavBottom
                 if(requireActivity() is InterfaceMainActivity) {
-                    motionViewY(mainActivity.navBottom(), 0f, heightNavBottom.toFloat())
-                    slideView(mainActivity.navBottom(), heightNavBottom, 0)
+                    mainActivity.navBottom().visibility = View.INVISIBLE
                 }
                 //BudgetBar
                 if (visibilityFilterCard) {
@@ -581,8 +561,7 @@ class BillsListFragment : Fragment() {
                     fadeOutView(binding.imCloseDel)
                     //NavBottom
                     if(requireActivity() is InterfaceMainActivity) {
-                        slideView(mainActivity.navBottom(), 0, heightNavBottom)
-                        motionViewY(mainActivity.navBottom(), heightNavBottom.toFloat(), 0f)
+                        mainActivity.navBottom().visibility = View.VISIBLE
                     }
 
                     //set a new list

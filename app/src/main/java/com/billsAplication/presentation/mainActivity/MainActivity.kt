@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adsYandex()
+        initBanner()
 //        initAdMob()
 
         initBottomNavigation()
@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
         private const val TAG = "MainActivity"
         private const val AdUnitIdBanner = "R-M-1832261-1"
-        private const val AdUnitIdBanner2 = "R-M-1832261-3"
         private const val AdUnitIdFullscreen = "R-M-1832261-2"
 
     }
@@ -107,24 +106,33 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         }
     }
 
+    private fun initBanner() {
+        binding.adViewBanner.setAdUnitId(AdUnitIdBanner)
+        binding.adViewBanner.setAdSize(AdSize.stickySize(resources.displayMetrics.widthPixels))
+        MobileAds.initialize(applicationContext) {
+            Log.d(TAG, "SDK initialized")
+            setAdsYandex()
+        }
+    }
 
-    private fun adsYandex() {
-        lifecycleScope.launch (Dispatchers.Main){
-            binding.adViewBanner.setAdUnitId(AdUnitIdBanner)
-            binding.adViewBanner.setAdSize(AdSize.BANNER_320x50)
-            launch (Dispatchers.Main){
-                MobileAds.initialize(applicationContext) { Log.d(TAG, "SDK initialized") }
-            }.join()
-            launch(Dispatchers.IO) {
-                while (true){
-                    val adRequest = AdRequest.Builder().build()
-                    launch (Dispatchers.Main){
-                        binding.adViewBanner.loadAd(adRequest)
+    private fun setAdsYandex() {
+        var adRequest = AdRequest.Builder().build()
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                binding.adViewBanner.loadAd(adRequest)
+                withContext(Dispatchers.IO) {
+                    while (true) {
+                        delay(3000)
+                        adRequest = AdRequest.Builder().build()
+                        withContext(Dispatchers.Main) {
+                            binding.adViewBanner.loadAd(adRequest)
+                        }
                     }
-                    delay(3000)
                 }
             }
+
         }
+
 
     }
 
@@ -199,10 +207,12 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
             override fun onAdLoaded() {
                 mInterstitialAd!!.show()
             }
+
             override fun onAdFailedToLoad(adRequestError: AdRequestError) {
                 mInterstitialAd = null
                 Log.d(TAG, "onAdFailedToLoad: ${adRequestError.description}")
             }
+
             override fun onAdShown() {}
             override fun onAdDismissed() {}
             override fun onAdClicked() {}
@@ -222,7 +232,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     override suspend fun splash() {
         if (binding.splash.visibility == View.VISIBLE) {
             withContext(Dispatchers.Main) {
-                delay(1000)
+                delay(2000)
 //                binding.splash.visibility = View.GONE
                 FadeOutView().invoke(binding.splash)
                 binding.cardViewContainer.isEnabled = true
