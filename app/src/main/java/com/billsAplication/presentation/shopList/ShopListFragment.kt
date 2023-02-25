@@ -273,16 +273,9 @@ class ShopListFragment : Fragment() {
         val bSize = requireContext()
             .resources.getDimensionPixelSize(com.google.android
                 .material.R.dimen.design_fab_size_normal)
-        //Size Nav Bottom
-        val nbSize = requireContext()
-            .resources.getDimensionPixelSize(com.google.android
-                .material.R.dimen.design_bottom_navigation_height)
-        //Size of Ad
-        var adSize = AdSize.BANNER_320x50.height.toDp(requireContext())
+
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
-        val marginTop = (screenHeight - adSize - nbSize - bSize - (screenHeight * 5 / 100))
-        binding.guidelineAddNote.setGuidelineBegin(marginTop)
 
         binding.buttonAddNote.mainLayout.setOnClickListener {
             val rectf = Rect()
