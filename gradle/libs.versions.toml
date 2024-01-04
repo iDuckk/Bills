@@ -1,0 +1,65 @@
+[versions]
+agp = "8.2.0"
+org-jetbrains-kotlin-android = "1.9.21"
+core-ktx = "1.12.0"
+junit = "4.13.2"
+androidx-test-ext-junit = "1.1.5"
+espresso-core = "3.5.1"
+lifecycle-runtime-ktx = "2.6.2"
+activity-compose = "1.8.2"
+compose-bom = "2023.10.01"
+compose-compiler = "1.5.6"
+retrofit = "2.9.0"
+coil = "2.5.0"
+nav_version = "2.7.6"
+room_version = "2.6.1"
+services-ads = "22.6.0"
+yandex_mobileads = "5.5.1"
+chrisbanes_PhotoView = "2.3.0"
+chart = "v3.1.0"
+currency_edit_text = "0.0.10"
+dagger = "2.50"
+camerax_version = "1.3.1"
+
+[libraries]
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+ui = { group = "androidx.compose.ui", name = "ui" }
+ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+material3 = { group = "androidx.compose.material3", name = "material3" }
+retrofit-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version" }
+androidx-room = { group = "androidx.room", name = "room-ktx", version.ref = "room_version"}
+androidx-room-kapt = { group = "androidx.room", name = "room-compiler", version.ref = "room_version"}
+androidx-room-test = { group = "androidx.room", name = "room-testing", version.ref = "room_version"}
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "services-ads"}
+yandex-android-mobileads = { group = "com.yandex.android", name = "mobileads", version.ref = "yandex_mobileads"}
+github-chrisbanes-photoView = { group = "com.github.chrisbanes", name = "PhotoView", version.ref = "chrisbanes_PhotoView"}
+github-chart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "chart"}
+cottacush-currency = { group = "com.cottacush", name = "CurrencyEditText", version.ref = "currency_edit_text"}
+google-dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger"}
+google-dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger"}
+camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax_version"}
+camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax_version"}
+camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax_version"}
+camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camerax_version"}
+camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax_version"}
+camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax_version"}
+
+[plugins]
+com-android-application = { id = "com.android.application", version.ref = "agp" }
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
+org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "org-jetbrains-kotlin-android" }
+org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "org-jetbrains-kotlin-android" }
+[bundles]
