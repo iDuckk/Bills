@@ -25,24 +25,24 @@ interface BillDao {
     fun getType(type : Int): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list WHERE type = :type")
-    suspend fun getTypeList(type : Int): List<BillEntity>
+    fun getTypeList(type : Int): List<BillEntity>
 
     @Query("SELECT * FROM bills_list WHERE bookmark = :type")
     fun getBookmarks(type : Boolean): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list WHERE id = :id")
-    suspend fun getItem(id : Int): BillEntity
+    fun getItem(id : Int): BillEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(item : BillEntity)
+    fun insert(item : BillEntity)
 
     @Delete
-    suspend fun delete(item : BillEntity)
+    fun delete(item : BillEntity)
 
     @Update
-    suspend fun update(item : BillEntity)
+    fun update(item : BillEntity)
 
     @RawQuery
-    suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 
 }

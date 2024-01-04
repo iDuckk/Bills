@@ -41,7 +41,7 @@ class BillsListViewModel @Inject constructor(
         _stateList.value =
             com.billsAplication.utils.Error("BillsListViewModel:getStateList: ${e.message!!}")
     }
-    private var scope = CoroutineScope(Dispatchers.Main + exception)
+    private var scope = CoroutineScope(Dispatchers.IO + exception)
 
     var listBills = ArrayList<BillsItem>()
     var listIncome = ArrayList<BillsItem>()
@@ -95,18 +95,19 @@ class BillsListViewModel @Inject constructor(
         getCategoriesListExpenses()
         getCategoriesListIncome()
         //Total amounts values
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             //month's list
             getMainList(month = month)
+            delay(1000)
 
             val exp = getExpenseList(month = month)
             val inc = getIncomeList(month = month)
-
-            _stateList.value = TotalAmountBar(
+            delay(1000)
+            _stateList.postValue(TotalAmountBar(
                 "%,.2f".format(Locale.ENGLISH, exp),
                 "%,.2f".format(Locale.ENGLISH, inc),
                 "%,.2f".format(Locale.ENGLISH, (inc - exp))
-            )
+            ))
 
             colorState(inc, exp)
         }
@@ -114,10 +115,10 @@ class BillsListViewModel @Inject constructor(
     }
 
     suspend fun getMainList(month: String) {
-        _stateList.value = withContext(Dispatchers.IO) {
+            _stateList.postValue(withContext(Dispatchers.IO) {
             listBills = getMonth.invoke(mapMonthToSQL(month = month))
             Result(listBills)
-        }!!
+        }!!)
     }
 
     suspend fun getIncomeList(month: String): BigDecimal {
@@ -143,9 +144,9 @@ class BillsListViewModel @Inject constructor(
     }
 
     fun colorState(inc: BigDecimal, exp: BigDecimal) {
-        if (inc > exp) _stateList.value = ColorState(type = TYPE_INCOME)
-        else if (inc < exp) _stateList.value = ColorState(type = TYPE_EXPENSES)
-        else _stateList.value = ColorState(type = TYPE_EQUALS)
+        if (inc > exp) _stateList.postValue(ColorState(type = TYPE_INCOME))
+        else if (inc < exp) _stateList.postValue(ColorState(type = TYPE_EXPENSES))
+        else _stateList.postValue(ColorState(type = TYPE_EQUALS))
 
     }
 

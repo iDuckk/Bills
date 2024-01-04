@@ -1,7 +1,9 @@
 package com.billsAplication.data.room.repository
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.billsDb.BillDao
 import com.billsAplication.data.room.billsDb.BillDatabase
@@ -20,11 +22,10 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         billDao.delete(mapper.mapBillItemToBillEntity(item))
     }
 
+    @SuppressLint("CheckResult")
     override fun getAllDataListLD(): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getAllLD()){
-            it.map {
-                mapper.mapBillEntityToBillItem(it)
-            }
+        return billDao.getAllLD().map {
+            mapper.mapBillEntityToBillItemList(it)
         }
     }
 
@@ -41,21 +42,19 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         return mapper.mapBillEntityToBillItem(billDao.getItem(id))
     }
 
+    @SuppressLint("CheckResult")
     override fun getMonthLD(month : String): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getMonthLD(month)){
-            it.map{
-                mapper.mapBillEntityToBillItem(it)
-            }
+        return billDao.getMonthLD(month).map {
+            mapper.mapBillEntityToBillItemList(it)
         }
     }
 
     override fun getMonthList(month: String) = mapper.mapBillEntityToBillItemList(billDao.getMonthList(month))
 
+    @SuppressLint("CheckResult")
     override fun getType(type: Int): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getType(type)){
-            it.map{
-                mapper.mapBillEntityToBillItem(it)
-            }
+        return billDao.getType(type).map {
+            mapper.mapBillEntityToBillItemList(it)
         }
     }
 
@@ -70,11 +69,10 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         return newList
     }
 
+    @SuppressLint("CheckResult")
     override fun getBookmarks(type: Boolean): LiveData<List<BillsItem>> {
-        return Transformations.map(billDao.getBookmarks(type)){
-            it.map{
-                mapper.mapBillEntityToBillItem(it)
-            }
+        return billDao.getBookmarks(type).map {
+            mapper.mapBillEntityToBillItemList(it)
         }
     }
 

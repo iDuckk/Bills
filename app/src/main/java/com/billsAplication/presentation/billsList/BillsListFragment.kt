@@ -142,7 +142,7 @@ class BillsListFragment : Fragment() {
                     state.list.let { billAdapter.submitList(sortingDesc(state.list)) }
                 }
                 is Error -> {
-                    Log.w("TAG", state.exception)
+                    Log.e("TAG", state.exception)
                 }
                 is TotalAmountBar -> {
                     binding.tvIncomeNum.text = state.inc
