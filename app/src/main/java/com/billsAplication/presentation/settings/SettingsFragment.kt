@@ -14,7 +14,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +22,19 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -36,6 +48,7 @@ import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.presentation.settings.view.ButtonSettings
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile
@@ -47,7 +60,6 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 
@@ -58,21 +70,30 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: SettingsViewModel
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
+
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
+
     @Inject
     lateinit var getQueryName: GetQueryName
+
     @Inject
     lateinit var mToast: mToast
+
     @Inject
     lateinit var createExcelFile: CreateExcelFile
     private var scope = CoroutineScope(Dispatchers.Main)
     private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
+
+    private val spacerType = 10.dp
+    private val spacerTitle = 5.dp
 
     private val mainActivity by lazy {
         (context as InterfaceMainActivity)
@@ -103,32 +124,94 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setDefaultValues()
-
         setButtonText()
-
         switchColorState()
-
         radioButtonsColorState()
-
         switchTurnOn()
-
         setSwitchTheme()
-
         buttonLanguage()
-
         spinnerCurrency()
-
         radioButtonsCurrency()
 
-        backup()
+        binding.composeView.setContent {
+            MaterialTheme {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+                    SettingsScreen()
+                }
+            }
+        }
 
-        backupToExcel()
+    }
 
-        backupButtonsColorState()
+    @Preview(showBackground = true)
+    @Composable
+    fun Preview() {
+        MaterialTheme {
+            SettingsScreen()
+        }
+    }
 
-        backupToExcelButtonsColorState()
+    @Composable
+    private fun SettingsScreen() {
+        Spacer(Modifier.size(spacerType))
+        Currency()
+        Spacer(Modifier.size(spacerType))
+        ButtonBD()
+        Spacer(Modifier.size(spacerType))
+        ButtonExportToExcel()
+    }
+    @Composable
+    private fun Currency() {
+
+    }
+
+    @Composable
+    private fun ButtonBD() {
+        Column {
+            Text(
+                fontSize = 12.sp,
+                text = stringResource(R.string.settings_backup_database)
+            )
+            Spacer(Modifier.size(spacerTitle))
+            ButtonSettings(
+                text = stringResource(R.string.settings_export_db),
+                color = Color(stateColorButton.colorButtons(type))
+            ) {
+                export()
+            }
+            ButtonSettings(
+                text = stringResource(R.string.settings_import_db),
+                color = Color(stateColorButton.colorButtons(type))
+            ) {
+                import()
+            }
+            ButtonSettings(
+                text = stringResource(R.string.settings_send_db_to_e_mail),
+                color = Color(stateColorButton.colorButtons(type))
+            ) {
+                sendToEmail()
+            }
+        }
+    }
+
+    @Composable
+    private fun ButtonExportToExcel() {
+        Text(
+            fontSize = 12.sp,
+            text = stringResource(R.string.title_excel)
+        )
+        Spacer(Modifier.size(spacerTitle))
+        ButtonSettings(
+            text = stringResource(R.string.bSettings_ExportToExcel),
+            color = Color(stateColorButton.colorButtons(type))
+        ) {
+            exportToExcel()
+        }
+
 
     }
 
@@ -162,25 +245,23 @@ class SettingsFragment : Fragment() {
 
     }
 
-    private fun backupToExcel() {
-        exportToExcel()
-    }
-
     private fun exportToExcel() {
-        binding.bExportExcel.setOnClickListener {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-                if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    checkStoragePermission()
-                }else{
-                    dialogExcel()
-                }
-            }else{
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                checkStoragePermission()
+            } else {
                 dialogExcel()
             }
+        } else {
+            dialogExcel()
         }
     }
 
-    private fun dialogExcel(){
+    private fun dialogExcel() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         val dialog = builder
             .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
@@ -208,8 +289,8 @@ class SettingsFragment : Fragment() {
 
     private fun finishExportToExcel() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setPositiveButton(getString(R.string.button_ok)){ _, _ ->
-                if(requireActivity() is InterfaceMainActivity) {
+            setPositiveButton(getString(R.string.button_ok)) { _, _ ->
+                if (requireActivity() is InterfaceMainActivity) {
                     mainActivity.yandexFullscreenAds()
                 }
             }
@@ -219,63 +300,46 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun backupToExcelButtonsColorState() {
-        binding.bExportExcel.setBackgroundColor(stateColorButton.colorButtons(type))
-        binding.bImportExcel.setBackgroundColor(stateColorButton.colorButtons(type))
-        binding.bSendExcel.setBackgroundColor(stateColorButton.colorButtons(type))
-    }
-
-    private fun backup() {
-        export()
-
-        import()
-
-        sendToEmail()
-    }
-
     @SuppressLint("SimpleDateFormat")
     private fun sendToEmail() {
-        binding.bSendDb.setOnClickListener {
-            //Make checkPoint for merge Sql files db, wal, bad
-            viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
-            val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-            val description =
-                "${getString(R.string.emailDescription1)} \n ${getString(R.string.emailDescription2)}"
-            val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
-            val URI_db: Uri = FileProvider.getUriForFile(
-                requireContext(),
-                providerPackageApp, // Your package
-                file
-            )
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                type = typeOfIntentSending
+        //Make checkPoint for merge Sql files db, wal, bad
+        viewModel.checkPoint(SimpleSQLiteQuery(queryCheckPoint))
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val description =
+            "${getString(R.string.emailDescription1)} \n ${getString(R.string.emailDescription2)}"
+        val file = File(requireActivity().getDatabasePath(nameDatabase).absolutePath)
+        val URI_db: Uri = FileProvider.getUriForFile(
+            requireContext(),
+            providerPackageApp, // Your package
+            file
+        )
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            type = typeOfIntentSending
 //                putExtra(Intent.EXTRA_EMAIL, arrayOf("test@gmail.com"))
-                putExtra(Intent.EXTRA_SUBJECT, eMailSubject + "_" + timeStamp)
-                putExtra(Intent.EXTRA_TEXT, description)
-                putExtra(
-                    Intent.EXTRA_STREAM,
-                    URI_db
-                )
-            }
-            if (intent.resolveActivity(requireContext().packageManager) != null)
-                startActivity(intent)
+            putExtra(Intent.EXTRA_SUBJECT, eMailSubject + "_" + timeStamp)
+            putExtra(Intent.EXTRA_TEXT, description)
+            putExtra(
+                Intent.EXTRA_STREAM,
+                URI_db
+            )
         }
+        if (intent.resolveActivity(requireContext().packageManager) != null)
+            startActivity(intent)
+
     }
 
     private fun import() {
-        binding.bImport.setOnClickListener {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            val dialog = builder
-                .setTitle(getString(R.string.dialog_title_import_db))
-                .setMessage(getString(R.string.dialog_message_import_db))
-                .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                    openDocument() //Open File explorer
-                }
-                .setNegativeButton(getString(R.string.search_cancel), null)
-                .create()
-            dialog.show()
-        }
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val dialog = builder
+            .setTitle(getString(R.string.dialog_title_import_db))
+            .setMessage(getString(R.string.dialog_message_import_db))
+            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
+                openDocument() //Open File explorer
+            }
+            .setNegativeButton(getString(R.string.search_cancel), null)
+            .create()
+        dialog.show()
     }
 
     private fun finishImport() {
@@ -297,7 +361,7 @@ class SettingsFragment : Fragment() {
             .setMessage(getString(R.string.dialog_message_export_db))
             .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
                 //Make checkPoint for merge Sql files db, wal, bad
-                viewModel.chekPoint(SimpleSQLiteQuery(queryCheckPoint))
+                viewModel.checkPoint(SimpleSQLiteQuery(queryCheckPoint))
                 //Export Db
                 exportDatabaseFile.invoke().also { //export DB
                     finishExport() //Dialog after export
@@ -309,23 +373,25 @@ class SettingsFragment : Fragment() {
     }
 
     private fun export() {
-        binding.bExport.setOnClickListener {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-                if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    checkStoragePermission()
-                }else{
-                    exportDialog()
-                }
-            }else{
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                checkStoragePermission()
+            } else {
                 exportDialog()
             }
+        } else {
+            exportDialog()
         }
     }
 
     private fun finishExport() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setPositiveButton(getString(R.string.button_ok)){dialog, id ->
-                if(requireActivity() is InterfaceMainActivity) {
+            setPositiveButton(getString(R.string.button_ok)) { dialog, id ->
+                if (requireActivity() is InterfaceMainActivity) {
                     mainActivity.yandexFullscreenAds()
                 }
             }
@@ -371,12 +437,6 @@ class SettingsFragment : Fragment() {
                 REQUEST_WRITE_EX_STORAGE_PERMISSION
             )
         }
-    }
-
-    private fun backupButtonsColorState() {
-        binding.bExport.setBackgroundColor(stateColorButton.colorButtons(type))
-        binding.bImport.setBackgroundColor(stateColorButton.colorButtons(type))
-        binding.bSendDb.setBackgroundColor(stateColorButton.colorButtons(type))
     }
 
     private fun setDefaultValues() {

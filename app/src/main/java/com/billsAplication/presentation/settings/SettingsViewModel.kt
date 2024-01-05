@@ -8,6 +8,7 @@ import com.billsAplication.domain.billsUseCases.CheckPointDb
 import com.billsAplication.domain.billsUseCases.CloseDb
 import com.billsAplication.domain.billsUseCases.GetAllDataListLDUseCase
 import com.billsAplication.domain.model.BillsItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,19 +20,19 @@ class SettingsViewModel @Inject constructor(
 
     lateinit var listAll: LiveData<List<BillsItem>>
 
-    fun chekPoint(supportSQLiteQuery: SupportSQLiteQuery){
-        viewModelScope.launch{
+    fun checkPoint(supportSQLiteQuery: SupportSQLiteQuery) {
+        viewModelScope.launch(Dispatchers.IO) {
             checkPoint.invoke(supportSQLiteQuery)
         }
     }
 
-    fun closeDb(){
-        viewModelScope.launch{
+    fun closeDb() {
+        viewModelScope.launch(Dispatchers.IO) {
             closeDb.invoke()
         }
     }
 
-    fun getAll(){
+    fun getAll() {
         listAll = getAllDatabase.invoke()
     }
 

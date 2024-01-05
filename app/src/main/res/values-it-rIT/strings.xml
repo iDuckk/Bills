@@ -96,4 +96,5 @@
     <string name="dialog_title_export_db_excel">Esporta i dati in Excel</string>
     <string name="dialog_message_export_db_excel">Vuoi esportare i dati nel file Excel nella memoria?</string>
     <string name="bSettings_ExportToExcel">esportare in Excel</string>
+    <string name="title_excel">Excel:</string>
 </resources>

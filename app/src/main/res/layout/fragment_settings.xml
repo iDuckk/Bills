@@ -158,117 +158,13 @@
             android:textSize="11sp" />
     </RadioGroup>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_Exp_Imp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="280dp" />
-
-    <TextView
-        android:id="@+id/tv_backup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_backup_database"
-        android:textSize="12sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginStart="10sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_currency"/>
-
-    <Button
-        android:id="@+id/b_export"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5sp"
-        android:layout_marginStart="10sp"
-        android:text="@string/settings_export_db"
-        android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@+id/tv_backup"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <Button
-        android:id="@+id/b_import"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5sp"
-        android:layout_marginStart="5sp"
-        android:text="@string/settings_import_db"
-        android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@+id/tv_backup"
-        app:layout_constraintStart_toEndOf="@+id/b_export"/>
-
-    <Button
-        android:id="@+id/b_send_db"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginEnd="10dp"
-        android:text="@string/settings_send_db_to_e_mail"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/b_import"
-        app:layout_constraintTop_toBottomOf="@+id/tv_backup" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_Excel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="350dp" />
-
-    <TextView
-        android:id="@+id/tv_excel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Excel:"
-        android:textSize="12sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginStart="10sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_Exp_Imp"/>
-
-    <Button
-        android:id="@+id/b_export_excel"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginEnd="5dp"
-        android:text="@string/bSettings_ExportToExcel"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toStartOf="@+id/b_import_excel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_excel" />
-
-    <Button
-        android:id="@+id/b_import_excel"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginEnd="5dp"
-        android:visibility="invisible"
-        android:text="Import to Excel"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toStartOf="@+id/b_send_excel"
-        app:layout_constraintStart_toEndOf="@+id/b_export_excel"
-        app:layout_constraintTop_toBottomOf="@+id/tv_excel" />
-
-    <Button
-        android:id="@+id/b_send_excel"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginEnd="10dp"
-        android:visibility="invisible"
-        android:text="Send Excel to e-mail"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/b_import_excel"
-        app:layout_constraintTop_toBottomOf="@+id/tv_excel" />
-
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup_settings"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -96,4 +96,5 @@
     <string name="dialog_title_export_db_excel">تصدير البيانات إلى Excel</string>
     <string name="dialog_message_export_db_excel">هل تريد تصدير البيانات في ملف Excel إلى التخزين؟</string>
     <string name="bSettings_ExportToExcel">تصدير إلى Excel</string>
+    <string name="title_excel">Excel:</string>
 </resources>
