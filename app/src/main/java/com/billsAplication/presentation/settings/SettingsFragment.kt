@@ -23,12 +23,23 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -49,6 +60,8 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.presentation.settings.view.ButtonSettings
+import com.billsAplication.presentation.settings.view.DropDownList
+import com.billsAplication.presentation.settings.view.RadioButtons
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile
@@ -60,6 +73,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.List
 import kotlin.system.exitProcess
 
 
@@ -127,12 +141,9 @@ class SettingsFragment : Fragment() {
         setDefaultValues()
         setButtonText()
         switchColorState()
-        radioButtonsColorState()
         switchTurnOn()
         setSwitchTheme()
         buttonLanguage()
-        spinnerCurrency()
-        radioButtonsCurrency()
 
         binding.composeView.setContent {
             MaterialTheme {
@@ -164,9 +175,72 @@ class SettingsFragment : Fragment() {
         Spacer(Modifier.size(spacerType))
         ButtonExportToExcel()
     }
+
     @Composable
     private fun Currency() {
+        val radioOptions = listOf(
+            stringResource(R.string.code_currency),
+            stringResource(R.string.symbol_currency)
+        )
+        val selectedOption = remember {
+            mutableStateOf(
+                radioOptions[
+                    if (typeCurrency) 1 else 0
+                ]
+            )
+        }
 
+        Column {
+            Text(
+                fontSize = 12.sp,
+                text = stringResource(R.string.currency)
+            )
+            Spacer(Modifier.size(spacerTitle))
+            DropDownList(
+                list = listCurrency().toList(),
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(240.dp),
+                color = Color(stateColorButton.colorButtons(type)),
+                currencyPos = currencyPos,
+                onSet = { position ->
+                    currencyPos = position
+                    if (typeCurrency) {
+                        CurrentCurrency.type = true
+                        CurrentCurrency.currency = Currency.entries[position].symbol
+                        setSharePref()
+                    } else {
+                        CurrentCurrency.type = false
+                        CurrentCurrency.currency = Currency.entries[position].code
+                        setSharePref()
+                    }
+                }
+            )
+            RadioButtons(
+                selectedOption = selectedOption,
+                onOptionSelected = { text ->
+                    selectedOption.value = text
+                    setRadioButton(radioOptions = radioOptions, text = text)
+                },
+                color = Color(stateColorButton.colorButtons(type)),
+                padding = spacerTitle
+            )
+        }
+    }
+    
+    private fun setRadioButton(radioOptions: List<String>, text: String) {
+        if (radioOptions[0] == text) {
+            CurrentCurrency.type = false
+            CurrentCurrency.currency =
+                Currency.entries[currencyPos].code
+            setSharePref()
+        }
+        if (radioOptions[1] == text) {
+            CurrentCurrency.type = true
+            CurrentCurrency.currency =
+                Currency.entries[currencyPos].symbol
+            setSharePref()
+        }
     }
 
     @Composable
@@ -446,63 +520,6 @@ class SettingsFragment : Fragment() {
         currencyPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
     }
 
-    private fun spinnerCurrency() {
-        val spinnerAdapter = object : ArrayAdapter<String>(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listCurrency()
-        ) {
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
-            ): View {
-                val view: TextView = super.getDropDownView(
-                    position,
-                    convertView,
-                    parent
-                ) as TextView
-                // set item text size
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
-                // set spinner item padding
-                view.setPadding(
-                    5.toDp(context), // left
-                    3.toDp(context), // top
-                    5.toDp(context), // right
-                    3.toDp(context) // bottom
-                )
-                return view
-            }
-        }
-        binding.spinnerCurrency.adapter = spinnerAdapter
-        binding.spinnerCurrency.setSelection(currencyPos) //set Current Pos
-
-
-        // Set an on item selected listener for spinner object
-        binding.spinnerCurrency.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {//parent.getItemAtPosition(position).toString()
-                    if (binding.rbCode.isChecked) {
-                        CurrentCurrency.type = false
-                        CurrentCurrency.currency = Currency.values().get(position).code
-                        setSharePref()
-                    } else {
-                        CurrentCurrency.type = true
-                        CurrentCurrency.currency = Currency.values().get(position).symbol
-                        setSharePref()
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
-                }
-            }
-    }
-
     private fun listCurrency(): Array<out String> {
         var list = arrayOf<String>()
         Currency.values().forEach {
@@ -511,33 +528,12 @@ class SettingsFragment : Fragment() {
         return list
     }
 
-    private fun radioButtonsCurrency() {
-        if (typeCurrency)
-            binding.rbSymbol.isChecked = true
-        else
-            binding.rbCode.isChecked = true
-
-        binding.rbCode.setOnClickListener {
-            CurrentCurrency.type = false
-            CurrentCurrency.currency =
-                Currency.values().get(binding.spinnerCurrency.selectedItemPosition).code
-            setSharePref()
-        }
-
-        binding.rbSymbol.setOnClickListener {
-            CurrentCurrency.type = true
-            CurrentCurrency.currency =
-                Currency.values().get(binding.spinnerCurrency.selectedItemPosition).symbol
-            setSharePref()
-        }
-    }
-
     private fun setSharePref() {
         //Save statement of Currency in Share preference
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
             putBoolean(CURRANT_CURRENCY_TYPE, CurrentCurrency.type)
-            putInt(CURRANT_CURRENCY_POS, binding.spinnerCurrency.selectedItemPosition)
+            putInt(CURRANT_CURRENCY_POS, currencyPos)
             apply()
         }
     }
@@ -654,22 +650,6 @@ class SettingsFragment : Fragment() {
         )
         binding.switchTheme.thumbTintList = buttonStates
         binding.switchTheme.trackTintList = buttonStates
-    }
-
-    private fun radioButtonsColorState() {
-        val buttonStates = ColorStateList(
-            arrayOf(
-                intArrayOf(-android.R.attr.state_enabled),
-                intArrayOf(android.R.attr.state_checked),
-                intArrayOf()
-            ), intArrayOf(
-                requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons(type),
-                requireActivity().getColor(R.color.default_background)
-            )
-        )
-        binding.rbSymbol.buttonTintList = buttonStates
-        binding.rbCode.buttonTintList = buttonStates
     }
 
     private fun setSwitchTheme() {

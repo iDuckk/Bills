@@ -1,6 +1,7 @@
 package com.billsAplication.presentation.settings.view
 
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenuItem
@@ -31,24 +33,31 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.billsAplication.utils.getColorFromAttr
 
-val currency = listOf("Dollar", "Rubble", "Pesso")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownList(
     list: List<String>,
-    modifier: Modifier
+    modifier: Modifier,
+    color: Color,
+    currencyPos: Int,
+    onSet: (Int) -> Unit
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(currency[0]) }
+    var selectedText by remember { mutableStateOf(list[currencyPos]) }
+
+    val bg_color = Color(context.getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
+    val txt_color = Color(context.getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant))
 
     Box(
         modifier = modifier
     ) {
         ExposedDropdownMenuBox(
             modifier = Modifier
+                .border(1.dp, color, RoundedCornerShape(10.dp))
                 .fillMaxSize(),
             expanded = expanded,
             onExpandedChange = {
@@ -60,11 +69,16 @@ fun DropDownList(
                 value = selectedText,
                 onValueChange = {},
                 readOnly = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                    disabledIndicatorColor = Color.White,
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = bg_color,
+                    unfocusedContainerColor = bg_color,
+                    disabledContainerColor = bg_color,
+                    focusedIndicatorColor = bg_color,
+                    unfocusedIndicatorColor = bg_color,
+                    disabledIndicatorColor = bg_color,
+                    unfocusedTextColor = txt_color,
+                    focusedTextColor = txt_color
                 ),
                 trailingIcon = {
                     Icon(
@@ -83,13 +97,13 @@ fun DropDownList(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                currency.forEach { item ->
+                list.forEachIndexed { index, item ->
                     DropdownMenuItem(
                         text = { Text(text = item) },
                         onClick = {
                             selectedText = item
                             expanded = false
-                            Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                            onSet.invoke(index)
                         }
                     )
                 }
@@ -102,12 +116,14 @@ fun DropDownList(
 @Composable
 fun DropMenu() {
     DropDownList(
-        list = currency,
+        list = listOf("Dollar", "Rubble", "Pesso"),
         modifier = Modifier
             .height(60.dp)
             .width(180.dp)
             .wrapContentHeight()
             .wrapContentWidth()
-            .padding(5.dp)
-    )
+            .padding(5.dp),
+        color = Color.Red,
+        currencyPos = 1
+    ){}
 }
