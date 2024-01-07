@@ -27,6 +27,7 @@ fun RadioButtons(
     selectedOption: MutableState<String>,
     onOptionSelected: (String) -> Unit,
     color: Color,
+    txtColor: Color,
     padding: Dp,
 ) {
     radioOptions.forEach { text ->
@@ -52,6 +53,7 @@ fun RadioButtons(
                 }
             )
             Text(
+                color = txtColor,
                 text = text,
                 modifier = Modifier.padding(end = padding)
             )

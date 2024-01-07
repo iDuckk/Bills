@@ -6,22 +6,19 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,19 +26,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,17 +45,22 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.chooseCategory.SetLanguageDialog
 import com.billsAplication.presentation.mainActivity.MainActivity
+import com.billsAplication.presentation.settings.dialog.SettingsAlertDialog
+import com.billsAplication.presentation.settings.dialog.SettingsAlertDialogInfo
+import com.billsAplication.presentation.settings.partScreen.ButtonExportToExcel
+import com.billsAplication.presentation.settings.partScreen.Currency
+import com.billsAplication.presentation.settings.partScreen.Language
+import com.billsAplication.presentation.settings.partScreen.SwitcherTheme
 import com.billsAplication.presentation.settings.view.ButtonSettings
 import com.billsAplication.presentation.settings.view.DropDownList
 import com.billsAplication.presentation.settings.view.RadioButtons
+import com.billsAplication.presentation.settings.view.SwitchTheme
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile
@@ -73,7 +72,6 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.List
 import kotlin.system.exitProcess
 
 
@@ -85,21 +83,28 @@ class SettingsFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: SettingsViewModel
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
+
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
+
     @Inject
     lateinit var getQueryName: GetQueryName
+
     @Inject
     lateinit var mToast: mToast
+
     @Inject
     lateinit var createExcelFile: CreateExcelFile
     private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
 
+    lateinit var sharedPref: SharedPreferences
     val currencyList = listCurrency().toList()
     val languageList = listLanguage().toList()
     private val spacerType = 10.dp
@@ -135,10 +140,6 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setDefaultValues()
-        switchColorState()
-        switchTurnOn()
-        setSwitchTheme()
-
         binding.composeView.setContent {
             MaterialTheme {
                 Column(
@@ -149,7 +150,9 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
-
+        scope.launch {
+            mainActivity.splash()
+        }
     }
 
     @Preview(showBackground = true)
@@ -163,112 +166,75 @@ class SettingsFragment : Fragment() {
     @Composable
     private fun SettingsScreen() {
         Spacer(Modifier.size(spacerType))
-        Language()
+        Switcher()
         Spacer(Modifier.size(spacerType))
-        Currency()
+        LanguageSpinner()
+        Spacer(Modifier.size(spacerType))
+        CurrencySpinner()
         Spacer(Modifier.size(spacerType))
         ButtonBD()
         Spacer(Modifier.size(spacerType))
-        ButtonExportToExcel()
+        ExportToExcel()
     }
 
     @Composable
-    private fun Language() {
-        Text(
-            fontSize = 12.sp,
-            text = stringResource(R.string.language)
-        )
-        Spacer(Modifier.size(spacerTitle))
-        DropDownList(
-            list = languageList,
-            modifier = Modifier
-                .height(60.dp)
-                .width(240.dp),
+    private fun Switcher() {
+        SwitcherTheme(
+            padding = spacerTitle,
+            defaultTheme = defaultTheme(),
             color = Color(stateColorButton.colorButtons(type)),
-            currencyPos = currentLanguagePosition,
-            onSet = { position ->
-                setLocate(position = position) //Change language
-            }
-        )
+            check = {
+                if (it) {
+                    setTheme(AppCompatDelegate.MODE_NIGHT_YES, DARK_THEME)
+                } else {
+                    setTheme(AppCompatDelegate.MODE_NIGHT_NO, LIGHT_THEME)
+                }
+                colorNavBot()
+            })
     }
 
     @Composable
-    private fun Currency() {
-        val radioOptions = listOf(
-            stringResource(R.string.code_currency),
-            stringResource(R.string.symbol_currency)
-        )
-        val selectedOption = remember {
-            mutableStateOf(
-                radioOptions[
-                    if (typeCurrency) 1 else 0
-                ]
-            )
-        }
-
-        Column {
-            Text(
-                fontSize = 12.sp,
-                text = stringResource(R.string.currency)
-            )
-            Spacer(Modifier.size(spacerTitle))
-            DropDownList(
-                list = currencyList,
-                modifier = Modifier
-                    .height(60.dp)
-                    .width(240.dp),
-                color = Color(stateColorButton.colorButtons(type)),
-                currencyPos = currencyPos,
-                onSet = { position ->
-                    currencyPos = position
-                    if (typeCurrency) {
-                        CurrentCurrency.type = true
-                        CurrentCurrency.currency = Currency.entries[position].symbol
-                        setSharePref()
-                    } else {
-                        CurrentCurrency.type = false
-                        CurrentCurrency.currency = Currency.entries[position].code
-                        setSharePref()
-                    }
-                }
-            )
-            Row(
-                modifier = Modifier
-                    .padding(top = spacerTitle)
-            ) {
-                RadioButtons(
-                    radioOptions = radioOptions,
-                    selectedOption = selectedOption,
-                    onOptionSelected = { text ->
-                        selectedOption.value = text
-                        setRadioButton(radioOptions = radioOptions, text = text)
-                    },
-                    color = Color(stateColorButton.colorButtons(type)),
-                    padding = spacerTitle
-                )
-            }
-        }
+    private fun LanguageSpinner() {
+        Language(
+            padding = spacerTitle,
+            languageList = languageList,
+            color = Color(stateColorButton.colorButtons(type)),
+            set = { position ->
+                setLocate(position = position) //Change language
+            })
     }
-    
-    private fun setRadioButton(radioOptions: List<String>, text: String) {
-        if (radioOptions[0] == text) {
-            CurrentCurrency.type = false
-            CurrentCurrency.currency =
-                Currency.entries[currencyPos].code
-            setSharePref()
-        }
-        if (radioOptions[1] == text) {
-            CurrentCurrency.type = true
-            CurrentCurrency.currency =
-                Currency.entries[currencyPos].symbol
-            setSharePref()
-        }
+
+    @Composable
+    private fun CurrencySpinner() {
+        Currency(
+            typeCurrency = typeCurrency,
+            currencyPos = currencyPos,
+            padding = spacerTitle,
+            currencyList = currencyList,
+            color = Color(stateColorButton.colorButtons(type)),
+            onSet = { position ->
+                currencyPos = position
+                if (typeCurrency) {
+                    CurrentCurrency.type = true
+                    CurrentCurrency.currency = Currency.entries[position].symbol
+                    setSharePref()
+                } else {
+                    CurrentCurrency.type = false
+                    CurrentCurrency.currency = Currency.entries[position].code
+                    setSharePref()
+                }
+            },
+            onOptionSelected = { radioOptions, text ->
+                setRadioButton(radioOptions = radioOptions, text = text)
+            }
+        )
     }
 
     @Composable
     private fun ButtonBD() {
         Column {
             Text(
+                color = Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)),
                 fontSize = 12.sp,
                 text = stringResource(R.string.settings_backup_database)
             )
@@ -295,20 +261,20 @@ class SettingsFragment : Fragment() {
     }
 
     @Composable
-    private fun ButtonExportToExcel() {
-        Text(
-            fontSize = 12.sp,
-            text = stringResource(R.string.title_excel)
-        )
-        Spacer(Modifier.size(spacerTitle))
-        ButtonSettings(
-            text = stringResource(R.string.bSettings_ExportToExcel),
-            color = Color(stateColorButton.colorButtons(type))
-        ) {
-            exportToExcel()
-        }
-
-
+    private fun ExportToExcel() {
+        val openAlertDialogInfo = remember { mutableStateOf(false) }
+        ButtonExportToExcel(
+            openAlertDialogInfo = openAlertDialogInfo,
+            padding = spacerTitle,
+            colorButton = Color(stateColorButton.colorButtons(type)),
+            settingsAlertDialog = {
+                exportToExcel(openAlertDialogInfo)
+            },
+            settingsAlertDialogInfo = {
+                if (requireActivity() is InterfaceMainActivity) {
+                    mainActivity.yandexFullscreenAds()
+                }
+            })
     }
 
     companion object {
@@ -321,28 +287,44 @@ class SettingsFragment : Fragment() {
         private const val CURRANT_CURRENCY_TYPE = "currentCurrencyType"
         private const val DEFAULT_POS = 0
         private const val DEFAULT_TYPE = false
-        private const val KEY_LANGUAGE_LIST_FRAGMENT = "key_language_from_fragment"
-        private const val KEY_CHOSEN_LANGUAGE_LIST_FRAGMENT = "key_SET_language_from_fragment"
-        private const val TAG_DIALOG_LANGUAGE = "Dialog_language"
-        private const val REQUEST_KEY_LANGUAGE_ITEM = "RequestKey_LANGUAGE_item"
-        private const val KEY_LANGUAGE_ITEMS_DIALOG = "key_language_from_dialog"
-        private const val IMPORT_DB = "importDB"
-        private const val EXPORT_DB = "exportDB"
-        private const val EXPORT_EXCEL = "exportExcel"
         private val OPEN_DOCUMENT = 109
         private const val nameDatabase = "bills_database"
         private val eMailSubject = "BillsApp_backup"
         private const val queryCheckPoint = "pragma wal_checkpoint(full)"
         private const val providerPackageApp = "com.billsAplication.fileprovider"
         private const val typeOfIntentSending = "application/octet-stream"
-
         var currentLanguagePosition = 0
         private var typeCurrency = false
         private var currencyPos = 0
 
     }
 
-    private fun exportToExcel() {
+    private fun defaultTheme(): Boolean {
+        return when (sharedPref.getInt(TYPE_THEME, LIGHT_THEME)) {
+            LIGHT_THEME -> false
+            DARK_THEME -> true
+            else -> {
+                false
+            }
+        }
+    }
+
+    private fun setRadioButton(radioOptions: List<String>, text: String) {
+        if (radioOptions[0] == text) {
+            CurrentCurrency.type = false
+            CurrentCurrency.currency =
+                Currency.entries[currencyPos].code
+            setSharePref()
+        }
+        if (radioOptions[1] == text) {
+            CurrentCurrency.type = true
+            CurrentCurrency.currency =
+                Currency.entries[currencyPos].symbol
+            setSharePref()
+        }
+    }
+
+    private fun exportToExcel(openAlertDialogInfo: MutableState<Boolean>) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -351,26 +333,15 @@ class SettingsFragment : Fragment() {
             ) {
                 checkStoragePermission()
             } else {
-                dialogExcel()
-            }
-        } else {
-            dialogExcel()
-        }
-    }
-
-    private fun dialogExcel() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog = builder
-            .setTitle(getString(R.string.dialog_title_export_db_excel)) //dialog_title_export_db
-            .setMessage(getString(R.string.dialog_message_export_db_excel)) //dialog_message_export_db
-            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
                 createExcel().apply {
-                    finishExportToExcel()
+                    openAlertDialogInfo.value = true
                 }
             }
-            .setNegativeButton(getString(R.string.search_cancel), null)
-            .create()
-        dialog.show()
+        } else {
+            createExcel().apply {
+                openAlertDialogInfo.value = true
+            }
+        }
     }
 
     private fun createExcel() {
@@ -381,19 +352,6 @@ class SettingsFragment : Fragment() {
             viewModel.listAll.removeObservers(this).apply {
                 createExcelFile(list)
             }
-        }
-    }
-
-    private fun finishExportToExcel() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setPositiveButton(getString(R.string.button_ok)) { _, _ ->
-                if (requireActivity() is InterfaceMainActivity) {
-                    mainActivity.yandexFullscreenAds()
-                }
-            }
-            setMessage(getString(R.string.dialog_message_finish_export_excel))
-            create()
-            show()
         }
     }
 
@@ -538,7 +496,7 @@ class SettingsFragment : Fragment() {
 
     private fun setDefaultValues() {
         //Get statement of Currency in Share preference
-        val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
+        sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
         typeCurrency = sharedPref.getBoolean(CURRANT_CURRENCY_TYPE, DEFAULT_TYPE)
         currencyPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
         currentLanguagePosition = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
@@ -610,45 +568,6 @@ class SettingsFragment : Fragment() {
         )
         //Update screen
         startActivity(refresh)
-    }
-
-    private fun switchColorState() {
-        val buttonStates = ColorStateList(
-            arrayOf(
-                intArrayOf(-android.R.attr.state_enabled),
-                intArrayOf(android.R.attr.state_checked),
-                intArrayOf()
-            ), intArrayOf(
-                requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons(type),
-                requireActivity().getColor(R.color.default_background)
-            )
-        )
-        binding.switchTheme.thumbTintList = buttonStates
-        binding.switchTheme.trackTintList = buttonStates
-    }
-
-    private fun setSwitchTheme() {
-        binding.switchTheme.setOnClickListener {
-            if (binding.switchTheme.isChecked) {
-                setTheme(AppCompatDelegate.MODE_NIGHT_YES, DARK_THEME)
-            } else {
-                setTheme(AppCompatDelegate.MODE_NIGHT_NO, LIGHT_THEME)
-            }
-            colorNavBot()
-        }
-        scope.launch {
-            mainActivity.splash()
-        }
-    }
-
-    private fun switchTurnOn() {
-        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val typeTheme = sharedPref.getInt(TYPE_THEME, LIGHT_THEME)
-        when (typeTheme) {
-            LIGHT_THEME -> binding.switchTheme.isChecked = false
-            DARK_THEME -> binding.switchTheme.isChecked = true
-        }
     }
 
     @SuppressLint("CutPasteId")
