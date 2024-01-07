@@ -73,41 +73,11 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="70sp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_language"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="140dp" />
-
-    <TextView
-        android:id="@+id/tv_settings_language"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        android:text="@string/language"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switchTheme" />
-
-    <Button
-        android:id="@+id/b_language"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
-        android:layout_marginTop="5sp"
-        android:text="@string/language"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_language"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_settings_language" />
-
         <androidx.compose.ui.platform.ComposeView
             android:id="@+id/compose_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintTop_toBottomOf="@+id/b_language"
+            app:layout_constraintTop_toBottomOf="@+id/im_night_theme"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

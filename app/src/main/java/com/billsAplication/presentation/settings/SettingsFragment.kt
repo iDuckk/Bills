@@ -81,31 +81,27 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding: FragmentSettingsBinding get() = _binding!!
+    private var scope = CoroutineScope(Dispatchers.Main)
 
     @Inject
     lateinit var viewModel: SettingsViewModel
-
     @Inject
     lateinit var stateColorButton: StateColorButton
-
     @Inject
     lateinit var exportDatabaseFile: ExportDatabaseFile
-
     @Inject
     lateinit var importDatabaseFile: ImportDatabaseFile
-
     @Inject
     lateinit var getQueryName: GetQueryName
-
     @Inject
     lateinit var mToast: mToast
-
     @Inject
     lateinit var createExcelFile: CreateExcelFile
-    private var scope = CoroutineScope(Dispatchers.Main)
     private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
 
+    val currencyList = listCurrency().toList()
+    val languageList = listLanguage().toList()
     private val spacerType = 10.dp
     private val spacerTitle = 5.dp
 
@@ -139,11 +135,9 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setDefaultValues()
-        setButtonText()
         switchColorState()
         switchTurnOn()
         setSwitchTheme()
-        buttonLanguage()
 
         binding.composeView.setContent {
             MaterialTheme {
@@ -169,11 +163,33 @@ class SettingsFragment : Fragment() {
     @Composable
     private fun SettingsScreen() {
         Spacer(Modifier.size(spacerType))
+        Language()
+        Spacer(Modifier.size(spacerType))
         Currency()
         Spacer(Modifier.size(spacerType))
         ButtonBD()
         Spacer(Modifier.size(spacerType))
         ButtonExportToExcel()
+    }
+
+    @Composable
+    private fun Language() {
+        Text(
+            fontSize = 12.sp,
+            text = stringResource(R.string.language)
+        )
+        Spacer(Modifier.size(spacerTitle))
+        DropDownList(
+            list = languageList,
+            modifier = Modifier
+                .height(60.dp)
+                .width(240.dp),
+            color = Color(stateColorButton.colorButtons(type)),
+            currencyPos = currentLanguagePosition,
+            onSet = { position ->
+                setLocate(position = position) //Change language
+            }
+        )
     }
 
     @Composable
@@ -197,7 +213,7 @@ class SettingsFragment : Fragment() {
             )
             Spacer(Modifier.size(spacerTitle))
             DropDownList(
-                list = listCurrency().toList(),
+                list = currencyList,
                 modifier = Modifier
                     .height(60.dp)
                     .width(240.dp),
@@ -216,15 +232,21 @@ class SettingsFragment : Fragment() {
                     }
                 }
             )
-            RadioButtons(
-                selectedOption = selectedOption,
-                onOptionSelected = { text ->
-                    selectedOption.value = text
-                    setRadioButton(radioOptions = radioOptions, text = text)
-                },
-                color = Color(stateColorButton.colorButtons(type)),
-                padding = spacerTitle
-            )
+            Row(
+                modifier = Modifier
+                    .padding(top = spacerTitle)
+            ) {
+                RadioButtons(
+                    radioOptions = radioOptions,
+                    selectedOption = selectedOption,
+                    onOptionSelected = { text ->
+                        selectedOption.value = text
+                        setRadioButton(radioOptions = radioOptions, text = text)
+                    },
+                    color = Color(stateColorButton.colorButtons(type)),
+                    padding = spacerTitle
+                )
+            }
         }
     }
     
@@ -314,6 +336,7 @@ class SettingsFragment : Fragment() {
         private const val providerPackageApp = "com.billsAplication.fileprovider"
         private const val typeOfIntentSending = "application/octet-stream"
 
+        var currentLanguagePosition = 0
         private var typeCurrency = false
         private var currencyPos = 0
 
@@ -518,6 +541,7 @@ class SettingsFragment : Fragment() {
         val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
         typeCurrency = sharedPref.getBoolean(CURRANT_CURRENCY_TYPE, DEFAULT_TYPE)
         currencyPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
+        currentLanguagePosition = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
     }
 
     private fun listCurrency(): Array<out String> {
@@ -536,47 +560,6 @@ class SettingsFragment : Fragment() {
             putInt(CURRANT_CURRENCY_POS, currencyPos)
             apply()
         }
-    }
-
-    private fun buttonLanguage() {
-        binding.bLanguage.setOnClickListener {
-            setLanguageDialog()
-        }
-    }
-
-    private fun setLanguageDialog() {
-        //Current language
-        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val pos = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
-        //Create dialog
-        val dialog = SetLanguageDialog()
-        val args = Bundle()
-        //sent list to Dialog
-        args.putStringArray(KEY_LANGUAGE_LIST_FRAGMENT, listLanguage())
-        //sent boolean list of chosen item
-        args.putInt(KEY_CHOSEN_LANGUAGE_LIST_FRAGMENT, pos)
-        dialog.arguments = args
-        //Show dialog
-        dialog.show(requireActivity().supportFragmentManager, TAG_DIALOG_LANGUAGE)
-        //Receive chosen items from Dialog
-        dialog.setFragmentResultListener(REQUEST_KEY_LANGUAGE_ITEM) { requestKey, bundle ->
-            val item = bundle.getInt(KEY_LANGUAGE_ITEMS_DIALOG) //get chosen Items
-            if (Language.values().get(item).Name != binding.bLanguage.text)
-                dialogChangeLanguage(item)
-        }
-    }
-
-    private fun dialogChangeLanguage(item: Int) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog = builder
-            .setTitle(getString(R.string.dialog_title_change_lang))
-            .setMessage(getString(R.string.dialog_message_change_lang_dialog))
-            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                setLocate(item) //Change language
-            }
-            .setNegativeButton(getString(R.string.search_cancel), null)
-            .create()
-        dialog.show()
     }
 
     private fun listLanguage(): Array<out String> {
@@ -627,13 +610,6 @@ class SettingsFragment : Fragment() {
         )
         //Update screen
         startActivity(refresh)
-    }
-
-    private fun setButtonText() {
-        val sharedPref = requireActivity().getPreferences(MODE_PRIVATE)
-        val currentLanguagePosition = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
-        binding.bLanguage.text = Language.values().get(currentLanguagePosition).Name
-        binding.bLanguage.setBackgroundColor(stateColorButton.colorButtons(type))
     }
 
     private fun switchColorState() {
@@ -697,11 +673,6 @@ class SettingsFragment : Fragment() {
             apply()
         }
     }
-
-    // Extension method to convert pixels to dp
-    fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
-    ).toInt()
 
     override fun onResume() {
         super.onResume()
