@@ -53,7 +53,9 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.mainActivity.MainActivity
 import com.billsAplication.presentation.settings.dialog.SettingsAlertDialog
 import com.billsAplication.presentation.settings.dialog.SettingsAlertDialogInfo
+import com.billsAplication.presentation.settings.partScreen.ButtonExportDB
 import com.billsAplication.presentation.settings.partScreen.ButtonExportToExcel
+import com.billsAplication.presentation.settings.partScreen.ButtonImportDB
 import com.billsAplication.presentation.settings.partScreen.Currency
 import com.billsAplication.presentation.settings.partScreen.Language
 import com.billsAplication.presentation.settings.partScreen.SwitcherTheme
@@ -239,24 +241,42 @@ class SettingsFragment : Fragment() {
                 text = stringResource(R.string.settings_backup_database)
             )
             Spacer(Modifier.size(spacerTitle))
-            ButtonSettings(
-                text = stringResource(R.string.settings_export_db),
-                color = Color(stateColorButton.colorButtons(type))
-            ) {
-                export()
-            }
-            ButtonSettings(
-                text = stringResource(R.string.settings_import_db),
-                color = Color(stateColorButton.colorButtons(type))
-            ) {
-                import()
-            }
-            ButtonSettings(
-                text = stringResource(R.string.settings_send_db_to_e_mail),
-                color = Color(stateColorButton.colorButtons(type))
-            ) {
-                sendToEmail()
-            }
+            ExportButton()
+            ImportButton()
+            SendToEmailButton()
+        }
+    }
+
+    @Composable
+    private fun ImportButton() {
+        ButtonImportDB(color = Color(stateColorButton.colorButtons(type))) {
+            openDocument() //Open File explorer
+        }
+    }
+
+    @Composable
+    private fun ExportButton() {
+        val openAlertDialogInfo = remember { mutableStateOf(false) }
+        ButtonExportDB(
+            openAlertDialogInfo = openAlertDialogInfo,
+            color = Color(stateColorButton.colorButtons(type)),
+            settingsAlertDialog = {
+                export(openAlertDialogInfo = openAlertDialogInfo)
+            },
+            settingsAlertDialogInfo = {
+                if (requireActivity() is InterfaceMainActivity) {
+                    mainActivity.yandexFullscreenAds()
+                }
+            })
+    }
+
+    @Composable
+    private fun SendToEmailButton() {
+        ButtonSettings(
+            text = stringResource(R.string.settings_send_db_to_e_mail),
+            color = Color(stateColorButton.colorButtons(type))
+        ) {
+            sendToEmail()
         }
     }
 
@@ -384,50 +404,7 @@ class SettingsFragment : Fragment() {
 
     }
 
-    private fun import() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog = builder
-            .setTitle(getString(R.string.dialog_title_import_db))
-            .setMessage(getString(R.string.dialog_message_import_db))
-            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                openDocument() //Open File explorer
-            }
-            .setNegativeButton(getString(R.string.search_cancel), null)
-            .create()
-        dialog.show()
-    }
-
-    private fun finishImport() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext()).apply {
-            setNegativeButton(getString(R.string.button_restart)) { d, id ->
-                refreshApp()
-                exitProcess(0)
-            }
-            setMessage(getString(R.string.dialog_message_finish_import))
-            create()
-            show()
-        }
-    }
-
-    private fun exportDialog() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog = builder
-            .setTitle(getString(R.string.dialog_title_export_db))
-            .setMessage(getString(R.string.dialog_message_export_db))
-            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                //Make checkPoint for merge Sql files db, wal, bad
-                viewModel.checkPoint(SimpleSQLiteQuery(queryCheckPoint))
-                //Export Db
-                exportDatabaseFile.invoke().also { //export DB
-                    finishExport() //Dialog after export
-                }
-            }
-            .setNegativeButton(getString(R.string.search_cancel), null)
-            .create()
-        dialog.show()
-    }
-
-    private fun export() {
+    private fun export(openAlertDialogInfo: MutableState<Boolean>) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -436,23 +413,16 @@ class SettingsFragment : Fragment() {
             ) {
                 checkStoragePermission()
             } else {
-                exportDialog()
+                //Make checkPoint for merge Sql files db, wal, bad
+                viewModel.checkPoint(SimpleSQLiteQuery(queryCheckPoint))
+                exportDatabaseFile.invoke() //Export Db
+                openAlertDialogInfo.value = true //finish
             }
         } else {
-            exportDialog()
-        }
-    }
-
-    private fun finishExport() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity).apply {
-            setPositiveButton(getString(R.string.button_ok)) { dialog, id ->
-                if (requireActivity() is InterfaceMainActivity) {
-                    mainActivity.yandexFullscreenAds()
-                }
-            }
-            setMessage(getString(R.string.dialog_message_finish_export))
-            create()
-            show()
+            //Make checkPoint for merge Sql files db, wal, bad
+            viewModel.checkPoint(SimpleSQLiteQuery(queryCheckPoint))
+            exportDatabaseFile.invoke() //Export Db
+            openAlertDialogInfo.value = true //finish
         }
     }
 
@@ -476,7 +446,8 @@ class SettingsFragment : Fragment() {
                 //Import Db
                 importDatabaseFile.invoke(requireActivity().contentResolver.openInputStream(data.data!!)!!)
                     .apply {
-                        finishImport() //After import restart App
+                        refreshApp()
+                        exitProcess(0)
                     }
             } else {
                 mToast(getString(R.string.error_nameDb_import))

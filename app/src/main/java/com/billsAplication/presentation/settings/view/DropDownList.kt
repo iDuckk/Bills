@@ -1,6 +1,5 @@
 package com.billsAplication.presentation.settings.view
 
-import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +9,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -97,15 +98,20 @@ fun DropDownList(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                list.forEachIndexed { index, item ->
-                    DropdownMenuItem(
-                        text = { Text(text = item) },
-                        onClick = {
-                            selectedText = item
-                            expanded = false
-                            onSet.invoke(index)
-                        }
-                    )
+                LazyColumn (modifier = Modifier.height(250.dp).width(240.dp)) {
+                    itemsIndexed(list) { index, item ->
+                        DropdownMenuItem(
+                            text = { Text(
+                                color = if (selectedText == item) color else Color.Black,
+                                text = item
+                            ) },
+                            onClick = {
+                                selectedText = item
+                                expanded = false
+                                onSet.invoke(index)
+                            }
+                        )
+                    }
                 }
             }
         }

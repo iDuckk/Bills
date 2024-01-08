@@ -6,11 +6,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.billsAplication.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsAlertDialog(
     onDismissRequest: () -> Unit,
@@ -18,6 +19,7 @@ fun SettingsAlertDialog(
     dialogTitle: String,
     dialogText: String,
     icon: ImageVector? = null,
+    color: Color
 ) {
     AlertDialog(
         icon = {
@@ -39,7 +41,10 @@ fun SettingsAlertDialog(
                     onConfirmation()
                 }
             ) {
-                Text(stringResource(R.string.button_yes))
+                Text(
+                    color = color,
+                    text = stringResource(R.string.button_yes)
+                )
             }
         },
         dismissButton = {
@@ -48,7 +53,9 @@ fun SettingsAlertDialog(
                     onDismissRequest()
                 }
             ) {
-                Text(stringResource(R.string.search_cancel))
+                Text(
+                    color = color,
+                    text = stringResource(R.string.search_cancel))
             }
         }
     )
