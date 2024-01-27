@@ -9,9 +9,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -34,9 +36,14 @@ private const val animationDuration = 800
 private const val chartDegrees = 360f
 private const val emptyIndex = -1
 
+private val defaultSliceWidth = 20.dp
+private val defaultSlicePadding = 5.dp
+private val defaultSliceClickPadding = 10.dp
+
 @Composable
 internal fun PieChart(
     modifier: Modifier = Modifier,
+    type: String,
     colors: List<Color>,
     inputValues: List<Float>,
     textColor: Color = MaterialTheme.colorScheme.primary,
@@ -87,9 +94,15 @@ internal fun PieChart(
         pathPortion.animateTo(1f, animationSpec = tween(if (animated) animationDuration else 0))
     }
 
-    // text style
+
     val density = LocalDensity.current
 
+    //convert dp values to pixels
+    val sliceWidthPx = with(density) { defaultSliceWidth.toPx() }
+    val slicePaddingPx = with(density) { defaultSlicePadding.toPx() }
+    val sliceClickPaddingPx = with(density) { defaultSliceClickPadding.toPx() }
+
+    // text style
     val textFontSize = with(density) { 30.dp.toPx() }
     val textPaint = remember {
         Paint().apply {
@@ -99,16 +112,20 @@ internal fun PieChart(
         }
     }
 
+    // slice width when clicked
+    val selectedSliceWidth = sliceWidthPx + sliceClickPaddingPx
+
     BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
 
         val canvasSize = min(constraints.maxWidth, constraints.maxHeight)
-        val size = Size(canvasSize.toFloat(), canvasSize.toFloat())
+        val padding = canvasSize * slicePaddingPx / 100f
+        val size = Size(canvasSize.toFloat() - padding, canvasSize.toFloat() - padding)
         val canvasSizeDp = with(density) { canvasSize.toDp() }
 
         if (isEmpty)
             clickedItemIndex = emptyIndex
 
-        if (inputValues.lastIndex < clickedItemIndex )
+        if (inputValues.lastIndex < clickedItemIndex)
             clickedItemIndex = inputValues.lastIndex
 
         Canvas(
@@ -133,11 +150,10 @@ internal fun PieChart(
                     }
                 }
         ) {
-            //If list is empty
-            if (isEmpty) {
+            if (clickedItemIndex == emptyIndex) {
                 drawIntoCanvas { canvas ->
                     canvas.nativeCanvas.drawText(
-                        txtEmptyList,
+                        if (isEmpty) txtEmptyList else type,
                         (canvasSize / 2) + textFontSize / 4,
                         (canvasSize / 2) + textFontSize / 4,
                         textPaint
@@ -150,9 +166,10 @@ internal fun PieChart(
                     color = colors[index],
                     startAngle = startAngle,
                     sweepAngle = angle * pathPortion.value,
-                    useCenter = true,
+                    useCenter = false, //true
                     size = size,
-                    style = Fill
+                    style = Stroke(width = if (clickedItemIndex == index) selectedSliceWidth else sliceWidthPx),//Fill
+                    topLeft = Offset(padding / 2, padding / 2)
                 )
                 startAngle += angle
             }

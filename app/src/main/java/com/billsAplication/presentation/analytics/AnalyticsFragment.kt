@@ -185,7 +185,8 @@ class AnalyticsFragment : Fragment() {
         )
 //        Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant))
         PieChart(
-            modifier = Modifier.padding(30.dp),
+            modifier = Modifier.padding(40.dp),
+            type = if (isClickedExpenses.value) stringResource(id = R.string.bill_list_expense) else stringResource(id = R.string.bills_list_income),
             colors = chartColorsState.value,
             inputValues = chartValuesState.value,
             textColor = Color.DarkGray
