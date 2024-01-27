@@ -34,7 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.billsAplication.utils.getColorFromAttr
+import com.billsAplication.extension.getColorFromAttr
 
 
 @OptIn(ExperimentalMaterial3Api::class)

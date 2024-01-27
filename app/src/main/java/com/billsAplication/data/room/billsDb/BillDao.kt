@@ -9,14 +9,26 @@ import com.billsAplication.data.room.model.BillEntity
 @Dao
 interface BillDao {
 
+    @Query("SELECT SUM(amount) FROM bills_list WHERE month = :month AND type = :type")
+    fun summaryAmount(month : String, type : Int): Double
+
+    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type")
+    fun getMonthListByType(month : String, type : Int): List<BillEntity>
+
+    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type AND category = :category")
+    fun getMonthListByTypeCategory(month : String, type : Int, category : String): List<BillEntity>
+
+    @RawQuery
+    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+
+    /**
+     * Старые DAO
+     * */
     @Query("SELECT * FROM bills_list")
     fun getAllLD(): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list")
     fun getAll(): List<BillEntity>
-
-    @Query("SELECT * FROM bills_list WHERE month = :month")
-    fun getMonthLD(month : String): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list WHERE month = :month")
     fun getMonthList(month : String): List<BillEntity>
@@ -42,7 +54,11 @@ interface BillDao {
     @Update
     fun update(item : BillEntity)
 
-    @RawQuery
-    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+    /**
+     * Кандидат на удаление
+     * */
+
+    @Query("SELECT * FROM bills_list WHERE month = :month")
+    fun getMonthLD(month : String): LiveData<List<BillEntity>>
 
 }

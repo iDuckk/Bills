@@ -2,26 +2,26 @@ package com.billsAplication.presentation.analytics
 
 import android.app.Application
 import android.content.res.Configuration
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.billsAplication.R
 import com.billsAplication.domain.billsUseCases.GetMonthLDUseCase
+import com.billsAplication.domain.billsUseCases.room.GetMonthListByTypeCategoryUseCase
+import com.billsAplication.domain.billsUseCases.room.GetMonthListByTypeUseCase
+import com.billsAplication.domain.billsUseCases.room.SummaryAmountUseCase
 import com.billsAplication.domain.model.BillsItem
 import java.time.LocalDate
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 class AnalyticsViewModel @Inject constructor(
-    private val getMonth : GetMonthLDUseCase,
+    private val getMonthListByTypeUseCase : GetMonthListByTypeUseCase,
+    private val summaryAmount : SummaryAmountUseCase,
+    private val getMonthListByTypeCategoryUseCase : GetMonthListByTypeCategoryUseCase,
     private val application: Application
 ) : ViewModel() {
 
     private var date = LocalDate.now()
-
-    lateinit var list: LiveData<List<BillsItem>>
 
     var currentDate: String
 
@@ -42,17 +42,21 @@ class AnalyticsViewModel @Inject constructor(
     private var DECEMBER = "DECEMBER"
 
     init {
-        getMonth(currentDate())
         currentDate = currentDate()
     }
+
+    fun summaryAmount(month: String, type: Int) =
+                summaryAmount.invoke(month = mapMonthToSQL(month), type = type)
+
+    fun getMonthListByType(month: String, type: Int) =
+        getMonthListByTypeUseCase.invoke(month = mapMonthToSQL(month), type = type)
+
+    fun getMonthListByTypeCategory(month: String, type: Int, category: String) =
+        getMonthListByTypeCategoryUseCase.invoke(month = mapMonthToSQL(month), type = type, category = category)
 
     fun defaultMonth(){
         changeMonth = 0
         changeYear = 0
-    }
-
-    fun getMonth(month: String) {
-        list =  getMonth.invoke(mapMonthToSQL(month))
     }
 
     fun currentDate() : String{
@@ -79,7 +83,7 @@ class AnalyticsViewModel @Inject constructor(
         }
     }
 
-    fun mapMonthToSQL(month: String): String{
+    private fun mapMonthToSQL(month: String): String{
         when(month.dropLast(5)){
             application.getString(R.string.calendar_January) -> return JANUARY + month.removePrefix(month.dropLast(5))
             application.getString(R.string.calendar_february) -> return FEBRUARY + month.removePrefix(month.dropLast(5))
@@ -97,7 +101,7 @@ class AnalyticsViewModel @Inject constructor(
         return ""
     }
 
-    fun mapMonthToTextView(month: String): String{
+    private fun mapMonthToTextView(month: String): String{
         //Update resources for new language
         val config = Configuration()
         val locale = Locale(Locale.getDefault().language)

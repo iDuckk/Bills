@@ -1,4 +1,4 @@
-package com.billsAplication.utils
+package com.billsAplication.extension
 
 import android.content.Context
 import androidx.annotation.AttrRes

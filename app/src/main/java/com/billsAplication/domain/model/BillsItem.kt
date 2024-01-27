@@ -20,4 +20,9 @@ data class BillsItem(
     val image3 : String,
     val image4 : String,
     val image5 : String
-): Parcelable
+): Parcelable {
+    companion object {
+        const val TYPE_EXPENSES = 0
+        const val TYPE_INCOME = 1
+    }
+}

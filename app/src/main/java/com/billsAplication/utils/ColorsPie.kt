@@ -1,12 +1,11 @@
 package com.billsAplication.utils
 
 enum class ColorsPie(val printableName: String) {
-    LIGHT_CORAL("#F08080"),
     PLUM("#DDA0DD"),
     KHAKI("#F0E68C"),
+    BLUE("#0000FF"),
     B_WOOD("#DEB887"),
     CRIMSON("#DC143C"),
-    BLUE("#0000FF"),
     ANDYBROWN("#F4A460"),
     ORCHID("#DA70D6"),
     MAROON("#800000"),
@@ -31,5 +30,6 @@ enum class ColorsPie(val printableName: String) {
     ORANGE("#9ACD32"),
     GAINSBORO("#DCDCDC"),
     LG_YELLOW("#FAFAD2"),
+    LIGHT_CORAL("#F08080"),
     FUCHSIA("#FF00FF")
 }

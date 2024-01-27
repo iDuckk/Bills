@@ -1,6 +1,5 @@
 package com.billsAplication.presentation.settings.partScreen
 
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.billsAplication.presentation.settings.view.SwitchTheme
-import com.billsAplication.utils.getColorFromAttr
+import com.billsAplication.extension.getColorFromAttr
 import com.google.android.material.R
 
 @Composable

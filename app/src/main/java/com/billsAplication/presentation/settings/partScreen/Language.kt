@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.settings.view.DropDownList
-import com.billsAplication.utils.getColorFromAttr
+import com.billsAplication.extension.getColorFromAttr
 import com.google.android.material.R
 
 @Composable

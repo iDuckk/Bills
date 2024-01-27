@@ -1,7 +1,6 @@
 package com.billsAplication.data.room.repository
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -13,6 +12,35 @@ import com.billsAplication.domain.repository.BillsListRepository
 import javax.inject.Inject
 
 class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, private val mapper: BillMapper) : BillsListRepository {
+    override fun summaryAmount(month: String, type: Int) =
+        billDao.summaryAmount(month = month, type = type)
+
+    override fun getMonthListByType(month: String, type: Int): List<BillsItem> {
+        return billDao.getMonthListByType(month = month, type = type).map {
+            mapper.mapBillEntityToBillItem(it)
+        }
+    }
+
+    override fun getMonthListByTypeCategory(
+        month: String,
+        type: Int,
+        category: String
+    ): List<BillsItem> {
+        return billDao.getMonthListByTypeCategory(month = month, type = type, category = category).map {
+            mapper.mapBillEntityToBillItem(it)
+        }
+    }
+
+    override suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery){
+        billDao.checkpoint(supportSQLiteQuery)
+    }
+
+    override suspend fun closeDb(){
+        BillDatabase.destroyInstance()
+    }
+    /**
+     * Old repo
+     * */
 
     override suspend fun addItem(item: BillsItem) {
         billDao.insert(mapper.mapBillItemToBillEntity(item))
@@ -20,13 +48,6 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
 
     override suspend fun deleteItem(item : BillsItem) {
         billDao.delete(mapper.mapBillItemToBillEntity(item))
-    }
-
-    @SuppressLint("CheckResult")
-    override fun getAllDataListLD(): LiveData<List<BillsItem>> {
-        return billDao.getAllLD().map {
-            mapper.mapBillEntityToBillItemList(it)
-        }
     }
 
     override fun getAllDataList(): List<BillsItem> {
@@ -80,11 +101,10 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         billDao.update(mapper.mapBillItemToBillEntity(item))
     }
 
-    override suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery){
-        billDao.checkpoint(supportSQLiteQuery)
-    }
-
-    override suspend fun closeDb(){
-        BillDatabase.destroyInstance()
+    @SuppressLint("CheckResult")
+    override fun getAllDataListLD(): LiveData<List<BillsItem>> {
+        return billDao.getAllLD().map {
+            mapper.mapBillEntityToBillItemList(it)
+        }
     }
 }

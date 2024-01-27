@@ -2,7 +2,6 @@ package com.billsAplication.presentation.settings
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -18,24 +17,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,9 +43,8 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentSettingsBinding
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.extension.getColorFromAttr
 import com.billsAplication.presentation.mainActivity.MainActivity
-import com.billsAplication.presentation.settings.dialog.SettingsAlertDialog
-import com.billsAplication.presentation.settings.dialog.SettingsAlertDialogInfo
 import com.billsAplication.presentation.settings.partScreen.ButtonExportDB
 import com.billsAplication.presentation.settings.partScreen.ButtonExportToExcel
 import com.billsAplication.presentation.settings.partScreen.ButtonImportDB
@@ -60,9 +52,6 @@ import com.billsAplication.presentation.settings.partScreen.Currency
 import com.billsAplication.presentation.settings.partScreen.Language
 import com.billsAplication.presentation.settings.partScreen.SwitcherTheme
 import com.billsAplication.presentation.settings.view.ButtonSettings
-import com.billsAplication.presentation.settings.view.DropDownList
-import com.billsAplication.presentation.settings.view.RadioButtons
-import com.billsAplication.presentation.settings.view.SwitchTheme
 import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile

@@ -16,7 +16,7 @@ import com.billsAplication.R
 import com.billsAplication.presentation.settings.dialog.SettingsAlertDialog
 import com.billsAplication.presentation.settings.dialog.SettingsAlertDialogInfo
 import com.billsAplication.presentation.settings.view.ButtonSettings
-import com.billsAplication.utils.getColorFromAttr
+import com.billsAplication.extension.getColorFromAttr
 
 @Composable
 fun ButtonExportToExcel(

@@ -19,10 +19,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.billsAplication.R
-import com.billsAplication.presentation.settings.SettingsFragment
 import com.billsAplication.presentation.settings.view.DropDownList
 import com.billsAplication.presentation.settings.view.RadioButtons
-import com.billsAplication.utils.getColorFromAttr
+import com.billsAplication.extension.getColorFromAttr
 
 @Composable
 fun Currency(

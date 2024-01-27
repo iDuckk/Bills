@@ -1,37 +1,48 @@
 package com.billsAplication.presentation.analytics
 
+import PieChart
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentAnalyticsBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.search_analytics.BillsAdapter_SearchAnalytics
+import com.billsAplication.presentation.analytics.view.BIllsItemAnalytics
+import com.billsAplication.presentation.analytics.view.ButtonAnalytics
+import com.billsAplication.presentation.analytics.view.ListCategory
+import com.billsAplication.presentation.analytics.view.MonthPicker
 import com.billsAplication.utils.ColorsPie
-import com.billsAplication.utils.SortingDesc
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import java.math.BigDecimal
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class AnalyticsFragment : Fragment() {
 
@@ -40,22 +51,10 @@ class AnalyticsFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: AnalyticsViewModel
-    @Inject
-    lateinit var billAdapter: BillsAdapter_SearchAnalytics
-    @Inject
-    lateinit var sortingDesc: SortingDesc
 
-    private val TYPE_EXPENSES = 0
-    private val TYPE_INCOME = 1
-    private val NEXT_MONTH = true
-    private val PREV_MONTH = false
-    private val EMPTY_STRING = ""
     private val COLORS_AMOUNT = 29
-
-    val wholeList = ArrayList<BillsItem>()
-    private val listSet = mutableMapOf<String, BigDecimal>()
-
-    var wholeAmountPie = BigDecimal(0)
+    private val spacerType = 10.dp
+    private val spacerTitle = 5.dp
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
@@ -74,259 +73,248 @@ class AnalyticsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("CoroutineCreationDuringComposition")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        initPieChart()
-
-        titleBar()
-
-        initRecView()
-
-        firstEntrance()
-
-    }
-
-    private fun firstEntrance() {
-        //SetColor state
-        binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_expense)
-        binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_income)
-        binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
-        binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
-        binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
-        binding.tvExpense.isEnabled = false
-        binding.tvIncome.isEnabled = true
-        //set centre title of pieChart
-        binding.pieChart.centerText = getString(R.string.bill_list_expense)
-        //set a new list
-        setListMonth()
-    }
-
-    private fun initRecView() {
-        with(binding.recViewAnalytics) {
-            layoutManager = LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false)
-            billAdapter.isListened = false
-            adapter = billAdapter
-            binding.recViewAnalytics.itemAnimator = null
-        }
-
-    }
-
-    private fun getList(type: Int) {
-        viewModel.getMonth(binding.tvMonthAnalytics.text.toString())
-        //if list has old values
-        listSet.clear()
-        wholeList.clear()
-        viewModel.list.observe(viewLifecycleOwner) { item ->
-            //create Lists
-            viewModel.list.value?.forEach {
-                //Get list of Category
-                if(it.type == type && it.category.isNotEmpty()) {
-                    //list for chosen Items
-                    wholeList.add(it)
-                    //total amount
-                    wholeAmountPie += BigDecimal(it.amount.replace(",", ""))
-
-                    if(listSet.containsKey(it.category)) {   //if category item exists
-                        var amount = listSet.getValue(it.category) //Sum amount for percentage
-                        amount += BigDecimal(it.amount.replace(",", ""))
-                        listSet.replace(it.category, amount)
-                    }else   //if new category item
-                        listSet[it.category] = BigDecimal(it.amount.replace(",", ""))
+        binding.composeView.setContent {
+            MaterialTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+                    AnalyticsScreen()
                 }
             }
-            //Set data for Pie
-        setDataToPieChart()
-        }
-        viewModel.list.removeObservers(this)
-    }
-
-    @SuppressLint("ResourceAsColor")
-    private fun titleBar() {
-        //Set month`s text in bar
-        binding.tvMonthAnalytics.text = viewModel.currentDate
-        binding.tvMonthAnalytics.setOnClickListener {
-            viewModel.currentDate
-            binding.tvMonthAnalytics.text = viewModel.currentDate()
-            viewModel.defaultMonth()
-            //set a new list
-            setListMonth()
-        }
-        //Previous month
-        binding.imBackMonthAnalytics.setOnClickListener {
-            viewModel.currentDate = viewModel.changeMonthBar(PREV_MONTH)
-            binding.tvMonthAnalytics.text = viewModel.currentDate //Set month`s text in bar
-            //set a new list
-            setListMonth()
-        }
-        //Next month
-        binding.imNextMonthAnalytics.setOnClickListener {
-            viewModel.currentDate = viewModel.changeMonthBar(NEXT_MONTH)
-            binding.tvMonthAnalytics.text = viewModel.currentDate //Set month`s text in bar
-            //set a new list
-            setListMonth()
-        }
-
-        binding.tvExpense.setOnClickListener{
-            //SetColor state
-            binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_expense)
-            binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_income)
-            binding.tvExpense.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
-            binding.tvIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_income))
-//            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
-            binding.tvExpense.isEnabled = false
-            binding.tvIncome.isEnabled = true
-            //set centre title of pieChart
-//            binding.pieChart.centerText = getString(R.string.bill_list_expense)
-            setListMonth()
-        }
-
-        binding.tvIncome.setOnClickListener{
-            //SetColor state
-            binding.tvExpense.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_border_expense)
-            binding.tvIncome.background = ContextCompat.getDrawable(requireContext(), R.drawable.textview_fullbackground_income)
-            binding.tvIncome.setTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
-            binding.tvExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_expense))
-//            binding.pieChart.setHoleColor(ContextCompat.getColor(requireContext(), R.color.text_income))
-            binding.tvExpense.isEnabled = true
-            binding.tvIncome.isEnabled = false
-            //set centre title of pieChart
-//            binding.pieChart.centerText = getString(R.string.bills_list_income)
-            setListMonth()
-        }
-
-    }
-
-    private fun setListMonth() {
-        billAdapter.submitList(null)
-        binding.pieChart.onTouchListener.setLastHighlighted(null)
-        binding.pieChart.highlightValues(null)
-        if (!binding.tvExpense.isEnabled) {
-            getList(TYPE_EXPENSES)
-                binding.pieChart.setHoleColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.text_expense
-                    )
-                )
-                binding.pieChart.centerText = getString(R.string.bill_list_expense)
-        }
-        else {
-            getList(TYPE_INCOME)
-                binding.pieChart.setHoleColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.text_income
-                    )
-                )
-                binding.pieChart.centerText = getString(R.string.bills_list_income)
-        }
-    }
-    private fun initPieChart() {
-        binding.pieChart.apply {
-            setUsePercentValues(true)
-            description.text = EMPTY_STRING
-            //hollow pie chart
-            isDrawHoleEnabled = false
-            setTouchEnabled(true)
-            setDrawEntryLabels(false)
-            //adding padding
-            setExtraOffsets(20f, 20f, 20f, 20f)
-            isRotationEnabled = false
-            minAngleForSlices = 10f
-            //Legend
-            legend.orientation = Legend.LegendOrientation.HORIZONTAL
-            legend.isWordWrapEnabled = true
-            legend.textSize = 12f
-            legend.form = Legend.LegendForm.CIRCLE
-            legend.formSize = 12f
-            legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
-            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-            legend.textColor =requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)
-
-            pieChartListenerItem()
         }
     }
 
-    private fun PieChart.pieChartListenerItem() {
-        setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-            override fun onValueSelected(e: Entry?, h: Highlight?) {
-                //h.x - index, h.y - value, (e as PieEntry).label
-                //Create list categories
-                val list = ArrayList<BillsItem>()
-                wholeList.forEach {
-                    if (it.category == (e as PieEntry).label)
-                        list.add(it)
+    @SuppressLint("MutableCollectionMutableState")
+    @Composable
+    private fun AnalyticsScreen() {
+        val isClickedExpenses = remember {
+            mutableStateOf(true)
+        }
+        val isClickedIncome = remember {
+            mutableStateOf(false)
+        }
+        val month = remember {
+            mutableStateOf(viewModel.currentDate())
+        }
+        val categoryList: MutableState<List<BillsItem>> = remember {
+            mutableStateOf(listOf<BillsItem>())
+        }
+        TopBar(
+            isClickedExpenses = isClickedExpenses,
+            isClickedIncome = isClickedIncome,
+            month = month
+        )
+        Spacer(Modifier.size(spacerType))
+        ListType(
+            isClickedExpenses = isClickedExpenses,
+            isClickedIncome = isClickedIncome,
+            categoryList = categoryList,
+            month = month)
+    }
+
+    @Composable
+    private fun TopBar(
+        isClickedExpenses: MutableState<Boolean>,
+        isClickedIncome: MutableState<Boolean>,
+        month: MutableState<String>
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .padding(top = spacerType)
+                .fillMaxWidth()
+        ) {
+            MonthPicker(
+                viewModel = viewModel,
+                month = month,
+                padding = spacerType
+            )
+            Spacer(Modifier.size(spacerType))
+            Row {
+                ButtonAnalytics(
+                    text = stringResource(id = R.string.bill_list_expense),
+                    color = colorResource(id = R.color.text_expense),
+                    isClicked = isClickedExpenses
+                ) {
+                    isClickedExpenses.value = true
+                    isClickedIncome.value = false
                 }
-    //                    Log.d("TAG", (e as PieEntry).label)
-                billAdapter.submitList(sortingDesc(list.toMutableList()))
+                Spacer(Modifier.size(spacerType))
+                ButtonAnalytics(
+                    text = stringResource(id = R.string.bills_list_income),
+                    color = colorResource(id = R.color.text_income),
+                    isClicked = isClickedIncome
+                ) {
+                    isClickedIncome.value = true
+                    isClickedExpenses.value = false
+                }
             }
+        }
+    }
 
-            override fun onNothingSelected() {}
+    @SuppressLint("CoroutineCreationDuringComposition")
+    @Composable
+    private fun BasicPieChart(
+        isClickedExpenses: MutableState<Boolean>,
+        isClickedIncome: MutableState<Boolean>,
+        categoryList: MutableState<List<BillsItem>>,
+        month: MutableState<String>
+    ) {
+        val coroutineScope = rememberCoroutineScope()
+
+        val chartValuesState: MutableState<List<Float>> = remember {
+            mutableStateOf(listOf<Float>(0f))
+        }
+        val chartColorsState: MutableState<List<Color>> = remember {
+            mutableStateOf(listOf<Color>(Color.Transparent))
+        }
+        val chartCategoryState: MutableState<List<String>> = remember {
+            mutableStateOf(listOf<String>(""))
+        }
+
+        ListCategory(
+            chartColorsState = chartColorsState,
+            chartCategoryState = chartCategoryState,
+            bigDp = spacerType
+        )
+//        Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant))
+        PieChart(
+            modifier = Modifier.padding(30.dp),
+            colors = chartColorsState.value,
+            inputValues = chartValuesState.value,
+            textColor = Color.DarkGray
+        ) { indexCategory ->
+            coroutineScope.launch(Dispatchers.IO) {
+                categoryList.value = viewModel.getMonthListByTypeCategory(
+                    month = month.value,
+                    type = if (isClickedExpenses.value) BillsItem.TYPE_EXPENSES else BillsItem.TYPE_INCOME,
+                    category = chartCategoryState.value[indexCategory]
+                )
+            }
+        }
+
+        if (isClickedExpenses.value) {
+            SetEntriesPieChart(
+                month = month.value,
+                type = BillsItem.TYPE_EXPENSES,
+                coroutineScope = coroutineScope,
+                chartValuesState = chartValuesState,
+                chartColorsState = chartColorsState,
+                chartCategoryState = chartCategoryState,
+            )
+        }
+        if (isClickedIncome.value) {
+            SetEntriesPieChart(
+                month = month.value,
+                type = BillsItem.TYPE_INCOME,
+                coroutineScope = coroutineScope,
+                chartValuesState = chartValuesState,
+                chartColorsState = chartColorsState,
+                chartCategoryState = chartCategoryState,
+            )
+        }
+    }
+
+    @SuppressLint("CoroutineCreationDuringComposition")
+    @Composable
+    private fun SetEntriesPieChart(
+        month: String,
+        type: Int,
+        coroutineScope: CoroutineScope,
+        chartValuesState: MutableState<List<Float>>,
+        chartColorsState: MutableState<List<Color>>,
+        chartCategoryState: MutableState<List<String>>
+    ) {
+        var sum = 0f
+
+        val chartValues = mutableListOf<Float>()
+        val chartColors = mutableListOf<Color>()
+        val chartCategory = mutableListOf<String>()
+
+        coroutineScope.launch(Dispatchers.Main) {
+            sum = async(Dispatchers.IO) {
+                viewModel.summaryAmount(
+                    month = month,
+                    type = type
+                ).toFloat()
+            }.await()
+
+            launch(Dispatchers.IO) {
+                viewModel.getMonthListByType(
+                    month = month,
+                    type = type
+                ).let { list ->
+                    list.sortedBy { it.category }.forEachIndexed { index, item ->
+
+                        val valueFloat = if (item.amount.toFloat() == 0f)
+                            0f
+                        else
+                            item.amount.toFloat() / sum
+
+                        val colorInt = if (index < COLORS_AMOUNT) index else index - COLORS_AMOUNT
+                        val colorStr = ColorsPie.entries[colorInt].printableName
+                        val color = Color(android.graphics.Color.parseColor(colorStr))
+
+                        if (chartCategory.contains(item.category)) {   //if category item exists
+                            chartValues.last() + valueFloat
+                        } else {
+                            //if new category item
+                            chartValues.add(valueFloat)
+                            chartColors.add(color)
+                            chartCategory.add(item.category)
+                        }
+
+                    }
+
+                    if (list.isEmpty()) {
+                        chartValues.add(0f)
+                        chartColors.add(Color.Transparent)
+                        chartCategory.add("")
+                    }
+
+                }
+            }.join()
+
+            chartCategoryState.value = chartCategory
+            chartColorsState.value = chartColors
+            chartValuesState.value = chartValues
+        }
+    }
+
+    @Composable
+    private fun ListType(
+        isClickedExpenses: MutableState<Boolean>,
+        isClickedIncome: MutableState<Boolean>,
+        categoryList: MutableState<List<BillsItem>>,
+        month: MutableState<String>
+    ) {
+        LazyColumn(content = {
+            item {
+                BasicPieChart(
+                    isClickedExpenses = isClickedExpenses,
+                    isClickedIncome = isClickedIncome,
+                    categoryList = categoryList,
+                    month = month
+                )
+            }
+            items(items = categoryList.value, itemContent = { item ->
+                BIllsItemAnalytics(
+                    date = item.date,
+                    category = item.category,
+                    note = item.note,
+                    amount = item.amount,
+                    type = item.type,
+                    smallDp = spacerTitle,
+                    bigDp = spacerType
+                )
+            }, key = { it.id })
         })
-    }
-
-    private fun setDataToPieChart() {
-        val dataEntries = ArrayList<PieEntry>()
-        val colors: ArrayList<Int> = ArrayList()
-        //Set data for Pie
-        listSet.onEachIndexed { index, item ->
-            //Add percentage and Legend
-            dataEntries.add(PieEntry(item.value.toFloat(), item.key))
-            //Add colors COLORS_AMOUNT - Because we have only 30 color
-            val color = if(index < COLORS_AMOUNT) index else index - COLORS_AMOUNT
-            colors.add(Color.parseColor(ColorsPie.values().get(color).printableName))
-        }
-
-        val dataSet = PieDataSet(dataEntries, "")
-        // Value lines
-        dataSet.valueLinePart1Length = 0.8f
-        dataSet.valueLinePart2Length = 0f
-//        dataSet.valueLineWidth = 1f
-//        dataSet.valueLinePart1OffsetPercentage = 115f  // Line starts outside of chart
-        dataSet.isUsingSliceColorAsValueLineColor = true
-        // Value text appearance
-        dataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE //percent
-//        dataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE //label
-        dataSet.valueTextSize = 11f
-//        dataSet.valueTypeface = Typeface.DEFAULT_BOLD
-        dataSet.valueTextColor = requireContext().getColorFromAttr(com.google.android.material.R.attr.colorPrimaryVariant)
-        val data = PieData(dataSet)
-        // In Percentage
-        data.setValueFormatter(PercentFormatter(binding.pieChart))//sent pieChar is important
-        dataSet.sliceSpace = 3f
-        dataSet.colors = colors
-        binding.pieChart.data = data
-//        data.setValueTextSize(20f)
-//        binding.pieChart.setExtraOffsets(5f, 5f, 5f, 5f)
-        binding.pieChart.animateY(1400, Easing.EaseInOutQuad)
-        //create hole in center
-        binding.pieChart.holeRadius = 30f
-        binding.pieChart.transparentCircleRadius = 40f
-        binding.pieChart.isDrawHoleEnabled = true
-//        binding.pieChart.setHoleColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
-        //add text in center
-        binding.pieChart.setDrawCenterText(true)
-        //it doesn't have values
-        if(listSet.isNullOrEmpty()){
-            binding.pieChart.centerText = getString(R.string.no_values_analytics)
-            binding.pieChart.setCenterTextColor(requireContext().getColor(R.color.default_background))
-            binding.pieChart.setHoleColor(
-                requireContext().getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
-
-        }else{
-            binding.pieChart.setCenterTextColor(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
-        }
-        binding.pieChart.invalidate()
-    }
-
-    @ColorInt
-    fun Context.getColorFromAttr(@AttrRes attrColor: Int
-    ): Int {
-        val typedArray = theme.obtainStyledAttributes(intArrayOf(attrColor))
-        val textColor = typedArray.getColor(0, 0)
-        typedArray.recycle()
-        return textColor
     }
 
     override fun onDestroyView() {

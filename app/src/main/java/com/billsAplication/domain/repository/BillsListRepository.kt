@@ -6,11 +6,23 @@ import com.billsAplication.domain.model.BillsItem
 
 interface BillsListRepository {
 
+    fun summaryAmount(month: String, type: Int): Double
+
+    fun getMonthListByType(month: String, type: Int): List<BillsItem>
+
+    fun getMonthListByTypeCategory(month: String, type: Int, category: String): List<BillsItem>
+
+    suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
+
+    suspend fun closeDb()
+
+    /**
+     * Old repo
+     * */
+
     suspend fun addItem(item : BillsItem)
 
     suspend fun deleteItem(item : BillsItem)
-
-    fun getAllDataListLD() : LiveData<List<BillsItem>>
 
     fun getAllDataList() : List<BillsItem>
 
@@ -28,8 +40,10 @@ interface BillsListRepository {
 
     fun getBookmarks(type : Boolean) : LiveData<List<BillsItem>>
 
-    suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
+    /**
+     * Кандидат на удаление
+     * */
 
-    suspend fun closeDb()
+    fun getAllDataListLD() : LiveData<List<BillsItem>>
 
 }
