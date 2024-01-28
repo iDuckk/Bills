@@ -57,6 +57,7 @@ import com.billsAplication.utils.Currency
 import com.billsAplication.utils.excel.CreateExcelFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -342,25 +343,23 @@ class SettingsFragment : Fragment() {
             ) {
                 checkStoragePermission()
             } else {
-                createExcel().apply {
+                createExcel {
                     openAlertDialogInfo.value = true
                 }
             }
         } else {
-            createExcel().apply {
+            createExcel {
                 openAlertDialogInfo.value = true
             }
         }
     }
 
-    private fun createExcel() {
-        val list: ArrayList<BillsItem> = ArrayList()
-        viewModel.getAll()
-        viewModel.listAll.observe(viewLifecycleOwner) {
-            list.addAll(it)
-            viewModel.listAll.removeObservers(this).apply {
-                createExcelFile(list)
-            }
+    private fun createExcel(onComplete: () -> Unit) {
+        scope.launch(Dispatchers.IO) {
+            async {
+                createExcelFile(viewModel.getAll() as ArrayList<BillsItem>)
+            }.await()
+            onComplete.invoke()
         }
     }
 

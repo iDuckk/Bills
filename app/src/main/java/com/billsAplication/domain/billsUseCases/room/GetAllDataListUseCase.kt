@@ -1,4 +1,4 @@
-package com.billsAplication.domain.billsUseCases
+package com.billsAplication.domain.billsUseCases.room
 
 import com.billsAplication.domain.repository.BillsListRepository
 import javax.inject.Inject

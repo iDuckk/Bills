@@ -1,4 +1,4 @@
-package com.billsAplication.domain.billsUseCases
+package com.billsAplication.domain.billsUseCases.room
 
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.domain.model.BillsItem

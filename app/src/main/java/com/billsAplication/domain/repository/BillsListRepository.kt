@@ -12,6 +12,8 @@ interface BillsListRepository {
 
     fun getMonthListByTypeCategory(month: String, type: Int, category: String): List<BillsItem>
 
+    fun getAllDataList() : List<BillsItem>
+
     suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
 
     suspend fun closeDb()
@@ -23,8 +25,6 @@ interface BillsListRepository {
     suspend fun addItem(item : BillsItem)
 
     suspend fun deleteItem(item : BillsItem)
-
-    fun getAllDataList() : List<BillsItem>
 
     suspend fun getItem(id : Int) : BillsItem
 

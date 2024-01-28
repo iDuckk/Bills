@@ -31,6 +31,15 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         }
     }
 
+    override fun getAllDataList(): List<BillsItem> {
+        var newList = ArrayList<BillsItem>()
+        val list = billDao.getAll()
+        list.forEach {
+            newList.add(mapper.mapBillEntityToBillItem(it))
+        }
+        return newList
+    }
+
     override suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery){
         billDao.checkpoint(supportSQLiteQuery)
     }
@@ -48,15 +57,6 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
 
     override suspend fun deleteItem(item : BillsItem) {
         billDao.delete(mapper.mapBillItemToBillEntity(item))
-    }
-
-    override fun getAllDataList(): List<BillsItem> {
-        var newList = ArrayList<BillsItem>()
-        val list = billDao.getAll()
-        list.forEach {
-            newList.add(mapper.mapBillEntityToBillItem(it))
-        }
-        return newList
     }
 
     override suspend fun getItem(id: Int) : BillsItem {
@@ -78,8 +78,6 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
             mapper.mapBillEntityToBillItemList(it)
         }
     }
-
-
 
     override suspend fun getTypeList(type: Int): List<BillsItem> {
         var newList = ArrayList<BillsItem>()

@@ -1,4 +1,4 @@
-package com.billsAplication.domain.billsUseCases
+package com.billsAplication.domain.billsUseCases.room
 
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.repository.BillsListRepository
