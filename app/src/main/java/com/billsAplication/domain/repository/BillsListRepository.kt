@@ -3,6 +3,7 @@ package com.billsAplication.domain.repository
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.NoteItem
 
 interface BillsListRepository {
 
@@ -17,6 +18,10 @@ interface BillsListRepository {
     suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery)
 
     suspend fun closeDb()
+
+    fun getNotesList() : List<NoteItem>
+
+    fun addNote(item : NoteItem)
 
     /**
      * Old repo

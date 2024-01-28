@@ -1,7 +1,6 @@
 package com.billsAplication.presentation.shopList
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -19,7 +18,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -36,9 +34,9 @@ import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
 import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.yandex.mobile.ads.banner.AdSize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -210,7 +208,11 @@ class ShopListFragment : Fragment() {
             override fun onResults(bundle: Bundle) {
                 val data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 //                Log.d("TAG", data!![0])
-                CoroutineScope(Main).launch {
+
+                viewModel.addNote(textNote = data!![0], color = COLOR_NOTE_PRIMARY)
+//                viewModel.notesList()
+
+                CoroutineScope(Dispatchers.IO).launch {
                     viewModel.add(data!![0], COLOR_NOTE_PRIMARY)
                 }
             }

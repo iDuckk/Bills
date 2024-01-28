@@ -1,9 +1,16 @@
 package com.billsAplication.data.room.billsDb
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.NoteEntity
 
 
 @Dao
@@ -20,6 +27,12 @@ interface BillDao {
 
     @RawQuery
     fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+
+    @Query("SELECT * FROM notes_list")
+    fun getNotes(): List<NoteEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertNote(item : NoteEntity)
 
     /**
      * Старые DAO

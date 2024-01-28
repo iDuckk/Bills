@@ -8,6 +8,7 @@ import com.billsAplication.data.room.billsDb.BillDao
 import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.data.room.mapper.BillMapper
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.NoteItem
 import com.billsAplication.domain.repository.BillsListRepository
 import javax.inject.Inject
 
@@ -17,7 +18,7 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
 
     override fun getMonthListByType(month: String, type: Int): List<BillsItem> {
         return billDao.getMonthListByType(month = month, type = type).map {
-            mapper.mapBillEntityToBillItem(it)
+            mapper.mapBillEntityToBillItem(item = it)
         }
     }
 
@@ -27,7 +28,7 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         category: String
     ): List<BillsItem> {
         return billDao.getMonthListByTypeCategory(month = month, type = type, category = category).map {
-            mapper.mapBillEntityToBillItem(it)
+            mapper.mapBillEntityToBillItem(item = it)
         }
     }
 
@@ -35,18 +36,27 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         var newList = ArrayList<BillsItem>()
         val list = billDao.getAll()
         list.forEach {
-            newList.add(mapper.mapBillEntityToBillItem(it))
+            newList.add(mapper.mapBillEntityToBillItem(item = it))
         }
         return newList
     }
 
     override suspend fun checkPointDb(supportSQLiteQuery: SupportSQLiteQuery){
-        billDao.checkpoint(supportSQLiteQuery)
+        billDao.checkpoint(supportSQLiteQuery = supportSQLiteQuery)
     }
 
     override suspend fun closeDb(){
         BillDatabase.destroyInstance()
     }
+
+    override fun getNotesList(): List<NoteItem> {
+        return mapper.mapNoteEntityToNoteItemList(list = billDao.getNotes())
+    }
+
+    override fun addNote(item: NoteItem) {
+        billDao.insertNote(mapper.mapNoteItemToNoteEntity(item = item))
+    }
+
     /**
      * Old repo
      * */

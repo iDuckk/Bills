@@ -1,7 +1,9 @@
 package com.billsAplication.data.room.mapper
 
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.NoteEntity
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.NoteItem
 import javax.inject.Inject
 
 class BillMapper @Inject constructor(){
@@ -67,5 +69,26 @@ class BillMapper @Inject constructor(){
         }
         return newList
     }
+
+    fun mapNoteEntityToNoteItemList(list: List<NoteEntity>): ArrayList<NoteItem>{
+        val newList = ArrayList<NoteItem>()
+        list.forEach { item ->
+            newList.add(
+                NoteItem(
+                    id = item.id,
+                    dateTimeCreation = item.dateTimeCreation,
+                    textNote = item.textNote,
+                    color = item.color
+                    ))
+        }
+        return newList
+    }
+
+    fun mapNoteItemToNoteEntity(item : NoteItem) = NoteEntity(
+        id = item.id,
+        dateTimeCreation = item.dateTimeCreation,
+        textNote = item.textNote,
+        color = item.color
+    )
 
 }
