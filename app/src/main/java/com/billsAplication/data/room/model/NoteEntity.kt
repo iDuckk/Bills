@@ -1,7 +1,9 @@
 package com.billsAplication.data.room.model
 
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+@Entity(tableName = "notes_list")
 data class NoteEntity(
     @PrimaryKey(autoGenerate = true)
     val id : Int,

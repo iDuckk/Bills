@@ -1,15 +1,24 @@
 package com.billsAplication.data.room.billsDb
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
-import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.NoteEntity
 
-
-@Database(entities = [BillEntity::class], version = 3, exportSchema = false)
+@Database(
+    entities = [
+        BillEntity::class,
+        NoteEntity::class
+    ],
+    version = 4,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration (from = 3, to = 4)
+    ]
+)
 abstract class BillDatabase : RoomDatabase() {
 
     abstract fun billDao(): BillDao
