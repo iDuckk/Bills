@@ -10,6 +10,9 @@ import com.billsAplication.data.room.mapper.BillMapper
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.NoteItem
 import com.billsAplication.domain.repository.BillsListRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, private val mapper: BillMapper) : BillsListRepository {
@@ -49,8 +52,8 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         BillDatabase.destroyInstance()
     }
 
-    override fun getNotesList(): List<NoteItem> {
-        return mapper.mapNoteEntityToNoteItemList(list = billDao.getNotes())
+    override fun getNotesList(): Flow<List<NoteItem>> = billDao.getNotesFlow().map {
+        mapper.mapNoteEntityToNoteItemList(list = it)
     }
 
     override fun addNote(item: NoteItem) {

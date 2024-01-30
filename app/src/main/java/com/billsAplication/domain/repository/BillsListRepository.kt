@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.NoteItem
+import kotlinx.coroutines.flow.Flow
 
 interface BillsListRepository {
 
@@ -19,7 +20,7 @@ interface BillsListRepository {
 
     suspend fun closeDb()
 
-    fun getNotesList() : List<NoteItem>
+    fun getNotesList() : Flow<List<NoteItem>>
 
     fun addNote(item : NoteItem)
 

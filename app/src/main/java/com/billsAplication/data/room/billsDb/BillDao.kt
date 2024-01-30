@@ -11,6 +11,7 @@ import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
 import com.billsAplication.data.room.model.NoteEntity
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -29,7 +30,7 @@ interface BillDao {
     fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 
     @Query("SELECT * FROM notes_list")
-    fun getNotes(): List<NoteEntity>
+    fun getNotesFlow(): Flow<List<NoteEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNote(item : NoteEntity)

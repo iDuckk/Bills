@@ -1,5 +1,6 @@
 package com.billsAplication.presentation.shopList
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -12,7 +13,6 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -22,6 +22,16 @@ import android.widget.ImageView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -32,11 +42,11 @@ import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
 import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
+import com.billsAplication.presentation.shopList.view.NoteItem
 import com.billsAplication.utils.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
-import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -48,18 +58,25 @@ class ShopListFragment : Fragment() {
 
     @Inject
     lateinit var viewModel: ShopListViewModel
+
     @Inject
     lateinit var noteAdapter: ShopListAdapter
+
     @Inject
     lateinit var mToast: mToast
+
     @Inject
     lateinit var stateColorButton: StateColorButton
+
     @Inject
     lateinit var rotationView: RotationView
+
     @Inject
     lateinit var slideView: SlideView
+
     @Inject
     lateinit var motionViewY: MotionViewY
+
     @Inject
     lateinit var motionViewX: MotionViewX
 
@@ -80,6 +97,9 @@ class ShopListFragment : Fragment() {
     lateinit var dialogRecording: AlertDialog
     private var speechRecognizer: SpeechRecognizer? = null
     private var scope = CoroutineScope(Dispatchers.Main)
+
+    private val spacerType = 10.dp
+    private val spacerTitle = 5.dp
 
     private val mainActivity by lazy {
         (context as InterfaceMainActivity)
@@ -106,6 +126,18 @@ class ShopListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.composeView.setContent {
+            MaterialTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+                    ShopListScreen()
+                }
+            }
+        }
+
         getType()
 
         addButtons()
@@ -118,16 +150,29 @@ class ShopListFragment : Fragment() {
         //if we receive note string from other app
         intentActionSendText()
 
-        viewModel.list.observe(viewLifecycleOwner) {
-            noteAdapter.submitList(it.toList())
-        }
     }
+
+    @Composable
+    private fun ShopListScreen() {
+        NotesList()
+    }
+
+    @Composable
+    private fun NotesList() {
+        val notes =  viewModel.notes().collectAsState(initial = listOf())
+        LazyColumn(content = {
+            items(items = notes.value) {
+                NoteItem(note = it, bigDp = spacerType)
+            }
+        })
+    }
+
 
     private fun intentActionSendText() {
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
         val note = sharedPref.getString(KEY_NOTE_RECEIVE, "")
-        if(typeAction){
+        if (typeAction) {
             bundleOf(NOTE_KEY to note, ADD_NOTE_KEY to CREATE_TYPE_NOTE).let {
                 setSharePrefSetActionFalse()
                 findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, it)
@@ -208,13 +253,8 @@ class ShopListFragment : Fragment() {
             override fun onResults(bundle: Bundle) {
                 val data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 //                Log.d("TAG", data!![0])
-
                 viewModel.addNote(textNote = data!![0], color = COLOR_NOTE_PRIMARY)
-//                viewModel.notesList()
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    viewModel.add(data!![0], COLOR_NOTE_PRIMARY)
-                }
             }
 
             override fun onPartialResults(bundle: Bundle) {}
@@ -225,7 +265,7 @@ class ShopListFragment : Fragment() {
     private fun recordPermission() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
-                android.Manifest.permission.RECORD_AUDIO
+                Manifest.permission.RECORD_AUDIO
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             checkPermission()
@@ -236,7 +276,7 @@ class ShopListFragment : Fragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
-                arrayOf(android.Manifest.permission.RECORD_AUDIO),
+                arrayOf(Manifest.permission.RECORD_AUDIO),
                 RECORD_AOUDIO_REQUEST
             )
         }
@@ -273,8 +313,10 @@ class ShopListFragment : Fragment() {
         setColorStateAddButtons()
         //Size AddButton
         val bSize = requireContext()
-            .resources.getDimensionPixelSize(com.google.android
-                .material.R.dimen.design_fab_size_normal)
+            .resources.getDimensionPixelSize(
+                com.google.android
+                    .material.R.dimen.design_fab_size_normal
+            )
 
         val screenHeight = resources.displayMetrics.heightPixels
         val screenWidth = resources.displayMetrics.widthPixels
@@ -316,7 +358,7 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    private fun getType(){
+    private fun getType() {
         //get saved type
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         type = sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
@@ -338,7 +380,7 @@ class ShopListFragment : Fragment() {
                 .valueOf(stateColorButton.colorButtons(type))
             binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
-            if(requireActivity() is InterfaceMainActivity){
+            if (requireActivity() is InterfaceMainActivity) {
                 mainActivity.navBottom().isEnabled = true
             }
             binding.buttonAddNoteMicro.backgroundTintList = colorState
@@ -348,7 +390,7 @@ class ShopListFragment : Fragment() {
                 .valueOf(stateColorButton.colorButtons(type))
             binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
             binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
-            if(requireActivity() is InterfaceMainActivity) {
+            if (requireActivity() is InterfaceMainActivity) {
                 mainActivity.navBottom().isEnabled = false
             }
             binding.buttonAddNoteMicro.backgroundTintList = colorState
@@ -381,7 +423,7 @@ class ShopListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (!scope.isActive)
-            scope = CoroutineScope(Dispatchers.Main)
+            scope = CoroutineScope(Main)
     }
 
     override fun onDestroyView() {
