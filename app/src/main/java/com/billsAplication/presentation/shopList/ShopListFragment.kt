@@ -1,53 +1,64 @@
 package com.billsAplication.presentation.shopList
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
-import com.billsAplication.presentation.adapter.shopList.ShopListAdapter
+import com.billsAplication.extension.getColorFromAttr
+import com.billsAplication.presentation.shopList.dialog.ListenerDialog
 import com.billsAplication.presentation.shopList.view.NoteItem
-import com.billsAplication.utils.*
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Main
-import java.util.*
+import com.billsAplication.utils.InterfaceMainActivity
+import com.billsAplication.utils.StateColorButton
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -55,48 +66,22 @@ class ShopListFragment : Fragment() {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding: FragmentShopListBinding get() = _binding!!
-
     @Inject
     lateinit var viewModel: ShopListViewModel
-
-    @Inject
-    lateinit var noteAdapter: ShopListAdapter
-
-    @Inject
-    lateinit var mToast: mToast
-
     @Inject
     lateinit var stateColorButton: StateColorButton
 
-    @Inject
-    lateinit var rotationView: RotationView
-
-    @Inject
-    lateinit var slideView: SlideView
-
-    @Inject
-    lateinit var motionViewY: MotionViewY
-
-    @Inject
-    lateinit var motionViewX: MotionViewX
-
     private val ADD_NOTE_KEY = "add_note_key"
-    private val ITEM_NOTE_KEY = "item_note_key"
     private val KEY_NOTE_RECEIVE = "key_note_receive"
     private val TYPE_NOTE_RECEIVE = "type_note_receive"
     private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
     private val NOTE_KEY = "note"
     private val CREATE_TYPE_NOTE = 10
-    private val UPDATE_TYPE = 20
     private val RECORD_AOUDIO_REQUEST = 110
     private val COLOR_NOTE_PRIMARY = ""
-    private val TAG = "ShopListFragment"
-    private var buttonMotion = true
     private var type = 0
-    lateinit var dialogRecording: AlertDialog
     private var speechRecognizer: SpeechRecognizer? = null
-    private var scope = CoroutineScope(Dispatchers.Main)
 
     private val spacerType = 10.dp
     private val spacerTitle = 5.dp
@@ -112,7 +97,6 @@ class ShopListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
-        dialogRecording()
     }
 
     override fun onCreateView(
@@ -125,7 +109,9 @@ class ShopListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        getType()
+        //if we receive note string from other app
+        intentActionSendText()
         binding.composeView.setContent {
             MaterialTheme {
                 Column(
@@ -137,36 +123,162 @@ class ShopListFragment : Fragment() {
                 }
             }
         }
-
-        getType()
-
-        addButtons()
-
-        buttonKeyboard()
-
-        buttonSpeechToText()
-
-        initRecView()
-        //if we receive note string from other app
-        intentActionSendText()
-
     }
 
     @Composable
     private fun ShopListScreen() {
-        NotesList()
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            NotesList()
+            AddButton()
+        }
+    }
+
+    @Composable
+    private fun BoxScope.AddButton() {
+        var visibleButtons by remember { mutableStateOf(false) }
+        val gradient = stateColorButton.gradientButton(type)
+        val color = stateColorButton.colorButtons(type)
+        val gradientBrush = Brush.horizontalGradient(
+            colors = listOf(
+                colorResource(R.color.text_income),
+                colorResource(R.color.text_expense)
+            ), // Gradient colors
+            startX = gradient[0], // Starting Y position of the gradient
+            endX = gradient[1] // Ending Y position of the gradient
+        )
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(bottom = 12.dp, end = 2.dp)
+                .align(Alignment.BottomEnd)
+                .clip(shape = CircleShape)
+                .clickable(onClick = {
+                    visibleButtons = !visibleButtons
+                })
+                .size(56.dp)
+                .background(brush = gradientBrush),
+            content = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add),
+                    contentDescription = stringResource(id = R.string.choose_type_of_add_note),
+                    tint = Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .rotate(if (visibleButtons) 45f else 0f)
+                )
+            }
+        )
+
+        if (visibleButtons) {
+            ButtonSpeechToText(color = color)
+            ButtonKeyboardToText(color = color)
+        }
     }
 
     @Composable
     private fun NotesList() {
-        val notes =  viewModel.notes().collectAsState(initial = listOf())
+        val notes = viewModel.notes().collectAsState(initial = listOf())
         LazyColumn(content = {
             items(items = notes.value) {
-                NoteItem(note = it, bigDp = spacerType)
+                NoteItem(note = it, bigDp = spacerType) {
+                    //TODO
+                    findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundleOf(ADD_NOTE_KEY to CREATE_TYPE_NOTE))
+                }
             }
         })
     }
 
+    @Composable
+    private fun BoxScope.ButtonKeyboardToText(color: Int) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(bottom = 78.dp, end = 10.dp)
+                .align(Alignment.BottomEnd)
+                .clip(shape = CircleShape)
+                .clickable {
+                    //TODO
+                    findNavController().navigate(
+                        R.id.action_shopListFragment_to_addNoteFragment,
+                        bundleOf(ADD_NOTE_KEY to CREATE_TYPE_NOTE)
+                    )
+                }
+                .size(40.dp)
+                .background(color = Color(color)),
+            content = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_keyboard),
+                    contentDescription = stringResource(id = R.string.add_note_with_keyboard),
+                    tint = Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+    }
+
+    @Composable
+    private fun BoxScope.ButtonSpeechToText(color: Int) {
+        val openListenerDialog = remember { mutableStateOf(false) }
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext())
+
+        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        }
+
+        speechRecognizerListener()
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(bottom = 20.dp, end = 68.dp)
+                .align(Alignment.BottomEnd)
+                .clip(shape = CircleShape)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            openListenerDialog.value = true
+                            //Get permission
+                            recordPermission()
+                            //ColorState of buttons
+                            setEnabledNavBottomWhenRec(false)
+                            //Start recording
+                            speechRecognizer?.startListening(speechRecognizerIntent)
+                        },
+                        onTap = {
+                            openListenerDialog.value = false
+                            //Stop recording
+                            speechRecognizer?.stopListening()
+                            //ColorState of buttons
+                            setEnabledNavBottomWhenRec(true)
+                        }
+                    )
+                }
+                .size(40.dp)
+                .background(color = Color(color)),
+            content = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_mic),
+                    contentDescription = stringResource(id = R.string.add_note_with_microphone),
+                    tint = Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+
+        if (openListenerDialog.value) {
+            ListenerDialog(text = stringResource(id = R.string.title_dialog_rec_listener)) {
+                openListenerDialog.value = false
+            }
+        }
+    }
 
     private fun intentActionSendText() {
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
@@ -189,55 +301,8 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun buttonSpeechToText() {
-//        val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-//        speechIntent.putExtra(
-//            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-//            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-//        )
-//        speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak please")
-//        startActivityForResult(speechIntent, 1) //RESULT_SPEECH_TO_TEXT
 
-//        @Override
-//        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//            if (requestCode == RESULT_SPEECH_TO_TEXT && resultCode == RESULT_OK) {
-//                ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-//                TextView tvSpeech = (TextView) findViewById(R.id.tv_speech);
-//                tvSpeech.setText(matches.get(0));
-//            }
-//        }
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext())
 
-        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-        }
-
-        speechRecognizerListener()
-
-        binding.buttonAddNoteMicro.setOnTouchListener { view, motionEvent ->
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                //Stop recording
-                speechRecognizer?.stopListening()
-                //ColorState of buttons
-                setEnabledViewsFOrRec(true)
-            }
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                //Get permission
-                recordPermission()
-                //ColorState of buttons
-                setEnabledViewsFOrRec(false)
-                //Start recording
-                speechRecognizer?.startListening(speechRecognizerIntent)
-                return@setOnTouchListener true
-            }
-            false
-        }
-    }
 
     private fun speechRecognizerListener() {
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -282,154 +347,27 @@ class ShopListFragment : Fragment() {
         }
     }
 
-    private fun buttonKeyboard() {
-        val bundle = Bundle().apply {
-            putInt(ADD_NOTE_KEY, CREATE_TYPE_NOTE)
-        }
-        binding.buttonAddNoteKeyboard.setOnClickListener {
-            buttonMotion = true
-            findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundle)
-        }
-    }
-
-    private fun initRecView() {
-        with(binding.recViewShopList) {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            adapter = noteAdapter
-            itemAnimator = null
-        }
-
-        noteAdapter.onClickListenerShopListItem = {
-            val bundle = Bundle().apply {
-                putInt(ADD_NOTE_KEY, UPDATE_TYPE)
-                putInt(ITEM_NOTE_KEY, it.id)
-            }
-            findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundle)
-        }
-    }
-
-    @SuppressLint("ResourceType")
-    private fun addButtons() {
-        setColorStateAddButtons()
-        //Size AddButton
-        val bSize = requireContext()
-            .resources.getDimensionPixelSize(
-                com.google.android
-                    .material.R.dimen.design_fab_size_normal
-            )
-
-        val screenHeight = resources.displayMetrics.heightPixels
-        val screenWidth = resources.displayMetrics.widthPixels
-
-        binding.buttonAddNote.mainLayout.setOnClickListener {
-            val rectf = Rect()
-            binding.buttonAddNote.root.getGlobalVisibleRect(rectf)
-            //Get pixels for button's motion
-            val marginX = -(screenWidth - rectf.left)
-            val marginY = -(bSize / 2 + (screenHeight * 5 / 100))
-
-            if (buttonMotion) {
-                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 0f, 45f)
-                motionViewY(
-                    requireView().findViewById<ImageView>(R.id.button_addNote_micro),
-                    0f,
-                    marginY.toFloat()
-                )
-                motionViewX(
-                    requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
-                    0f,
-                    marginX.toFloat()
-                )
-                buttonMotion = false
-            } else {
-                rotationView(requireView().findViewById<ImageView>(R.id.imageButton), 45f, 0f)
-                motionViewY(
-                    requireView().findViewById<ImageView>(R.id.button_addNote_micro),
-                    marginY.toFloat(),
-                    0f
-                )
-                motionViewX(
-                    requireView().findViewById<ImageView>(R.id.button_addNote_keyboard),
-                    marginX.toFloat(),
-                    0f
-                )
-                buttonMotion = true
-            }
-        }
-    }
-
     private fun getType() {
         //get saved type
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         type = sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
     }
 
-    private fun setColorStateAddButtons() {
-        val colorState = ColorStateList
-            .valueOf(stateColorButton.colorButtons(type))
-        binding.buttonAddNoteMicro.backgroundTintList = colorState
-        binding.buttonAddNoteKeyboard.backgroundTintList = colorState
-        binding.buttonAddNote.relativeLayout.background = stateColorButton.colorAddButton(type)
-        binding.buttonAddNoteMicro.size = FloatingActionButton.SIZE_MINI
-        binding.buttonAddNoteKeyboard.size = FloatingActionButton.SIZE_MINI
-    }
-
-    private fun setEnabledViewsFOrRec(enabled: Boolean) {
+    private fun setEnabledNavBottomWhenRec(enabled: Boolean) {
         if (enabled) {
-            val colorState = ColorStateList
-                .valueOf(stateColorButton.colorButtons(type))
-            binding.buttonAddNote.mainLayout.visibility = View.VISIBLE
-            binding.buttonAddNoteKeyboard.visibility = View.VISIBLE
             if (requireActivity() is InterfaceMainActivity) {
                 mainActivity.navBottom().isEnabled = true
             }
-            binding.buttonAddNoteMicro.backgroundTintList = colorState
-            dialogRecording.dismiss()
         } else {
-            val colorState = ColorStateList
-                .valueOf(stateColorButton.colorButtons(type))
-            binding.buttonAddNote.mainLayout.visibility = View.INVISIBLE
-            binding.buttonAddNoteKeyboard.visibility = View.INVISIBLE
             if (requireActivity() is InterfaceMainActivity) {
                 mainActivity.navBottom().isEnabled = false
             }
-            binding.buttonAddNoteMicro.backgroundTintList = colorState
-            dialogRecording.show()
         }
-    }
-
-    private fun dialogRecording() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        dialogRecording = builder
-            .setMessage(getString(R.string.title_dialog_rec_listener))
-            .create()
-    }
-
-    @ColorInt
-    fun Context.getColorFromAttr(
-        @AttrRes attrColor: Int
-    ): Int {
-        val typedArray = theme.obtainStyledAttributes(intArrayOf(attrColor))
-        val textColor = typedArray.getColor(0, 0)
-        typedArray.recycle()
-        return textColor
-    }
-
-    // Extension method to convert pixels to dp
-    fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
-    ).toInt()
-
-    override fun onResume() {
-        super.onResume()
-        if (!scope.isActive)
-            scope = CoroutineScope(Main)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         speechRecognizer?.destroy()
-        scope.cancel()
         _binding = null
     }
 }

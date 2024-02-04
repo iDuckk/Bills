@@ -37,6 +37,14 @@ class StateColorButton @Inject constructor(
         }
     }
 
+    fun gradientButton(type: Int = TYPE_EQUALS): Array<Float> {
+        return when (type) {
+            TYPE_INCOME -> arrayOf(100f, 180f)
+            TYPE_EXPENSES -> arrayOf(20f, 100f)
+            else -> arrayOf(0f, 190f)
+        }
+    }
+
     companion object {
         private val TYPE_EXPENSES = 0
         private val TYPE_INCOME = 1

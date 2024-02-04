@@ -1,6 +1,8 @@
 package com.billsAplication.presentation.shopList.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,25 +29,29 @@ import com.billsAplication.extension.getColorFromAttr
 @Composable
 fun NoteItem(
     note: NoteItem,
-    bigDp: Dp
+    bigDp: Dp,
+    selectItem: () -> Unit
 ) {
 
     val context = LocalContext.current
 
     Card(
         shape = RectangleShape,
+        border = BorderStroke(width = 1.dp, color = Color.LightGray),
         colors = CardDefaults.cardColors(
             containerColor = if (note.color == "")
                 Color(context.getColorFromAttr(com.google.android.material.R.attr.colorBackgroundFloating))
             else
                 Color(android.graphics.Color.parseColor(note.color))
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .defaultMinSize(minHeight = 100.dp)
             .padding(top = 3.dp, bottom = 2.dp)
+            .clickable {
+                selectItem.invoke()
+            }
     ) {
         Row(
             modifier = Modifier
@@ -65,7 +71,7 @@ fun NoteItem(
                 painter = painterResource(id = R.drawable.ic_edit),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(25.dp)
+                    .size(18.dp)
             )
         }
     }
@@ -81,5 +87,7 @@ fun Test() {
             dateTimeCreation = ""
         ),
         bigDp = 10.dp
-    )
+    ) {
+
+    }
 }
