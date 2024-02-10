@@ -35,6 +35,9 @@ interface BillDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNote(item : NoteEntity)
 
+    @Delete
+    fun deleteNote(item : NoteEntity)
+
     /**
      * Старые DAO
      * */

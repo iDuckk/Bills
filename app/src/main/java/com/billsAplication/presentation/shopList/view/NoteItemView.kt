@@ -1,13 +1,11 @@
 package com.billsAplication.presentation.shopList.view
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,20 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.billsAplication.R
 import com.billsAplication.domain.model.NoteItem
 import com.billsAplication.extension.getColorFromAttr
 
 @Composable
-fun NoteItem(
+fun NoteItemView(
     note: NoteItem,
     bigDp: Dp,
-    selectItem: () -> Unit
+    selectItem: (Int) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -50,7 +46,7 @@ fun NoteItem(
             .defaultMinSize(minHeight = 100.dp)
             .padding(top = 3.dp, bottom = 2.dp)
             .clickable {
-                selectItem.invoke()
+                selectItem.invoke(note.id)
             }
     ) {
         Row(
@@ -67,12 +63,6 @@ fun NoteItem(
                     .weight(1f)
                     .padding(end = 1.dp)
             )
-            Image(
-                painter = painterResource(id = R.drawable.ic_edit),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-            )
         }
     }
 }
@@ -80,7 +70,7 @@ fun NoteItem(
 @Preview(showBackground = true)
 @Composable
 fun Test() {
-    NoteItem(
+    NoteItemView(
         note = NoteItem(
             textNote = "sweets",
             color = "",

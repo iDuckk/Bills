@@ -24,6 +24,8 @@ interface BillsListRepository {
 
     fun addNote(item : NoteItem)
 
+    fun deleteNote(item : NoteItem)
+
     /**
      * Old repo
      * */

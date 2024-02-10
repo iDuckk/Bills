@@ -57,7 +57,11 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
     }
 
     override fun addNote(item: NoteItem) {
-        billDao.insertNote(mapper.mapNoteItemToNoteEntity(item = item))
+        billDao.insertNote(item = mapper.mapNoteItemToNoteEntity(item = item))
+    }
+
+    override fun deleteNote(item: NoteItem) {
+        billDao.deleteNote(item = (mapper.mapNoteItemToNoteEntity(item = item)))
     }
 
     /**

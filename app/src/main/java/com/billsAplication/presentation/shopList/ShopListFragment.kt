@@ -1,7 +1,6 @@
 package com.billsAplication.presentation.shopList
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,7 +12,6 @@ import android.speech.SpeechRecognizer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -23,16 +21,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,15 +45,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentShopListBinding
+import com.billsAplication.domain.model.NoteItem
 import com.billsAplication.extension.getColorFromAttr
 import com.billsAplication.presentation.shopList.dialog.ListenerDialog
-import com.billsAplication.presentation.shopList.view.NoteItem
+import com.billsAplication.presentation.shopList.view.ButtonKeyboardToText
+import com.billsAplication.presentation.shopList.view.NotesList
+import com.billsAplication.presentation.shopList.view.bottomSheet.BottomSheet
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.StateColorButton
 import java.util.Locale
@@ -66,18 +65,17 @@ class ShopListFragment : Fragment() {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding: FragmentShopListBinding get() = _binding!!
+
     @Inject
     lateinit var viewModel: ShopListViewModel
+
     @Inject
     lateinit var stateColorButton: StateColorButton
 
-    private val ADD_NOTE_KEY = "add_note_key"
     private val KEY_NOTE_RECEIVE = "key_note_receive"
     private val TYPE_NOTE_RECEIVE = "type_note_receive"
     private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
-    private val NOTE_KEY = "note"
-    private val CREATE_TYPE_NOTE = 10
     private val RECORD_AOUDIO_REQUEST = 110
     private val COLOR_NOTE_PRIMARY = ""
     private var type = 0
@@ -112,6 +110,7 @@ class ShopListFragment : Fragment() {
         getType()
         //if we receive note string from other app
         intentActionSendText()
+
         binding.composeView.setContent {
             MaterialTheme {
                 Column(
@@ -130,13 +129,39 @@ class ShopListFragment : Fragment() {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            NotesList()
-            AddButton()
+            val showBottomSheet = remember { mutableStateOf(false) }
+            val colorState = remember { mutableStateOf("") }
+            val idState = remember { mutableIntStateOf(0) }
+            val text = rememberSaveable { mutableStateOf("") }
+            NotesList(
+                viewModel = viewModel,
+                showBottomSheet = showBottomSheet,
+                colorState = colorState,
+                text = text,
+                idState = idState,
+                spacerType = spacerType
+            )
+            AddButton(
+                showBottomSheet = showBottomSheet,
+                idState = idState
+            )
+
+            BottomSheet(
+                viewModel = viewModel,
+                showBottomSheet = showBottomSheet,
+                colorState = colorState,
+                text = text,
+                idState = idState,
+                spacerType = spacerType
+            )
         }
     }
 
     @Composable
-    private fun BoxScope.AddButton() {
+    private fun BoxScope.AddButton(
+        showBottomSheet: MutableState<Boolean>,
+        idState: MutableState<Int>
+    ) {
         var visibleButtons by remember { mutableStateOf(false) }
         val gradient = stateColorButton.gradientButton(type)
         val color = stateColorButton.colorButtons(type)
@@ -174,49 +199,12 @@ class ShopListFragment : Fragment() {
 
         if (visibleButtons) {
             ButtonSpeechToText(color = color)
-            ButtonKeyboardToText(color = color)
+            ButtonKeyboardToText(
+                color = color,
+                showBottomSheet = showBottomSheet,
+                idState = idState
+            )
         }
-    }
-
-    @Composable
-    private fun NotesList() {
-        val notes = viewModel.notes().collectAsState(initial = listOf())
-        LazyColumn(content = {
-            items(items = notes.value) {
-                NoteItem(note = it, bigDp = spacerType) {
-                    //TODO
-                    findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, bundleOf(ADD_NOTE_KEY to CREATE_TYPE_NOTE))
-                }
-            }
-        })
-    }
-
-    @Composable
-    private fun BoxScope.ButtonKeyboardToText(color: Int) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .padding(bottom = 78.dp, end = 10.dp)
-                .align(Alignment.BottomEnd)
-                .clip(shape = CircleShape)
-                .clickable {
-                    //TODO
-                    findNavController().navigate(
-                        R.id.action_shopListFragment_to_addNoteFragment,
-                        bundleOf(ADD_NOTE_KEY to CREATE_TYPE_NOTE)
-                    )
-                }
-                .size(40.dp)
-                .background(color = Color(color)),
-            content = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_keyboard),
-                    contentDescription = stringResource(id = R.string.add_note_with_keyboard),
-                    tint = Color(requireContext().getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        )
     }
 
     @Composable
@@ -285,24 +273,12 @@ class ShopListFragment : Fragment() {
         val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
         val note = sharedPref.getString(KEY_NOTE_RECEIVE, "")
         if (typeAction) {
-            bundleOf(NOTE_KEY to note, ADD_NOTE_KEY to CREATE_TYPE_NOTE).let {
-                setSharePrefSetActionFalse()
-                findNavController().navigate(R.id.action_shopListFragment_to_addNoteFragment, it)
-            }
+            viewModel.addNote(NoteItem(
+                textNote = note ?: "",
+                color = ""
+            ))
         }
     }
-
-    private fun setSharePrefSetActionFalse() {
-        //Save statement of Currency in Share preference
-        val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
-            putBoolean(TYPE_NOTE_RECEIVE, false)
-            apply()
-        }
-    }
-
-
-
 
     private fun speechRecognizerListener() {
         speechRecognizer?.setRecognitionListener(object : RecognitionListener {
@@ -318,8 +294,12 @@ class ShopListFragment : Fragment() {
             override fun onResults(bundle: Bundle) {
                 val data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 //                Log.d("TAG", data!![0])
-                viewModel.addNote(textNote = data!![0], color = COLOR_NOTE_PRIMARY)
-
+                viewModel.addNote(
+                    NoteItem(
+                        textNote = data!![0],
+                        color = COLOR_NOTE_PRIMARY
+                    )
+                )
             }
 
             override fun onPartialResults(bundle: Bundle) {}

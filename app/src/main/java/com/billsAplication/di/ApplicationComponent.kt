@@ -1,9 +1,7 @@
 package com.billsAplication.di
 
 import android.app.Application
-import com.billsAplication.databinding.FragmentAddBillBinding
 import com.billsAplication.presentation.addBill.AddBillFragment
-import com.billsAplication.presentation.addNote.AddNoteFragment
 import com.billsAplication.presentation.analytics.AnalyticsFragment
 import com.billsAplication.presentation.billsList.BillsListFragment
 import com.billsAplication.presentation.bookmarks.BookmarksFragment
@@ -31,8 +29,6 @@ interface ApplicationComponent {
     fun inject(fragment: AnalyticsFragment)
 
     fun inject(fragment: ShopListFragment)
-
-    fun inject(fragment: AddNoteFragment)
 
     fun inject(fragment: SettingsFragment)
 
