@@ -2,9 +2,13 @@ package com.billsAplication.utils
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.Color
 import com.billsAplication.R
+import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.BillsItem.Companion
 import javax.inject.Inject
 
 @SuppressLint("UseCompatLoadingForDrawables", "ResourceType")
@@ -49,6 +53,35 @@ class StateColorButton @Inject constructor(
         private val TYPE_EXPENSES = 0
         private val TYPE_INCOME = 1
         private val TYPE_EQUALS = 2
+        var CURRENT_TYPE = TYPE_EXPENSES
+
+        fun getColorType(context: Context, type: Int): Color {
+            return when (type) {
+                BillsItem.TYPE_EXPENSES -> {
+                    Color(context.getColor(R.color.text_expense))
+                }
+                BillsItem.TYPE_INCOME -> {
+                    Color(context.getColor(R.color.text_income))
+                }
+                else -> {
+                    Color(context.getColor(R.color.text_expense))
+                }
+            }
+        }
+
+        fun getColorCurrentType(context: Context): Color {
+            return when (CURRENT_TYPE) {
+                BillsItem.TYPE_EXPENSES -> {
+                    Color(context.getColor(R.color.text_expense))
+                }
+                BillsItem.TYPE_INCOME -> {
+                    Color(context.getColor(R.color.text_income))
+                }
+                else -> {
+                    Color(context.getColor(R.color.text_expense))
+                }
+            }
+        }
 
     }
 

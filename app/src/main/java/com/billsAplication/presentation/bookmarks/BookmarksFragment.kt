@@ -68,7 +68,7 @@ class BookmarksFragment : Fragment() {
         onBackPressed()
 
         //Set Bottom bar - invisible
-        fadeOutView(navBot)
+//        fadeOutView(navBot)
         binding.imBookmarksDelete.visibility = View.GONE
 
         binding.imBookmarksBack.setOnClickListener {

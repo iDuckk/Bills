@@ -26,6 +26,8 @@ interface BillsListRepository {
 
     fun deleteNote(item : NoteItem)
 
+    fun getMonthListFlow(month : String) : Flow<ArrayList<BillsItem>>
+
     /**
      * Old repo
      * */
@@ -42,7 +44,7 @@ interface BillsListRepository {
 
     suspend fun updateItem(item : BillsItem)
 
-    fun getType(type : Int) : LiveData<List<BillsItem>>
+    fun getCategoryList(type : Int) : List<BillsItem>
 
     suspend fun getTypeList(type : Int) : List<BillsItem>
 

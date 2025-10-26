@@ -30,11 +30,7 @@ import com.billsAplication.utils.CurrentCurrency
 
 @Composable
 fun BIllsItemAnalytics(
-    date: String,
-    category: String,
-    note: String,
-    amount: String,
-    type: Int,
+    item: BillsItem,
     smallDp: Dp,
     bigDp: Dp
 ) {
@@ -62,14 +58,14 @@ fun BIllsItemAnalytics(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = date,
+                    text = item.date,
                     maxLines = 1,
                     color = Color.Gray,
                     fontSize = 13.sp,
                     modifier = Modifier.wrapContentWidth()
                 )
                 Text(
-                    text = category,
+                    text = item.category,
                     maxLines = 1,
                     color = Color.Gray,
                     fontSize = 13.sp,
@@ -83,15 +79,17 @@ fun BIllsItemAnalytics(
                     .fillMaxWidth()
                     .padding(top = smallDp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_image),
-                    contentDescription = null
-                )
+                if (pictureExist(item = item)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_image),
+                        contentDescription = null
+                    )
+                }
                 Text(
-                    text = amount  + " " + CurrentCurrency.currency,
+                    text = item.amount  + " " + CurrentCurrency.currency,
                     maxLines = 1,
                     fontSize = 14.sp,
-                    color = if (type == BillsItem.TYPE_EXPENSES)
+                    color = if (item.type == BillsItem.TYPE_EXPENSES)
                         colorResource(id = R.color.text_expense)
                     else
                         colorResource(id = R.color.text_income),
@@ -100,7 +98,7 @@ fun BIllsItemAnalytics(
                         .padding(start = 30.dp)
                 )
                 Text(
-                    text = note,
+                    text = item.note,
                     fontSize = 13.sp,
                     maxLines = 1,
                     color = Color.Gray,
@@ -113,15 +111,27 @@ fun BIllsItemAnalytics(
     }
 }
 
+private fun pictureExist(item: BillsItem) =
+    item.image1.isNotEmpty() ||
+            item.image2.isNotEmpty() ||
+            item.image3.isNotEmpty() ||
+            item.image4.isNotEmpty() ||
+            item.image4.isNotEmpty()
+
 @Preview(showBackground = true)
 @Composable
 fun BIllsItemAnalytics() {
     BIllsItemAnalytics(
-        date = "10/01/2024 02:02 PM",
-        category = "Food",
-        note = "sweets",
-        amount = "154.56 $",
-        type = BillsItem.TYPE_EXPENSES,
+        item = BillsItem(
+            id = 0,
+            time = "",
+            date = "10/01/2024 02:02 PM",
+            category = "Food",
+            note = "sweets",
+            amount = "154.56 $",
+            month = "",
+            image1 = "asd",
+            type = BillsItem.TYPE_EXPENSES),
         smallDp = 5.dp,
         bigDp = 10.dp
     )

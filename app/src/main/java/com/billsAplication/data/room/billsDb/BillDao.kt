@@ -17,14 +17,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BillDao {
 
-    @Query("SELECT SUM(amount) FROM bills_list WHERE month = :month AND type = :type")
-    fun summaryAmount(month : String, type : Int): Double
+    @Query("SELECT SUM(CAST(REPLACE(amount, ',', '') AS REAL)) FROM bills_list WHERE month = :month AND type = :type AND bookmark = :bookmark")
+    fun summaryAmount(month : String, type : Int, bookmark : Boolean = false): Double
 
-    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type")
-    fun getMonthListByType(month : String, type : Int): List<BillEntity>
+    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type AND bookmark = :bookmark")
+    fun getMonthListByType(month : String, type : Int, bookmark : Boolean = false): List<BillEntity>
 
-    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type AND category = :category")
-    fun getMonthListByTypeCategory(month : String, type : Int, category : String): List<BillEntity>
+    @Query("SELECT * FROM bills_list WHERE month = :month AND type = :type AND category = :category AND bookmark = :bookmark")
+    fun getMonthListByTypeCategory(month : String, type : Int, category : String, bookmark : Boolean = false): List<BillEntity>
 
     @RawQuery
     fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
@@ -38,20 +38,23 @@ interface BillDao {
     @Delete
     fun deleteNote(item : NoteEntity)
 
+    @Query("SELECT * FROM bills_list WHERE  bookmark = :bookmark")
+    fun getAll(bookmark : Boolean = false): List<BillEntity>
+
+    @Query("SELECT * FROM bills_list WHERE bookmark = :bookmark AND month = :month ORDER BY date, time")
+    fun getMonthListFlow(month : String, bookmark : Boolean = false): Flow<List<BillEntity>>
+
+    @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
+    fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
+
     /**
      * Старые DAO
      * */
     @Query("SELECT * FROM bills_list")
     fun getAllLD(): LiveData<List<BillEntity>>
 
-    @Query("SELECT * FROM bills_list")
-    fun getAll(): List<BillEntity>
-
     @Query("SELECT * FROM bills_list WHERE month = :month")
     fun getMonthList(month : String): List<BillEntity>
-
-    @Query("SELECT * FROM bills_list WHERE type = :type")
-    fun getType(type : Int): LiveData<List<BillEntity>>
 
     @Query("SELECT * FROM bills_list WHERE type = :type")
     fun getTypeList(type : Int): List<BillEntity>

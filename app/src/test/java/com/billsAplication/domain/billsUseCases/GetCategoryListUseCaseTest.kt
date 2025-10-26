@@ -15,7 +15,7 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
 @ExperimentalCoroutinesApi
-class GetTypeUseCaseTest {
+class GetCategoryListUseCaseTest {
 
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
@@ -57,7 +57,7 @@ class GetTypeUseCaseTest {
 
         liveData.postValue(list)
 
-        val useCase = GetTypeUseCase(repo = billsListRepository)
+        val useCase = GetCategoryListUseCase(repo = billsListRepository)
         Mockito.`when`(billsListRepository.getType(type = TYPE_INCOME)).thenReturn(liveData)
 
         val actual = useCase.invoke(type = TYPE_INCOME)
@@ -68,7 +68,7 @@ class GetTypeUseCaseTest {
     @Test
     fun `should return null from repository`(){
 
-        val useCase = GetTypeUseCase(repo = billsListRepository)
+        val useCase = GetCategoryListUseCase(repo = billsListRepository)
         Mockito.`when`(billsListRepository.getType(type = TYPE_INCOME)).thenReturn(null)
 
         val actual = useCase.invoke(type = TYPE_INCOME)
@@ -79,7 +79,7 @@ class GetTypeUseCaseTest {
     @Test
     fun `if return empty list from repository`(){
 
-        val useCase = GetTypeUseCase(repo = billsListRepository)
+        val useCase = GetCategoryListUseCase(repo = billsListRepository)
         Mockito.`when`(billsListRepository.getType(type = TYPE_INCOME)).thenReturn(liveData)
 
         val actual = useCase.invoke(type = TYPE_INCOME)

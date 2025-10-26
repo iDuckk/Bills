@@ -1,38 +1,78 @@
 package com.billsAplication.presentation.billsList
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.FragmentBillsListBinding
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.adapter.bills.BillsAdapter
-import com.billsAplication.utils.*
-import com.billsAplication.utils.Result
-import com.yandex.mobile.ads.banner.AdSize
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Main
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_EXPENSES
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_INCOME
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EQUALS
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
+import com.billsAplication.extension.DATE_FORMAT
+import com.billsAplication.presentation.billsList.view.BillsItemList
+import com.billsAplication.presentation.billsList.view.DateItem
+import com.billsAplication.presentation.billsList.view.TotalAmountItem
+import com.billsAplication.presentation.components.AddButton
+import com.billsAplication.presentation.components.AmountBar
+import com.billsAplication.presentation.components.ImgBtn
+import com.billsAplication.presentation.components.MonthPicker
+import com.billsAplication.presentation.dialogs.AddBillDialog
+import com.billsAplication.presentation.dialogs.CreateBillDialog
+import com.billsAplication.presentation.dialogs.createBill.ConfirmationDialog
+import com.billsAplication.utils.InterfaceMainActivity
+import com.billsAplication.utils.PagingConstants.DP_10
+import com.billsAplication.utils.PagingConstants.DP_5
+import com.billsAplication.utils.StateColorButton
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 
@@ -41,55 +81,22 @@ class BillsListFragment : Fragment() {
     private var _binding: FragmentBillsListBinding? = null
     private val binding: FragmentBillsListBinding get() = _binding!!
 
-    private val bundle = Bundle()
-
     @Inject
     lateinit var viewModel: BillsListViewModel
-    @Inject
-    lateinit var billAdapter: BillsAdapter
-    @Inject
-    lateinit var stateColorButton: StateColorButton
-    @Inject
-    lateinit var sortingDesc: SortingDesc
-    @Inject
-    lateinit var sortingAsc: SortingAsc
-    @Inject
-    lateinit var slideView: SlideView
-    @Inject
-    lateinit var crossfade: CrossFade
-    @Inject
-    lateinit var fadeInView: FadeInView
-    @Inject
-    lateinit var fadeOutView: FadeOutView
-    @Inject
-    lateinit var motionViewY: MotionViewY
 
-    lateinit var spinnerAdapter: ArrayAdapter<String>
-    private var deleteItem = false
-    private var visibilityFilterCard = false
-    private var listDeleteItems: ArrayList<BillsItem> = ArrayList()
-    private var scope = CoroutineScope(Dispatchers.Main)
-
+    private var _listDeleteItems: ArrayList<BillsItem> = ArrayList()
 
     private val ADD_BILL_KEY = "add_bill_key"
     private val BILL_ITEM_KEY = "bill_item_key"
     private val TYPE_NOTE_RECEIVE = "type_note_receive"
 
-    private val TYPE_EXPENSES = 0
-    private val TYPE_INCOME = 1
-    private val TYPE_EQUALS = 2
     private var TYPE_BILL = "type_bill"
-    private val TYPE_FULL_LIST_SORT = 101
-    private val NONE = "None"
-    private val NEXT_MONTH = 20
-    private val PREV_MONTH = 21
-    private val CURRENT_MONTH = 22
     private val CREATE_TYPE = 100
     private val UPDATE_TYPE = 101
     private val TAG = "BillsListFragment"
 
-    private val heightNavBottom by lazy {
-        (context as InterfaceMainActivity).navBottom().height
+    private val exception = CoroutineExceptionHandler { _, e ->
+        Log.e(TAG, "BillsListFragment:: ${e.message!!}: ", e)
     }
 
     private val mainActivity by lazy {
@@ -116,356 +123,416 @@ class BillsListFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        observerList()
-
-        binding.cardViewFilter.visibility = View.VISIBLE
-
+        //TODO
         initRecView()
-
+        //TODO
         onBackPressed()
 
-        titleBar()
-
-        addButton()
-
-        searchButton()
-
-        filterBar()
-
-    }
-
-    private fun observerList() {
-        viewModel.stateList.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is Result -> {
-                    state.list.let { billAdapter.submitList(sortingDesc(state.list)) }
+        binding.composeView.setContent {
+            MaterialTheme {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    BillsListScreen()
                 }
-                is Error -> {
-                    Log.e("TAG", state.exception)
-                }
-                is TotalAmountBar -> {
-                    binding.tvIncomeNum.text = state.inc
-                    binding.tvExpenseNum.text = state.exp
-                    binding.tvTotalNum.text = state.tot
-                    resizeText()
-                }
-                is ColorState -> {
-                    setBackColorAddButton(state.type)
-                }
-            }
-            //Get off splash
-            scope.launch {
-                if(requireActivity() is InterfaceMainActivity) {
-                    mainActivity.splash()
-                }
-                //if we receive note string from other app
-                intentActionSendText()
             }
         }
+        //TODO
+        //Get off splash
+        lifecycleScope.launch(exception) {
+            delay(500)
+            if (requireActivity() is InterfaceMainActivity) {
+                mainActivity.splash()
+            }
+            //if we receive note string from other app
+            intentActionSendText()
+        }
+    }
+
+    @SuppressLint("CoroutineCreationDuringComposition")
+    @Composable
+    private fun BillsListScreen() {
+        val listDeleteItems = remember { mutableStateListOf(listOf<BillsItem>()) }
+        val incAmountState = remember { mutableStateOf("0.0") }
+        val expAmountState = remember { mutableStateOf("0.0") }
+        val totalAmountState = remember { mutableStateOf("0.0") }
+        val typeColorAddButton = remember { mutableIntStateOf(TYPE_EQUALS) }
+        val typeIconAddButton = remember { mutableIntStateOf(R.drawable.ic_add) }
+        val month = remember { mutableStateOf("") }
+        val showDialogDelete = remember { mutableStateOf(false) }
+        val showDialogAddBill = remember { mutableStateOf(CreateBillDialog(show = false, bill = null)) }
+        val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
+        /**
+         * Create dialog for delete Items
+         * */
+        ConfirmDeleteDialog(
+            showDialogDelete = showDialogDelete,
+            listDeleteItems = listDeleteItems,
+            typeIconAddButton = typeIconAddButton
+        )
+        /**
+         * Create dialog for add Items
+         * */
+        AddBill(
+            showDialogAddBill = showDialogAddBill,
+            listCategory = listCategory
+        )
+        /**
+         * Income amount, expense amount, total amount, typeColorAddButton
+         * */
+        viewModel.summaryAmount(month.value, { inc, exp, total, typeColor ->
+            incAmountState.value = inc
+            expAmountState.value = exp
+            totalAmountState.value = total
+            typeColorAddButton.intValue = typeColor
+            setNavButtonColor(typeColor)
+            StateColorButton.CURRENT_TYPE = typeColor
+        })
+
+        TopBar(month = month)
+
+        AmountBar(
+            incAmountState = incAmountState,
+            expAmountState = expAmountState,
+            totalAmountState = totalAmountState,
+        )
+
+        Divider(
+            color = Color.Transparent,
+            modifier = Modifier
+                .fillMaxWidth()
+                .width(1.dp)
+                .padding(bottom = DP_5)
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = 0.dp,
+                        bottomStart = DP_5,
+                        bottomEnd = DP_5,
+                    ),
+                )
+        )
+
+        Box {
+            val bills =
+                viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
+
+            BillsList(
+                bills = bills.value.toMapByDate(),
+                listDeleteItems = listDeleteItems,
+                typeIconAddButton = typeIconAddButton,
+                showDialogAddBill = showDialogAddBill
+            )
+
+            AddButton(
+                painterResource = typeIconAddButton,
+                typeColorAddButton = typeColorAddButton,
+                application = (requireActivity().application as BillsApplication),
+                onCLick = {
+                    val list = getListDeleteItems(listDeleteItems = listDeleteItems)
+
+                    if (list.isNotEmpty()) {
+                        showDialogDelete.value = true
+                    } else {
+                        showDialogAddBill.value = CreateBillDialog(show = true, bill = null)
+                    }
+                })
+        }
+    }
+
+    @Composable
+    fun TopBar(
+        month: MutableState<String>
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(DP_10)
+                .fillMaxWidth()
+        ) {
+            MonthPicker(month = month)
+
+            Row(
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = DP_10)
+            ) {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth(.5f)
+                )
+
+                ImgBtn(
+                    src = painterResource(id = R.drawable.ic_bookmarks),
+                    description = stringResource(id = R.string.description_bookmarks)
+                ) {
+                    findNavController().navigate(
+                        R.id.action_billsListFragment_to_bookmarksFragment,
+                    )
+                }
+
+                ImgBtn(
+                    src = painterResource(id = R.drawable.ic_search),
+                    description = stringResource(id = R.string.description_search)
+                ) {
+                    findNavController().navigate(
+                        R.id.action_billsListFragment_to_searchFragment
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun BillsList(
+        bills: Map<String, List<BillsItem>>,
+        listDeleteItems: SnapshotStateList<List<BillsItem>>,
+        typeIconAddButton: MutableIntState,
+        showDialogAddBill: MutableState<CreateBillDialog>
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(start = DP_10, end = DP_10)
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+
+            val sortedBills = bills.toSortedMap(
+                compareByDescending { dateString ->
+                    LocalDate.parse(dateString, formatter)
+                }
+            )
+
+            sortedBills.forEach { (date, items) ->
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(DP_10),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = DP_10
+                        ),
+                        shape = RoundedCornerShape(DP_10 + DP_5)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(DP_10 + DP_5)
+                        ) {
+                            DateItem(date = date)
+
+                            Spacer(modifier = Modifier.height(DP_5))
+
+                            SetBillsItems(
+                                items = items,
+                                listDeleteItems = listDeleteItems,
+                                typeIconAddButton = typeIconAddButton,
+                                showDialogAddBill = showDialogAddBill
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun AddBill(
+        showDialogAddBill: MutableState<CreateBillDialog>,
+        listCategory: MutableState<List<BillsItem>>
+    ) {
+        AddBillDialog(
+            showDialog = showDialogAddBill,
+            listCategory = listCategory,
+            getListCategory = { type ->
+                viewModel.getCategoryList(
+                    type = type,
+                    list = { list ->
+                        listCategory.value = list
+                    }
+                )
+            },
+            onAddBill = { bill ->
+                viewModel.add(billItem = bill)
+                // Если добавляем категорию, то заного загружаем список категорий
+                if (bill.type == TYPE_CATEGORY_INCOME || bill.type == TYPE_CATEGORY_EXPENSES) {
+                    viewModel.getCategoryList(
+                        type = bill.type,
+                        list = { list ->
+                            listCategory.value = list
+                        }
+                    )
+                }
+            },
+            onDismiss = {},
+            onDeleteCategory = {
+                viewModel.delete(it)
+            }
+        )
+    }
+
+    private var countAmount = 0F
+
+    @Composable
+    private fun SetBillsItems(
+        items: List<BillsItem>,
+        listDeleteItems: SnapshotStateList<List<BillsItem>>,
+        typeIconAddButton: MutableIntState,
+        showDialogAddBill: MutableState<CreateBillDialog>
+    ) {
+        items.forEachIndexed { index, item ->
+            BillsItemList(
+                listDeleteItems = listDeleteItems,
+                item = item,
+                onClick = {  bill ->
+                    val list = getListDeleteItems(listDeleteItems = listDeleteItems)
+                    if (list.isNotEmpty()) {
+                        addToDeleteList(
+                            bill = bill,
+                            listDeleteItems = listDeleteItems,
+                            list = list,
+                            typeIconAddButton = typeIconAddButton
+                        )
+                    } else {
+                        showDialogAddBill.value = CreateBillDialog(show = true, bill = bill)
+                    }
+                },
+                onLongClick = { bill ->
+                    val list = getListDeleteItems(listDeleteItems = listDeleteItems)
+                    addToDeleteList(
+                        bill = bill,
+                        listDeleteItems = listDeleteItems,
+                        list = list,
+                        typeIconAddButton = typeIconAddButton
+                    )
+                }
+            )
+
+            SetTotalAmount(item = item, index = index, items = items)
+        }
+    }
+
+    @Composable
+    fun SetTotalAmount(item: BillsItem, index: Int, items: List<BillsItem>) {
+        try {
+            when (item.type) {
+                BillsItem.TYPE_EXPENSES ->
+                    countAmount -= item.amount.replace(",", "").toFloat()
+
+                BillsItem.TYPE_INCOME ->
+                    countAmount += item.amount.replace(",", "").toFloat()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "SetTotalAmount: ", e)
+        }
+
+
+        if (
+            index == items.lastIndex ||
+            items.lastIndex >= index + 1 &&
+            item.date != items[index + 1].date
+        ) {
+            TotalAmountItem(
+                bigDp = DP_10,
+                smallDp = DP_5,
+                amount = "%,.2f".format(countAmount)
+            )
+            countAmount = 0f
+        }
+    }
+
+    @Composable
+    private fun ConfirmDeleteDialog(
+        showDialogDelete: MutableState<Boolean>,
+        listDeleteItems: SnapshotStateList<List<BillsItem>>,
+        typeIconAddButton: MutableIntState,
+    ) {
+        ConfirmationDialog(
+            title = stringResource(id = R.string.dialog_title_delete_Bills),
+            message = stringResource(id = R.string.dialog_message_delete_bills),
+            confirmButtonText = stringResource(id = R.string.button_yes),
+            cancelButtonText = stringResource(id = R.string.search_cancel),
+            showDialog = showDialogDelete,
+            onDeleteConfirmed = {
+                val list = getListDeleteItems(listDeleteItems = listDeleteItems)
+
+                if (list.isNotEmpty()) {
+                    list.forEach {
+                        viewModel.delete(it)
+                    }
+                    setListDeleteItems(
+                        listDeleteItems = listDeleteItems,
+                        list = listOf(),
+                        typeIconAddButton = typeIconAddButton
+                    )
+                }
+            }
+        )
+    }
+
+    private fun getListDeleteItems(
+        listDeleteItems: SnapshotStateList<List<BillsItem>>
+    ) = if (listDeleteItems.isNotEmpty()) listDeleteItems.first().toMutableList() else mutableListOf()
+
+    private fun setListDeleteItems(
+        typeIconAddButton: MutableIntState,
+        listDeleteItems: SnapshotStateList<List<BillsItem>>,
+        list: List<BillsItem>,
+    ) {
+        listDeleteItems.clear()
+        listDeleteItems.addAll(listOf(list))
+        if (list.isEmpty()) {
+            typeIconAddButton.intValue = R.drawable.ic_add
+        } else {
+            typeIconAddButton.intValue = R.drawable.ic_delete_forever
+        }
+    }
+
+    private fun addToDeleteList(
+        bill: BillsItem,
+        listDeleteItems: SnapshotStateList<List<BillsItem>>,
+        list: MutableList<BillsItem>,
+        typeIconAddButton: MutableIntState
+    ) {
+        if (list.contains(bill)) {
+            list.remove(bill)
+        } else {
+            list.add(bill)
+        }
+        setListDeleteItems(
+            listDeleteItems = listDeleteItems,
+            list = list,
+            typeIconAddButton = typeIconAddButton
+        )
+    }
+
+    private fun List<BillsItem>.toMapByDate(): Map<String, List<BillsItem>> {
+        return this.groupBy { it.date }
     }
 
     private fun intentActionSendText() {
         val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val typeAction = sharedPref.getBoolean(TYPE_NOTE_RECEIVE, false)
         if (typeAction) {
-            if(requireActivity() is InterfaceMainActivity) {
+            if (requireActivity() is InterfaceMainActivity) {
                 mainActivity.navBottom().selectedItemId = R.id.shopListFragment
             }
         }
     }
 
-    private fun searchButton() {
-        binding.imBillsSearch.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_billsListFragment_to_searchFragment
-            )
-        }
-    }
-
-    private fun addButton() {
-        binding.buttonAddBill.mainLayout.setOnClickListener {
-            if (deleteItem) {
-                dialogDeleteItems()
-            } else {
-                bundle.putInt(ADD_BILL_KEY, CREATE_TYPE)
-                findNavController().navigate(
-                    R.id.action_billsListFragment_to_addBillFragment,
-                    bundle
-                )
-            }
-        }
-    }
-
-    private fun deleteItems() {
-        billAdapter.submitList(null).apply {
-            CoroutineScope(Main).launch {
-                if (listDeleteItems.isNotEmpty()) {
-                    listDeleteItems.forEach {
-                        viewModel.delete(it)
-                    }
-                }
-                billAdapter.deleteItemsAfterRemovedItemFromDB()
-                deleteItem = false
-                listDeleteItems.clear()
-            }
-        }
-    }
-
-    private fun dialogDeleteItems() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        val dialog = builder
-            .setTitle(getString(R.string.dialog_title_delete_Bills))
-            .setMessage(getString(R.string.dialog_message_delete_bills))
-            .setPositiveButton(getString(R.string.button_yes)) { dialog, id ->
-                deleteItems() //Delete items
-            }
-            .setNegativeButton(getString(R.string.search_cancel), null)
-            .create()
-        dialog.show()
-    }
-
-    private fun filterBar() {
-        //income list
-        binding.checkBoxIncome.setOnClickListener {
-            binding.spinnerFilter.setSelection(0)
-            filterList(NONE)
-        }
-        //Expense list
-        binding.checkBoxExpense.setOnClickListener {
-            binding.spinnerFilter.setSelection(0)
-            filterList(NONE)
-        }
-        //Descending sort
-        binding.checkBoxDecDate.setOnClickListener {
-            filterList(
-                binding.spinnerFilter.getItemAtPosition(binding.spinnerFilter.selectedItemPosition)
-                    .toString()
-            )
-        }
-        //Set Spinner
-        spinnerCategory()
-
-    }
-
-    //Get list Type (Income or Expense)
-    private fun getSortList(type: Int): ArrayList<BillsItem> {
-        val list = ArrayList<BillsItem>()
-        viewModel.listBills.forEach {
-            if (it.type == type)
-                list.add(it)
-        }
-        return list
-    }
-
-    //Sort list after submit if ArrayList
-    private fun setDescentSorting(list: ArrayList<BillsItem>) {
-        //Cause without remove List, it scrolls down to hte end
-        billAdapter.submitList(null)
-        if (binding.checkBoxDecDate.isChecked)
-            billAdapter.submitList(sortingAsc(list.toMutableList()))
-        else
-            billAdapter.submitList(sortingDesc(list.toMutableList()))
-    }
-
-    private fun spinnerCategory() {
-        createSpinnerAdapter()
-        onItemSelectListSpinner()
-    }
-
-    private fun onItemSelectListSpinner() {
-        // Set an on item selected listener for spinner object
-        binding.spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {//parent.getItemAtPosition(position).toString()
-                //SetText SIZE
-//                if (binding.spinnerFilter.getChildAt(0) != null)
-//                    (binding.spinnerFilter.getChildAt(0) as TextView).textSize = 14f
-                // Display the selected item text on text view
-                if (visibilityFilterCard)
-                    filterList(parent.getItemAtPosition(position).toString())
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {// Another interface callback}
-            }
-        }
-    }
-
-    private fun createListCategory(type: Int) {
-        //remove previous data
-        spinnerAdapter.clear()
-        spinnerAdapter.add(NONE)
-        //set new list
-        val list = when(type){
-            TYPE_INCOME -> viewModel.incomeCategorySpinner()
-            TYPE_EXPENSES -> viewModel.expenseCategorySpinner()
-            else -> {
-                val wholeList = ArrayList<String>()
-                wholeList.addAll(viewModel.incomeCategorySpinner())
-                wholeList.addAll(viewModel.expenseCategorySpinner())
-                wholeList
-            }
-        }
-        spinnerAdapter.addAll(list.distinct().sorted())
-    }
-
-
-    private fun createSpinnerAdapter() {
-        val listCategory = ArrayList<String>()
-        listCategory.add(NONE)//First item
-
-        spinnerAdapter = object : ArrayAdapter<String>(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            listCategory
-        ) {
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
-            ): View {
-                val view: TextView = super.getDropDownView(
-                    position,
-                    convertView,
-                    parent
-                ) as TextView
-                // set item text size
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
-                // set spinner item padding
-                view.setPadding(
-                    5.toDp(context), // left
-                    3.toDp(context), // top
-                    5.toDp(context), // right
-                    3.toDp(context) // bottom
-                )
-                return view
-            }
-
-        }
-        binding.spinnerFilter.adapter = spinnerAdapter
-    }
-
-    private fun filterList(value: String) {
-        if (value != NONE) {
-            if (binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
-                setDescentSorting(spinnerItemList(TYPE_INCOME, value))
-            } else if (binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
-                setDescentSorting(spinnerItemList(TYPE_EXPENSES, value))
-            } else {
-                setDescentSorting(spinnerItemList(TYPE_FULL_LIST_SORT, value))
-            }
-        } else {
-            if (binding.checkBoxIncome.isChecked && !binding.checkBoxExpense.isChecked) {
-                setDescentSorting(getSortList(TYPE_INCOME))
-                createListCategory(TYPE_INCOME)
-            } else if (binding.checkBoxExpense.isChecked && !binding.checkBoxIncome.isChecked) {
-                setDescentSorting(getSortList(TYPE_EXPENSES))
-                createListCategory(TYPE_EXPENSES)
-            } else {
-                if (viewModel.listBills != null)
-                    setDescentSorting(viewModel.listBills)
-                else {
-                    viewModel.getStateList(viewModel.currentDate())
-                }
-                createListCategory(TYPE_FULL_LIST_SORT)
-            }
-        }
-    }
-
-    //Get list if Spinner chosen a Category
-    private fun spinnerItemList(type: Int, value: String): ArrayList<BillsItem> {
-        val listCat = ArrayList<BillsItem>()
-        //If chosen "None"
-        if (type == TYPE_FULL_LIST_SORT) {
-            viewModel.listBills.forEach {
-                if (it.category == value)
-                    listCat += it
-            }
-        } else {
-            getSortList(type).forEach {
-                if (it.category == value)
-                    listCat += it
-            }
-        }
-        return listCat
-    }
-
-    private fun titleBar() {
-        //Close delete mode
-        binding.imCloseDel.setOnClickListener {
-            deleteItem = false
-            listDeleteItems.clear()
-            billAdapter.deleteItemsAfterRemovedItemFromDB()
-            billAdapter.notifyDataSetChanged()
-        }
-        //Sorting
-        binding.imBillsFilter.setOnClickListener {
-
-            createListCategory(TYPE_FULL_LIST_SORT)
-
-            if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                visibilityFilterCard = false
-                setDefaultSortingViews()
-                //Cause without remove List, it scrolls down to the end
-                billAdapter.submitList(null)
-                if (viewModel.listBills != null)
-                    billAdapter.submitList(sortingDesc(viewModel.listBills.toMutableList()))
-            } else {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 0, 100)
-                visibilityFilterCard = true
-            }
-        }
-
-        viewModel.month.observe(viewLifecycleOwner) {
-            binding.tvMonth.text = it
-            //Set off filter card
-            if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                visibilityFilterCard = false
-                setDefaultSortingViews()
-            }
-        }
-
-        //Set month`s text in bar
-        binding.tvMonth.setOnClickListener {
-            if (viewModel.currentDate() != binding.tvMonth.text.toString()) {
-                viewModel.changeMonth(CURRENT_MONTH)
-            }
-        }
-        //Previous month
-        binding.imBackMonth.setOnClickListener {
-            viewModel.changeMonth(PREV_MONTH)
-        }
-        //Next month
-        binding.imNextMonth.setOnClickListener {
-            viewModel.changeMonth(NEXT_MONTH)
-        }
-
-        binding.imBookmarks.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_billsListFragment_to_bookmarksFragment,
-            )
-        }
-    }
-
     @SuppressLint("ResourceType", "CutPasteId", "UseCompatLoadingForDrawables")
-    private fun setBackColorAddButton(type: Int) {
-        val t = if (binding.tvMonth.text == viewModel.currentDate()) {
-            type
-        } else {
-            //get saved type
-            val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-            sharedPref.getInt(TYPE_BILL, TYPE_EQUALS)
-        }
-        with(stateColorButton) {
-            if(requireActivity() is InterfaceMainActivity) {
+    private fun setNavButtonColor(type: Int) {
+        with(StateColorButton(application = (requireActivity().application as BillsApplication))) {
+            if (requireActivity() is InterfaceMainActivity) {
                 with(mainActivity.navBottom()) {
-                    stateNavBot(t).let {
+                    stateNavBot(type).let {
                         if (itemIconTintList != it) { //if do it again
                             itemIconTintList = it //set color of icon nav bottom income
                             itemTextColor = it //set color of text nav bottom income
@@ -474,31 +541,10 @@ class BillsListFragment : Fragment() {
                     }
                 }
             }
-            //set background income
-            binding.buttonAddBill.relativeLayout.background = colorAddButton(t)
-            //Set filter colors
-            filterViewsColor(t)
-            //Save type colors
-            setSharePrefColors(t)
+            setSharePrefColors(type) //TODO Убрать
         }
     }
 
-    private fun filterViewsColor(type: Int) {
-        val buttonStates = ColorStateList(
-            arrayOf(
-                intArrayOf(-android.R.attr.state_enabled),
-                intArrayOf(android.R.attr.state_checked),
-                intArrayOf()
-            ), intArrayOf(
-                requireActivity().getColor(R.color.default_background), //track unChecked
-                stateColorButton.colorButtons(type),
-                requireActivity().getColor(R.color.default_background)
-            )
-        )
-        binding.checkBoxIncome.buttonTintList = buttonStates
-        binding.checkBoxExpense.buttonTintList = buttonStates
-        binding.checkBoxDecDate.buttonTintList = buttonStates
-    }
 
     private fun setSharePrefColors(type: Int) {
         val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
@@ -510,65 +556,29 @@ class BillsListFragment : Fragment() {
 
     @SuppressLint("ResourceType")
     private fun initRecView() {
-        with(binding.recViewBill) {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            adapter = billAdapter
-            binding.recViewBill.itemAnimator = null
-        }
 
-        billAdapter.onClickListenerBillItem = {
-            bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE)
-            bundle.putParcelable(BILL_ITEM_KEY, it)
-            findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
-        }
+//        billAdapter.onClickListenerBillItem = {
+//            bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE)
+//            bundle.putParcelable(BILL_ITEM_KEY, it)
+//            findNavController().navigate(R.id.action_billsListFragment_to_addBillFragment, bundle)
+//        }
 
-        billAdapter.onLongClickListenerBillItem = {
-            listDeleteItems = it
-            //Set off filter card
-            if (visibilityFilterCard) {
-                slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-                visibilityFilterCard = false
-                setDefaultSortingViews()
-            }
-        }
+//        billAdapter.onLongClickListenerBillItem = {
+//            listDeleteItems = it
+//        }
         //Highlight item
-        billAdapter.isHighlight.observe(viewLifecycleOwner) {
-            deleteItem = it
-            if (it) { //GONE VIEWS
-                deleteItem = it
-                //AddButton
-                crossfade(binding.buttonAddBill.imageButtonBas, binding.buttonAddBill.imageButton)
-                //Bar
-                slideView(binding.constraintMainBar, binding.cardViewBar.height, 0)
-                fadeInView(binding.imCloseDel)
-                //NavBottom
-                if(requireActivity() is InterfaceMainActivity) {
-                    mainActivity.navBottom().visibility = View.INVISIBLE
-                }
-                //BudgetBar
-                if (visibilityFilterCard) {
-                    slideView(binding.cardViewFilter, 100, 0)
-                }
-            } else {
-                //AddButton
-                if (binding.imCloseDel.visibility == View.VISIBLE) {
-                    crossfade(
-                        binding.buttonAddBill.imageButton,
-                        binding.buttonAddBill.imageButtonBas
-                    )
-                    //Bar
-                    slideView(binding.constraintMainBar, 0, binding.cardViewBar.height)
-                    fadeOutView(binding.imCloseDel)
-                    //NavBottom
-                    if(requireActivity() is InterfaceMainActivity) {
-                        mainActivity.navBottom().visibility = View.VISIBLE
-                    }
-
-                    //set a new list
-                    viewModel.getStateList(viewModel.currentDate())
-                }
-            }
-        }
+//        billAdapter.isHighlight.observe(viewLifecycleOwner) {
+//            deleteItem = it
+//            if (it) { //GONE VIEWS
+//                deleteItem = it
+//                //AddButton
+//
+//                //NavBottom
+//                if (requireActivity() is InterfaceMainActivity) {
+//                    mainActivity.navBottom().visibility = View.INVISIBLE
+//                }
+//            }
+//        }
     }
 
     private fun onBackPressed() {
@@ -577,89 +587,28 @@ class BillsListFragment : Fragment() {
             object : OnBackPressedCallback(true) {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun handleOnBackPressed() {
-                    if (!deleteItem) {
+                    if (_listDeleteItems.isEmpty()) {
                         requireActivity().finishAffinity()
                         requireActivity().finish()
 //                        isEnabled = false
 //                        requireActivity().onBackPressed()
-                    } else {
-                        deleteItem = false
-                        listDeleteItems.clear()
-                        billAdapter.deleteItemsAfterRemovedItemFromDB()
-                        billAdapter.notifyDataSetChanged()
+                    } else { //TODO Убрать Крест
+                        _listDeleteItems.clear()
+//                        billAdapter.deleteItemsAfterRemovedItemFromDB()
+//                        billAdapter.notifyDataSetChanged()
                     }
                 }
             }
         )
     }
 
-
-    private fun setDefaultSortingViews() {
-        binding.checkBoxIncome.isChecked = false
-        binding.checkBoxExpense.isChecked = false
-        binding.checkBoxDecDate.isChecked = false
-        binding.spinnerFilter.setSelection(0)
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun resizeText() {
-        //Resize text in views if value is huge
-        if (binding.tvIncomeNum.text.length > 13
-            || binding.tvExpenseNum.text.length > 13
-            || binding.tvTotalNum.text.length > 13
-        ) {
-            binding.tvIncomeNum.textSize = 11F
-            binding.tvExpenseNum.textSize = 11F
-            binding.tvTotalNum.textSize = 11F
-        } else {
-            binding.tvIncomeNum.textSize = 18F
-            binding.tvExpenseNum.textSize = 18F
-            binding.tvTotalNum.textSize = 18F
-        }
-    }
-
-    @ColorInt
-    fun Context.getColorFromAttr(
-        @AttrRes attrColor: Int
-    ): Int {
-        val typedArray = theme.obtainStyledAttributes(intArrayOf(attrColor))
-        val textColor = typedArray.getColor(0, 0)
-        typedArray.recycle()
-        return textColor
-    }
-
-    // Extension method to convert pixels to dp
-    fun Int.toDp(context: Context): Int = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics
-    ).toInt()
-
     override fun onResume() {
         super.onResume()
-        if (!scope.isActive) {
-            scope = CoroutineScope(Dispatchers.Main)
-            createListCategory(TYPE_FULL_LIST_SORT)
-        }
-        if(requireActivity() is InterfaceMainActivity) {
-            if (mainActivity.navBottom().visibility == View.GONE ||
-                mainActivity.navBottom().visibility == View.INVISIBLE)
-                fadeInView(mainActivity.navBottom())
-        }
-        viewModel.getStateList(binding.tvMonth.text.toString())
-    }
-
-    override fun onPause() {
-        super.onPause()
-        //Set off filter card
-        if (visibilityFilterCard) {
-            slideView(requireView().findViewById<CardView>(R.id.cardView_filter), 100, 0)
-            visibilityFilterCard = false
-            setDefaultSortingViews()
-        }
+        mainActivity.navBottom().visibility = View.VISIBLE
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        scope.cancel()
         _binding = null
     }
 

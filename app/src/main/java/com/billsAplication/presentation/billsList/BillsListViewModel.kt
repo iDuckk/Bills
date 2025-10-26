@@ -1,292 +1,85 @@
 package com.billsAplication.presentation.billsList
 
 import android.app.Application
-import android.content.res.Configuration
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.billsAplication.R
-import com.billsAplication.domain.billsUseCases.*
+import androidx.lifecycle.viewModelScope
+import com.billsAplication.domain.billsUseCases.AddBillItemUseCase
+import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
+import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
+import com.billsAplication.domain.billsUseCases.GetTypeListUseCase
+import com.billsAplication.domain.billsUseCases.GetCategoryListUseCase
+import com.billsAplication.domain.billsUseCases.room.GetBillsListFlowUseCase
+import com.billsAplication.domain.billsUseCases.room.SummaryAmountUseCase
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.utils.ColorState
-import com.billsAplication.utils.Result
-import com.billsAplication.utils.StateBillsList
-import com.billsAplication.utils.TotalAmountBar
-import kotlinx.coroutines.*
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.util.*
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
+import com.billsAplication.domain.model.BillsItem.Companion.TYPE_INCOME
+import com.billsAplication.utils.MapMonth
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 //@ApplicationScope
 class BillsListViewModel @Inject constructor(
+    private val getMonthFlow: GetBillsListFlowUseCase,
     private val getMonth: GetMonthListUseCase,
     private val delete: DeleteBillItemUseCase,
     private val getTypeListUseCase: GetTypeListUseCase,
-    private val application: Application
+    private val application: Application,
+    private val summaryAmount : SummaryAmountUseCase,
+    private val addBill: AddBillItemUseCase,
+    private val getCategoryListUseCase: GetCategoryListUseCase,
 ) : ViewModel() {
 
-    private var date = LocalDate.now()
-
-    private val _stateList = MutableLiveData<StateBillsList>()
-    val stateList: LiveData<StateBillsList>
-        get() = _stateList
-    private val _month = MutableLiveData<String>()
-    val month: LiveData<String>
-        get() = _month
+    private val TAG = "BillsListFragment"
 
     private val exception = CoroutineExceptionHandler { _, e ->
-        _stateList.value =
-            com.billsAplication.utils.Error("BillsListViewModel:getStateList: ${e.message!!}")
-    }
-    private var scope = CoroutineScope(Dispatchers.IO + exception)
-
-    var listBills = ArrayList<BillsItem>()
-    var listIncome = ArrayList<BillsItem>()
-    var listExpense = ArrayList<BillsItem>()
-
-    private var changeMonth = 0
-    private var changeYear = 0
-
-    private var JANUARY = "JANUARY"
-    private var FEBRUARY = "FEBRUARY"
-    private var MARCH = "MARCH"
-    private var APRIL = "APRIL"
-    private var MAY = "MAY"
-    private var JUNE = "JUNE"
-    private var JULY = "JULY"
-    private var AUGUST = "AUGUST"
-    private var SEPTEMBER = "SEPTEMBER"
-    private var OCTOBER = "OCTOBER"
-    private var NOVEMBER = "NOVEMBER"
-    private var DECEMBER = "DECEMBER"
-    private val TYPE_EXPENSES = 0
-    private val TYPE_INCOME = 1
-    private val TYPE_EQUALS = 2
-    private val NEXT_MONTH = 20
-    private val PREV_MONTH = 21
-    private val CURRENT_MONTH = 22
-    private val DIRACTION_NEXT_MONTH = true
-    private val DIRACTION_PREV_MONTH = false
-
-    init {
-        getStateList(currentDate())
-        _month.value = currentDate()
+        Log.e(TAG, "BillsListViewModel:: ${e.message!!}: ", e)
     }
 
-    fun changeMonth(direction: Int) {
-        val month = when (direction) {
-            NEXT_MONTH -> changeMonthBar(DIRACTION_NEXT_MONTH)
-            PREV_MONTH -> changeMonthBar(DIRACTION_PREV_MONTH)
-            else -> {
-                changeMonth = 0
-                changeYear = 0
-                currentDate()
+    fun getMonthListFlow(month: String) =
+        getMonthFlow.invoke(month = MapMonth.mapMonthToSQL(month = month, context = application))
+
+    /**
+     * Income amount, expense amount, total amount, typeColorAddButton
+     * */
+    fun summaryAmount(month: String, onFinish: (String, String, String, Int) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + exception) {
+            val inc = summaryAmount.invoke(month = MapMonth.mapMonthToSQL(
+                month = month, context = application), type = TYPE_INCOME)
+            val exp = summaryAmount.invoke(month = MapMonth.mapMonthToSQL(
+                month = month, context = application), type = TYPE_EXPENSES)
+            withContext(Dispatchers.Main) {
+                onFinish.invoke(
+                    "%,.2f".format(Locale.ENGLISH, inc),
+                    "%,.2f".format(Locale.ENGLISH, exp),
+                    "%,.2f".format(Locale.ENGLISH, (inc - exp)),
+                    if (inc > exp) TYPE_INCOME else TYPE_EXPENSES
+                )
             }
         }
-        getStateList(month)
-        _month.value = month
     }
 
-    fun getStateList(month: String) {
-        //Get lists for spinner
-        getCategoriesListExpenses()
-        getCategoriesListIncome()
-        //Total amounts values
-        scope.launch(Dispatchers.IO) {
-            //month's list
-            getMainList(month = month)
-            delay(1000)
-
-            val exp = getExpenseList(month = month)
-            val inc = getIncomeList(month = month)
-            delay(1000)
-            _stateList.postValue(TotalAmountBar(
-                "%,.2f".format(Locale.ENGLISH, exp),
-                "%,.2f".format(Locale.ENGLISH, inc),
-                "%,.2f".format(Locale.ENGLISH, (inc - exp))
-            ))
-
-            colorState(inc, exp)
-        }
-
-    }
-
-    suspend fun getMainList(month: String) {
-            _stateList.postValue(withContext(Dispatchers.IO) {
-            listBills = getMonth.invoke(mapMonthToSQL(month = month))
-            Result(listBills)
-        }!!)
-    }
-
-    suspend fun getIncomeList(month: String): BigDecimal {
-        return withContext(Dispatchers.IO) {
-            var income = BigDecimal(0.0)
-            getMonth.invoke(mapMonthToSQL(month = month)).forEachIndexed { index, billsItem ->
-                if (TYPE_INCOME == billsItem.type)
-                    income += BigDecimal(billsItem.amount.replace(",", ""))
-            }
-            income
+    fun delete(item: BillsItem) {
+        viewModelScope.launch(Dispatchers.IO + exception) {
+            delete.invoke(item = item)
         }
     }
 
-    suspend fun getExpenseList(month: String): BigDecimal {
-        return withContext(Dispatchers.IO) {
-            var expense = BigDecimal(0.0)
-            getMonth.invoke(mapMonthToSQL(month = month)).forEachIndexed { index, billsItem ->
-                if (TYPE_EXPENSES == billsItem.type)
-                    expense += BigDecimal(billsItem.amount.replace(",", ""))
-            }
-            expense
+    fun add(billItem: BillsItem) {
+        viewModelScope.launch(Dispatchers.IO + exception) {
+            addBill.invoke(billItem)
         }
     }
 
-    fun colorState(inc: BigDecimal, exp: BigDecimal) {
-        if (inc > exp) _stateList.postValue(ColorState(type = TYPE_INCOME))
-        else if (inc < exp) _stateList.postValue(ColorState(type = TYPE_EXPENSES))
-        else _stateList.postValue(ColorState(type = TYPE_EQUALS))
-
-    }
-
-    fun getCategoriesListExpenses() {
-        scope.launch {
-            listExpense = getTypeListUseCase.invoke(type = TYPE_EXPENSES) as ArrayList<BillsItem>
+    fun getCategoryList(type: Int, list: (List<BillsItem>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + exception) { //.map { it.category }.distinct()
+            list.invoke(getCategoryListUseCase.invoke(type)) //listOf("Food", "Transport", "Utilities", "Other"))
         }
     }
 
-    fun getCategoriesListIncome() {
-        scope.launch {
-            listIncome = getTypeListUseCase.invoke(type = TYPE_INCOME) as ArrayList<BillsItem>
-        }
-    }
 
-    fun incomeCategorySpinner(): ArrayList<String> {
-        val list = ArrayList<String>()
-        listIncome.forEach {
-            list.add(it.category)
-        }
-        return list
-    }
-
-    fun expenseCategorySpinner(): ArrayList<String> {
-        val list = ArrayList<String>()
-        listExpense.forEach {
-            list.add(it.category)
-        }
-        return list
-    }
-
-    suspend fun delete(item: BillsItem) {
-        delete.invoke(item = item)
-    }
-
-    fun currentDate(): String {
-        return mapMonthToTextView(month = date.month.toString()) + " " + date.year.toString()
-    }
-
-    fun changeMonthBar(typeChanges: Boolean): String {
-        if (typeChanges) changeMonth++ else changeMonth--
-        //Set Year
-        if (date.month.plus(changeMonth.toLong()).toString() == JANUARY
-            && typeChanges
-        ) changeYear++
-        else if (date.month.plus(changeMonth.toLong()).toString() == DECEMBER
-            && !typeChanges
-        ) changeYear--
-        //Set Month
-        if (changeMonth > 0) {
-            return mapMonthToTextView(date.month.plus(changeMonth.toLong()).toString()) +
-                    " " + date.year.plus(Math.abs(changeYear).toLong()).toString()
-        } else {
-            return mapMonthToTextView(date.month.minus(Math.abs(changeMonth).toLong()).toString()) +
-                    " " + date.year.minus(Math.abs(changeYear).toLong()).toString()
-        }
-    }
-
-    fun mapMonthToSQL(month: String): String {
-        return when (month.dropLast(5)) {
-            application.getString(R.string.calendar_January) -> JANUARY + month.removePrefix(
-                month.dropLast(5)
-            )
-            application.getString(R.string.calendar_february) -> FEBRUARY + month.removePrefix(
-                month.dropLast(5)
-            )
-            application.getString(R.string.calendar_march) -> MARCH + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_april) -> APRIL + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_may) -> MAY + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_june) -> JUNE + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_july) -> JULY + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_august) -> AUGUST + month.removePrefix(
-                month.dropLast(
-                    5
-                )
-            )
-            application.getString(R.string.calendar_september) -> SEPTEMBER + month.removePrefix(
-                month.dropLast(5)
-            )
-            application.getString(R.string.calendar_october) -> OCTOBER + month.removePrefix(
-                month.dropLast(5)
-            )
-            application.getString(R.string.calendar_november) -> NOVEMBER + month.removePrefix(
-                month.dropLast(5)
-            )
-            application.getString(R.string.calendar_december) -> DECEMBER + month.removePrefix(
-                month.dropLast(5)
-            )
-            else -> "Wrong month"
-        }
-    }
-
-    fun mapMonthToTextView(month: String): String {
-        //Update resources for new language
-        val config = Configuration()
-        val locale = Locale(Locale.getDefault().language)
-        config.locale = locale
-        application.resources.updateConfiguration(
-            Configuration(),
-            application.resources.displayMetrics
-        )
-        return when (month) {
-            JANUARY -> application.getString(R.string.calendar_January)
-            FEBRUARY -> application.getString(R.string.calendar_february)
-            MARCH -> application.getString(R.string.calendar_march)
-            APRIL -> application.getString(R.string.calendar_april)
-            MAY -> application.getString(R.string.calendar_may)
-            JUNE -> application.getString(R.string.calendar_june)
-            JULY -> application.getString(R.string.calendar_july)
-            AUGUST -> application.getString(R.string.calendar_august)
-            SEPTEMBER -> application.getString(R.string.calendar_september)
-            OCTOBER -> application.getString(R.string.calendar_october)
-            NOVEMBER -> application.getString(R.string.calendar_november)
-            DECEMBER -> application.getString(R.string.calendar_december)
-            else -> ""
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        scope.cancel()
-    }
 }

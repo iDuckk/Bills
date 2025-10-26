@@ -12,17 +12,21 @@ data class BillsItem(
     val time : String,
     val category : String,
     val amount : String,
-    val note : String,
-    val description : String,
-    val bookmark : Boolean,
-    val image1 : String,
-    val image2 : String,
-    val image3 : String,
-    val image4 : String,
-    val image5 : String
+    val note : String  = "",
+    val description : String  = "",
+    val bookmark : Boolean = false,
+    val image1 : String = "",
+    val image2 : String = "",
+    val image3 : String = "",
+    val image4 : String = "",
+    val image5 : String = ""
 ): Parcelable {
     companion object {
         const val TYPE_EXPENSES = 0
         const val TYPE_INCOME = 1
+        const val TYPE_EQUALS = 2
+
+        const val TYPE_CATEGORY_EXPENSES = 2
+        const val TYPE_CATEGORY_INCOME = 4
     }
 }

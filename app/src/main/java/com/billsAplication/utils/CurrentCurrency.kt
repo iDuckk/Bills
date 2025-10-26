@@ -1,6 +1,6 @@
 package com.billsAplication.utils
 
-object CurrentCurrency{
+object CurrentCurrency {
 
     var currency: String = ""
         set(value) {
@@ -13,4 +13,5 @@ object CurrentCurrency{
             field = value
         }
         get() = field
+
 }

@@ -164,7 +164,7 @@ class AddBillFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //Set Bottom bar - invisible
-        fadeOutView(navBot)
+//        fadeOutView(navBot)
         //Set recView invisible
         binding.recViewPhoto.visibility = View.GONE
 
@@ -584,16 +584,16 @@ class AddBillFragment : Fragment() {
             }
         }
         return BillsItem(
-            if (TYPE_ENTRENCE == TYPE_ADD || TYPE_ENTRENCE == TYPE_BOOKMARK) 0 else billItem!!.id,
-            TYPE_BILL,
-            date.month.toString() + " " + date.year.toString(),
-            binding.edDateAdd.text.toString(),
-            TIME_FORMAT_24,
-            binding.edAddCategory.text.toString(),
-            binding.edAddAmount.text.toString(),
-            binding.edAddNote.text.toString(),
-            binding.edDescription.text.toString(),
-            bookmark,
+            id = if (TYPE_ENTRENCE == TYPE_ADD || TYPE_ENTRENCE == TYPE_BOOKMARK) 0 else billItem!!.id,
+            type = TYPE_BILL,
+            month = date.month.toString() + " " + date.year.toString(),
+            date = binding.edDateAdd.text.toString(),
+            time = TIME_FORMAT_24,
+            category = binding.edAddCategory.text.toString(),
+            amount =  binding.edAddAmount.text.toString(),
+            note = binding.edAddNote.text.toString(),
+            description = binding.edDescription.text.toString(),
+            bookmark = bookmark,
             image1, image2, image3, image4, image5
         )
     }

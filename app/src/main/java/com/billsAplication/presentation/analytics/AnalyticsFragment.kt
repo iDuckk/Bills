@@ -36,7 +36,7 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.presentation.analytics.view.BIllsItemAnalytics
 import com.billsAplication.presentation.analytics.view.ButtonAnalytics
 import com.billsAplication.presentation.analytics.view.ListCategory
-import com.billsAplication.presentation.analytics.view.MonthPicker
+import com.billsAplication.presentation.components.MonthPicker
 import com.billsAplication.utils.ColorsPie
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -99,7 +99,7 @@ class AnalyticsFragment : Fragment() {
             mutableStateOf(false)
         }
         val month = remember {
-            mutableStateOf(viewModel.currentDate())
+            mutableStateOf("")
         }
         val categoryList: MutableState<List<BillsItem>> = remember {
             mutableStateOf(listOf<BillsItem>())
@@ -130,11 +130,7 @@ class AnalyticsFragment : Fragment() {
                 .padding(top = spacerType)
                 .fillMaxWidth()
         ) {
-            MonthPicker(
-                viewModel = viewModel,
-                month = month,
-                padding = spacerType
-            )
+            MonthPicker(month = month)
             Spacer(Modifier.size(spacerType))
             Row {
                 ButtonAnalytics(
@@ -306,11 +302,7 @@ class AnalyticsFragment : Fragment() {
             }
             items(items = categoryList.value, itemContent = { item ->
                 BIllsItemAnalytics(
-                    date = item.date,
-                    category = item.category,
-                    note = item.note,
-                    amount = item.amount,
-                    type = item.type,
+                    item = item,
                     smallDp = spacerTitle,
                     bigDp = spacerType
                 )

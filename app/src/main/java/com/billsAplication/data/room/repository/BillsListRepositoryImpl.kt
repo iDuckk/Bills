@@ -64,6 +64,14 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         billDao.deleteNote(item = (mapper.mapNoteItemToNoteEntity(item = item)))
     }
 
+    override fun getMonthListFlow(month: String) = billDao.getMonthListFlow(month = month).map {
+        mapper.mapBillEntityToBillItemList(list = it)
+    }
+
+    override fun getCategoryList(type: Int): List<BillsItem> {
+        return mapper.mapBillEntityToBillItemList(billDao.getCategoryList(type))
+    }
+
     /**
      * Old repo
      * */
@@ -88,13 +96,6 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
     }
 
     override fun getMonthList(month: String) = mapper.mapBillEntityToBillItemList(billDao.getMonthList(month))
-
-    @SuppressLint("CheckResult")
-    override fun getType(type: Int): LiveData<List<BillsItem>> {
-        return billDao.getType(type).map {
-            mapper.mapBillEntityToBillItemList(it)
-        }
-    }
 
     override suspend fun getTypeList(type: Int): List<BillsItem> {
         var newList = ArrayList<BillsItem>()

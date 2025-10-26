@@ -125,7 +125,7 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //Set Bottom bar - invisible
-        fadeOutView(navBot)
+//        fadeOutView(navBot)
 
         viewModel.list.observe(viewLifecycleOwner) { list ->
 //            allItemList.clear()

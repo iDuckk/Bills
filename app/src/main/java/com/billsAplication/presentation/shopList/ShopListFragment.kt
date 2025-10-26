@@ -36,12 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -160,7 +162,8 @@ class ShopListFragment : Fragment() {
     @Composable
     private fun BoxScope.AddButton(
         showBottomSheet: MutableState<Boolean>,
-        idState: MutableState<Int>
+        idState: MutableState<Int>,
+        smallDp: Dp = 5.dp,
     ) {
         var visibleButtons by remember { mutableStateOf(false) }
         val gradient = stateColorButton.gradientButton(type)
@@ -178,6 +181,7 @@ class ShopListFragment : Fragment() {
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(bottom = 12.dp, end = 2.dp)
+                .shadow(elevation = smallDp, shape = CircleShape)
                 .align(Alignment.BottomEnd)
                 .clip(shape = CircleShape)
                 .clickable(onClick = {
