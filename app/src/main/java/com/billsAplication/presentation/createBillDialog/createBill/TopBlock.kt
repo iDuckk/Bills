@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

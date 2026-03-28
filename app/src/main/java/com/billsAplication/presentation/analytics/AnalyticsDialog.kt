@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs
+package com.billsAplication.presentation.analytics
 
 import PieChart
 import androidx.compose.foundation.layout.*

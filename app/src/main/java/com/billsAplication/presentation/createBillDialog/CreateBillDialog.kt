@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs
+package com.billsAplication.presentation.createBillDialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -39,12 +39,12 @@ import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
 import com.billsAplication.extension.convertDateToMonthYear
 import com.billsAplication.extension.convertTo12HourFormat
 import com.billsAplication.extension.convertTo24HourFormat
-import com.billsAplication.presentation.dialogs.createBill.AddBtnBlock
-import com.billsAplication.presentation.dialogs.createBill.CategoryBlock
-import com.billsAplication.presentation.dialogs.createBill.DateTimeBlock
-import com.billsAplication.presentation.dialogs.createBill.InputTextBlock
-import com.billsAplication.presentation.dialogs.createBill.TopBlock
-import com.billsAplication.presentation.dialogs.createBill.TypeBtnBlock
+import com.billsAplication.presentation.createBillDialog.createBill.AddBtnBlock
+import com.billsAplication.presentation.createBillDialog.createBill.CategoryBlock
+import com.billsAplication.presentation.createBillDialog.createBill.DateTimeBlock
+import com.billsAplication.presentation.createBillDialog.createBill.InputTextBlock
+import com.billsAplication.presentation.createBillDialog.createBill.TopBlock
+import com.billsAplication.presentation.createBillDialog.createBill.TypeBtnBlock
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.PagingConstants.DP_15
 import com.billsAplication.utils.PagingConstants.DP_5

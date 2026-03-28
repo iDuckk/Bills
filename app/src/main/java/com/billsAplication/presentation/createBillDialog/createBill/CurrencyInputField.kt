@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField

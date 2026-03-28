@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -19,8 +19,8 @@ import com.billsAplication.R
 import com.billsAplication.extension.localCurrentDate
 import com.billsAplication.extension.localCurrentTime
 import com.billsAplication.presentation.components.InputText
-import com.billsAplication.presentation.dialogs.dateTime.DatePickerModal
-import com.billsAplication.presentation.dialogs.dateTime.TimePickerModal
+import com.billsAplication.presentation.createBillDialog.dateTime.DatePickerModal
+import com.billsAplication.presentation.createBillDialog.dateTime.TimePickerModal
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.StateColorButton.Companion.getColorType
 

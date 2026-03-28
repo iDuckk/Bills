@@ -62,10 +62,10 @@ import com.billsAplication.presentation.components.AddButton
 import com.billsAplication.presentation.components.AmountBar
 import com.billsAplication.presentation.components.ImgBtn
 import com.billsAplication.presentation.components.MonthPicker
-import com.billsAplication.presentation.dialogs.AddBillDialog
-import com.billsAplication.presentation.dialogs.AnalyticsDialog
-import com.billsAplication.presentation.dialogs.CreateBillDialog
-import com.billsAplication.presentation.dialogs.createBill.ConfirmationDialog
+import com.billsAplication.presentation.createBillDialog.AddBillDialog
+import com.billsAplication.presentation.analytics.AnalyticsDialog
+import com.billsAplication.presentation.createBillDialog.CreateBillDialog
+import com.billsAplication.presentation.createBillDialog.createBill.ConfirmationDialog
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.PagingConstants.DP_5

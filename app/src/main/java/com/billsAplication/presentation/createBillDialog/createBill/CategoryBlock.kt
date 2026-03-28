@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
