@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,6 @@ import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_EXPENSES
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_INCOME
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EQUALS
-import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
 import com.billsAplication.extension.DATE_FORMAT
 import com.billsAplication.presentation.billsList.view.BillsItemList
 import com.billsAplication.presentation.billsList.view.DateItem
@@ -62,6 +62,7 @@ import com.billsAplication.presentation.components.AmountBar
 import com.billsAplication.presentation.components.ImgBtn
 import com.billsAplication.presentation.components.MonthPicker
 import com.billsAplication.presentation.dialogs.AddBillDialog
+import com.billsAplication.presentation.dialogs.BookmarksDialog
 import com.billsAplication.presentation.dialogs.CreateBillDialog
 import com.billsAplication.presentation.dialogs.createBill.ConfirmationDialog
 import com.billsAplication.utils.InterfaceMainActivity
@@ -74,26 +75,18 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import androidx.core.content.edit
 
 
 class BillsListFragment : Fragment() {
 
     private var _binding: FragmentBillsListBinding? = null
     private val binding: FragmentBillsListBinding get() = _binding!!
+    private var _listDeleteItems: ArrayList<BillsItem> = ArrayList()
+
 
     @Inject
     lateinit var viewModel: BillsListViewModel
-
-    private var _listDeleteItems: ArrayList<BillsItem> = ArrayList()
-
-    private val ADD_BILL_KEY = "add_bill_key"
-    private val BILL_ITEM_KEY = "bill_item_key"
-    private val TYPE_NOTE_RECEIVE = "type_note_receive"
-
-    private var TYPE_BILL = "type_bill"
-    private val CREATE_TYPE = 100
-    private val UPDATE_TYPE = 101
-    private val TAG = "BillsListFragment"
 
     private val exception = CoroutineExceptionHandler { _, e ->
         Log.e(TAG, "BillsListFragment:: ${e.message!!}: ", e)
@@ -105,6 +98,12 @@ class BillsListFragment : Fragment() {
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
+    }
+
+    companion object {
+        private const val TYPE_NOTE_RECEIVE = "type_note_receive"
+        private const val TYPE_BILL = "type_bill"
+        private const val TAG = "BillsListFragment"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,6 +161,7 @@ class BillsListFragment : Fragment() {
         val month = remember { mutableStateOf("") }
         val showDialogDelete = remember { mutableStateOf(false) }
         val showDialogAddBill = remember { mutableStateOf(CreateBillDialog(show = false, bill = null)) }
+        val showBookmarksDialog = remember { mutableStateOf(false) }
         val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
         /**
          * Create dialog for delete Items
@@ -178,19 +178,39 @@ class BillsListFragment : Fragment() {
             showDialogAddBill = showDialogAddBill,
             listCategory = listCategory
         )
+
+        /**
+         * Bookmarks dialog
+         */
+        val bookmarks = viewModel.bookmarks.observeAsState(initial = listOf())
+        BookmarksDialog(
+            showDialog = showBookmarksDialog,
+            bookmarks = bookmarks.value,
+            onBookmarkClick = { bookmark ->
+                showBookmarksDialog.value = false
+                showDialogAddBill.value = CreateBillDialog(show = true, bill = bookmark)
+            },
+            onDeleteBookmarks = { itemsToDelete ->
+                itemsToDelete.forEach { item ->
+                    viewModel.updateBookmark(item.copy(bookmark = false))
+                }
+            },
+            onDismiss = {}
+        )
+
         /**
          * Income amount, expense amount, total amount, typeColorAddButton
          * */
-        viewModel.summaryAmount(month.value, { inc, exp, total, typeColor ->
+        viewModel.summaryAmount(month.value) { inc, exp, total, typeColor ->
             incAmountState.value = inc
             expAmountState.value = exp
             totalAmountState.value = total
             typeColorAddButton.intValue = typeColor
             setNavButtonColor(typeColor)
             StateColorButton.CURRENT_TYPE = typeColor
-        })
+        }
 
-        TopBar(month = month)
+        TopBar(month = month, onBookmarksClick = { showBookmarksDialog.value = true })
 
         AmountBar(
             incAmountState = incAmountState,
@@ -244,7 +264,8 @@ class BillsListFragment : Fragment() {
 
     @Composable
     fun TopBar(
-        month: MutableState<String>
+        month: MutableState<String>,
+        onBookmarksClick: () -> Unit
     ) {
         Row(
             horizontalArrangement = Arrangement.Absolute.SpaceBetween,
@@ -271,9 +292,7 @@ class BillsListFragment : Fragment() {
                     src = painterResource(id = R.drawable.ic_bookmarks),
                     description = stringResource(id = R.string.description_bookmarks)
                 ) {
-                    findNavController().navigate(
-                        R.id.action_billsListFragment_to_bookmarksFragment,
-                    )
+                    onBookmarksClick()
                 }
 
                 ImgBtn(
@@ -548,9 +567,8 @@ class BillsListFragment : Fragment() {
 
     private fun setSharePrefColors(type: Int) {
         val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
+        sharedPref.edit {
             putInt(TYPE_BILL, type)
-            apply()
         }
     }
 

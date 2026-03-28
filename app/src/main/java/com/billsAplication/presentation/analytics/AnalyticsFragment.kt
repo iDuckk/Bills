@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.graphics.toColorInt
 
 class AnalyticsFragment : Fragment() {
 
@@ -52,12 +53,15 @@ class AnalyticsFragment : Fragment() {
     @Inject
     lateinit var viewModel: AnalyticsViewModel
 
-    private val COLORS_AMOUNT = 29
     private val spacerType = 10.dp
     private val spacerTitle = 5.dp
 
     private val component by lazy {
         (requireActivity().application as BillsApplication).component
+    }
+
+    companion object {
+        private const val COLORS_AMOUNT = 29
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +106,7 @@ class AnalyticsFragment : Fragment() {
             mutableStateOf("")
         }
         val categoryList: MutableState<List<BillsItem>> = remember {
-            mutableStateOf(listOf<BillsItem>())
+            mutableStateOf(listOf())
         }
         TopBar(
             isClickedExpenses = isClickedExpenses,
@@ -165,13 +169,13 @@ class AnalyticsFragment : Fragment() {
         val coroutineScope = rememberCoroutineScope()
 
         val chartValuesState: MutableState<List<Float>> = remember {
-            mutableStateOf(listOf<Float>(0f))
+            mutableStateOf(listOf(0f))
         }
         val chartColorsState: MutableState<List<Color>> = remember {
-            mutableStateOf(listOf<Color>(Color.Transparent))
+            mutableStateOf(listOf(Color.Transparent))
         }
         val chartCategoryState: MutableState<List<String>> = remember {
-            mutableStateOf(listOf<String>(""))
+            mutableStateOf(listOf(""))
         }
 
         ListCategory(
@@ -228,7 +232,7 @@ class AnalyticsFragment : Fragment() {
         chartColorsState: MutableState<List<Color>>,
         chartCategoryState: MutableState<List<String>>
     ) {
-        var sum = 0f
+        var sum: Float
 
         val chartValues = mutableListOf<Float>()
         val chartColors = mutableListOf<Color>()
@@ -239,7 +243,7 @@ class AnalyticsFragment : Fragment() {
                 viewModel.summaryAmount(
                     month = month,
                     type = type
-                ).toFloat()
+                ).toString().replace(",", "").toFloat()
             }.await()
 
             launch(Dispatchers.IO) {
@@ -249,14 +253,15 @@ class AnalyticsFragment : Fragment() {
                 ).let { list ->
                     list.sortedBy { it.category }.forEachIndexed { index, item ->
 
-                        val valueFloat = if (item.amount.toFloat() == 0f)
+                        val amount = item.amount.replace(",", "").toFloat()
+                        val valueFloat = if (amount == 0f || sum == 0f)
                             0f
                         else
-                            item.amount.toFloat() / sum
+                            amount / sum
 
                         val colorInt = if (index < COLORS_AMOUNT) index else index - COLORS_AMOUNT
                         val colorStr = ColorsPie.entries[colorInt].printableName
-                        val color = Color(android.graphics.Color.parseColor(colorStr))
+                        val color = Color(colorStr.toColorInt())
 
                         if (chartCategory.contains(item.category)) {   //if category item exists
                             chartValues.last() + valueFloat

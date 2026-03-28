@@ -9,6 +9,8 @@ import com.billsAplication.domain.billsUseCases.DeleteBillItemUseCase
 import com.billsAplication.domain.billsUseCases.GetMonthListUseCase
 import com.billsAplication.domain.billsUseCases.GetTypeListUseCase
 import com.billsAplication.domain.billsUseCases.GetCategoryListUseCase
+import com.billsAplication.domain.billsUseCases.GetBookmarksUseCase
+import com.billsAplication.domain.billsUseCases.UpdateBillItemUseCase
 import com.billsAplication.domain.billsUseCases.room.GetBillsListFlowUseCase
 import com.billsAplication.domain.billsUseCases.room.SummaryAmountUseCase
 import com.billsAplication.domain.model.BillsItem
@@ -32,12 +34,20 @@ class BillsListViewModel @Inject constructor(
     private val summaryAmount : SummaryAmountUseCase,
     private val addBill: AddBillItemUseCase,
     private val getCategoryListUseCase: GetCategoryListUseCase,
+    private val getBookmarksUseCase: GetBookmarksUseCase,
+    private val updateBillItemUseCase: UpdateBillItemUseCase
 ) : ViewModel() {
 
-    private val TAG = "BillsListFragment"
+
 
     private val exception = CoroutineExceptionHandler { _, e ->
         Log.e(TAG, "BillsListViewModel:: ${e.message!!}: ", e)
+    }
+
+    val bookmarks = getBookmarksUseCase.invoke(true)
+
+    companion object {
+        private const val TAG = "BillsListFragment"
     }
 
     fun getMonthListFlow(month: String) =
@@ -78,6 +88,12 @@ class BillsListViewModel @Inject constructor(
     fun getCategoryList(type: Int, list: (List<BillsItem>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + exception) { //.map { it.category }.distinct()
             list.invoke(getCategoryListUseCase.invoke(type)) //listOf("Food", "Transport", "Utilities", "Other"))
+        }
+    }
+
+    fun updateBookmark(billItem: BillsItem) {
+        viewModelScope.launch(Dispatchers.IO + exception) {
+            updateBillItemUseCase.invoke(billItem)
         }
     }
 
