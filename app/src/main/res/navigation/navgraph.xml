@@ -56,11 +56,6 @@
             app:destination="@id/billsListFragment" />
     </fragment>
     <fragment
-        android:id="@+id/analyticsFragment"
-        android:name="com.billsAplication.presentation.analytics.AnalyticsFragment"
-        android:label="fragment_analytics"
-        tools:layout="@layout/fragment_analytics" />
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.billsAplication.presentation.settings.SettingsFragment"
         android:label="fragment_settings"

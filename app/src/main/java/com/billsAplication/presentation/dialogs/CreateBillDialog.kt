@@ -1,6 +1,5 @@
 package com.billsAplication.presentation.dialogs
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -82,7 +81,7 @@ fun AddBillDialog(
         val showDatePicker = remember { mutableStateOf(false) }
         val showTimePicker = remember { mutableStateOf(false) }
         val showMainBlock = remember { mutableStateOf(bill != null) }
-        var isErrorCategory = remember { mutableStateOf(false) }
+        val isErrorCategory = remember { mutableStateOf(false) }
 
         ModalBottomSheet(
             sheetState = modalBottomSheetState,

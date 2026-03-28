@@ -57,12 +57,13 @@ import com.billsAplication.extension.DATE_FORMAT
 import com.billsAplication.presentation.billsList.view.BillsItemList
 import com.billsAplication.presentation.billsList.view.DateItem
 import com.billsAplication.presentation.billsList.view.TotalAmountItem
+import com.billsAplication.presentation.bookmarks.BookmarksDialog
 import com.billsAplication.presentation.components.AddButton
 import com.billsAplication.presentation.components.AmountBar
 import com.billsAplication.presentation.components.ImgBtn
 import com.billsAplication.presentation.components.MonthPicker
 import com.billsAplication.presentation.dialogs.AddBillDialog
-import com.billsAplication.presentation.dialogs.BookmarksDialog
+import com.billsAplication.presentation.dialogs.AnalyticsDialog
 import com.billsAplication.presentation.dialogs.CreateBillDialog
 import com.billsAplication.presentation.dialogs.createBill.ConfirmationDialog
 import com.billsAplication.utils.InterfaceMainActivity
@@ -75,7 +76,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import androidx.core.content.edit
 
 
 class BillsListFragment : Fragment() {
@@ -162,7 +162,11 @@ class BillsListFragment : Fragment() {
         val showDialogDelete = remember { mutableStateOf(false) }
         val showDialogAddBill = remember { mutableStateOf(CreateBillDialog(show = false, bill = null)) }
         val showBookmarksDialog = remember { mutableStateOf(false) }
+        val showAnalyticsDialog = remember { mutableStateOf(false) }
         val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
+        
+        val bills = viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
+
         /**
          * Create dialog for delete Items
          * */
@@ -197,6 +201,15 @@ class BillsListFragment : Fragment() {
             },
             onDismiss = {}
         )
+        
+        /**
+         * Analytics dialog
+         */
+        AnalyticsDialog(
+            showDialog = showAnalyticsDialog,
+            bills = bills.value,
+            onDismiss = {}
+        )
 
         /**
          * Income amount, expense amount, total amount, typeColorAddButton
@@ -210,7 +223,11 @@ class BillsListFragment : Fragment() {
             StateColorButton.CURRENT_TYPE = typeColor
         }
 
-        TopBar(month = month, onBookmarksClick = { showBookmarksDialog.value = true })
+        TopBar(
+            month = month, 
+            onBookmarksClick = { showBookmarksDialog.value = true },
+            onAnalyticsClick = { showAnalyticsDialog.value = true }
+        )
 
         AmountBar(
             incAmountState = incAmountState,
@@ -236,9 +253,6 @@ class BillsListFragment : Fragment() {
         )
 
         Box {
-            val bills =
-                viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
-
             BillsList(
                 bills = bills.value.toMapByDate(),
                 listDeleteItems = listDeleteItems,
@@ -265,7 +279,8 @@ class BillsListFragment : Fragment() {
     @Composable
     fun TopBar(
         month: MutableState<String>,
-        onBookmarksClick: () -> Unit
+        onBookmarksClick: () -> Unit,
+        onAnalyticsClick: () -> Unit
     ) {
         Row(
             horizontalArrangement = Arrangement.Absolute.SpaceBetween,
@@ -285,7 +300,7 @@ class BillsListFragment : Fragment() {
             ) {
                 Spacer(
                     modifier = Modifier
-                        .fillMaxWidth(.5f)
+                        .fillMaxWidth(.4f)
                 )
 
                 ImgBtn(
@@ -293,6 +308,13 @@ class BillsListFragment : Fragment() {
                     description = stringResource(id = R.string.description_bookmarks)
                 ) {
                     onBookmarksClick()
+                }
+
+                ImgBtn(
+                    src = painterResource(id = R.drawable.ic_analytics),
+                    description = stringResource(id = R.string.menu_analytics)
+                ) {
+                    onAnalyticsClick()
                 }
 
                 ImgBtn(
@@ -322,7 +344,7 @@ class BillsListFragment : Fragment() {
         ) {
             val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
 
-            val sortedBills = bills.toSortedMap(
+            val sortedBills = bills.filterKeys { it.isNotEmpty() }.toSortedMap(
                 compareByDescending { dateString ->
                     LocalDate.parse(dateString, formatter)
                 }
@@ -567,8 +589,9 @@ class BillsListFragment : Fragment() {
 
     private fun setSharePrefColors(type: Int) {
         val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
-        sharedPref.edit {
+        with(sharedPref.edit()) {
             putInt(TYPE_BILL, type)
+            apply()
         }
     }
 
