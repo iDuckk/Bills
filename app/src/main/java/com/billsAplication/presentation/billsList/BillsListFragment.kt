@@ -54,6 +54,7 @@ import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_EXPENS
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_INCOME
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EQUALS
 import com.billsAplication.extension.DATE_FORMAT
+import com.billsAplication.presentation.analytics.AnalyticsDialog
 import com.billsAplication.presentation.billsList.view.BillsItemList
 import com.billsAplication.presentation.billsList.view.DateItem
 import com.billsAplication.presentation.billsList.view.TotalAmountItem
@@ -63,7 +64,6 @@ import com.billsAplication.presentation.components.AmountBar
 import com.billsAplication.presentation.components.ImgBtn
 import com.billsAplication.presentation.components.MonthPicker
 import com.billsAplication.presentation.createBillDialog.AddBillDialog
-import com.billsAplication.presentation.analytics.AnalyticsDialog
 import com.billsAplication.presentation.createBillDialog.CreateBillDialog
 import com.billsAplication.presentation.createBillDialog.createBill.ConfirmationDialog
 import com.billsAplication.utils.InterfaceMainActivity
@@ -104,6 +104,7 @@ class BillsListFragment : Fragment() {
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
         private const val TYPE_BILL = "type_bill"
         private const val TAG = "BillsListFragment"
+        private const val FILTER_FULL_LIST = 3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,9 +164,19 @@ class BillsListFragment : Fragment() {
         val showDialogAddBill = remember { mutableStateOf(CreateBillDialog(show = false, bill = null)) }
         val showBookmarksDialog = remember { mutableStateOf(false) }
         val showAnalyticsDialog = remember { mutableStateOf(false) }
+        val isSortDescending = remember { mutableStateOf(true) }
+        val filterState = remember { mutableIntStateOf(FILTER_FULL_LIST) }
         val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
         
         val bills = viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
+
+        val filteredBills = remember(bills.value, filterState.intValue) {
+            if (filterState.intValue == FILTER_FULL_LIST) {
+                bills.value
+            } else {
+                bills.value.filter { it.type == filterState.intValue }
+            }
+        }
 
         /**
          * Create dialog for delete Items
@@ -233,6 +244,8 @@ class BillsListFragment : Fragment() {
             incAmountState = incAmountState,
             expAmountState = expAmountState,
             totalAmountState = totalAmountState,
+            isSortDescending = isSortDescending,
+            filterState = filterState
         )
 
         Divider(
@@ -254,10 +267,11 @@ class BillsListFragment : Fragment() {
 
         Box {
             BillsList(
-                bills = bills.value.toMapByDate(),
+                bills = filteredBills.toMapByDate(),
                 listDeleteItems = listDeleteItems,
                 typeIconAddButton = typeIconAddButton,
-                showDialogAddBill = showDialogAddBill
+                showDialogAddBill = showDialogAddBill,
+                isSortDescending = isSortDescending.value
             )
 
             AddButton(
@@ -334,7 +348,8 @@ class BillsListFragment : Fragment() {
         bills: Map<String, List<BillsItem>>,
         listDeleteItems: SnapshotStateList<List<BillsItem>>,
         typeIconAddButton: MutableIntState,
-        showDialogAddBill: MutableState<CreateBillDialog>
+        showDialogAddBill: MutableState<CreateBillDialog>,
+        isSortDescending: Boolean
     ) {
         LazyColumn(
             modifier = Modifier
@@ -345,8 +360,10 @@ class BillsListFragment : Fragment() {
             val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
 
             val sortedBills = bills.filterKeys { it.isNotEmpty() }.toSortedMap(
-                compareByDescending { dateString ->
-                    LocalDate.parse(dateString, formatter)
+                if (isSortDescending) {
+                    compareByDescending { dateString -> LocalDate.parse(dateString, formatter) }
+                } else {
+                    compareBy { dateString -> LocalDate.parse(dateString, formatter) }
                 }
             )
 

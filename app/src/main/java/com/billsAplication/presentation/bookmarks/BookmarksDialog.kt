@@ -1,7 +1,7 @@
 package com.billsAplication.presentation.bookmarks
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -62,25 +62,30 @@ fun BookmarksDialog(
                     .padding(horizontal = DP_15)
                     .windowInsetsPadding(WindowInsets.ime)
             ) {
-                Row(
+                Box(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = stringResource(R.string.title_bookmarks),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     if (selectedItems.isNotEmpty()) {
-                        ImgBtn(
-                            src = painterResource(id = R.drawable.ic_delete_forever),
-                            description = "Delete"
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
                         ) {
-                            onDeleteBookmarks(selectedItems.toList())
-                            selectedItems.clear()
+                            ImgBtn(
+                                src = painterResource(id = R.drawable.ic_delete_forever),
+                                description = "Delete"
+                            ) {
+                                onDeleteBookmarks(selectedItems.toList())
+                                selectedItems.clear()
+                            }
                         }
                     }
                 }
