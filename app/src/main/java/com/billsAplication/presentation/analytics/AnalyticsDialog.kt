@@ -2,8 +2,8 @@ package com.billsAplication.presentation.analytics
 
 import PieChart
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.billsAplication.R
 import com.billsAplication.domain.model.BillsItem
-import com.billsAplication.presentation.analytics.view.BIllsItemAnalytics
 import com.billsAplication.presentation.analytics.view.ButtonAnalytics
 import com.billsAplication.presentation.analytics.view.ListCategory
 import com.billsAplication.utils.ColorsPie
@@ -34,11 +33,12 @@ fun AnalyticsDialog(
     bills: List<BillsItem>,
     onDismiss: () -> Unit
 ) {
-    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true   // чтобы не было "половинного" состояния
+    )
+
     val isClickedExpenses = remember { mutableStateOf(true) }
     val isClickedIncome = remember { mutableStateOf(false) }
-    
-    val categoryDetails: MutableState<List<BillsItem>> = remember { mutableStateOf(listOf()) }
 
     if (showDialog.value) {
         ModalBottomSheet(
@@ -46,15 +46,15 @@ fun AnalyticsDialog(
             onDismissRequest = {
                 showDialog.value = false
                 onDismiss()
-            },
-            windowInsets = WindowInsets.ime
+            }
         ) {
+            // Главный скроллящийся контент без жёсткого ограничения высоты
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.9f)
                     .padding(horizontal = DP_15)
-                    .windowInsetsPadding(WindowInsets.ime)
+                    .verticalScroll(rememberScrollState())
+                    .imePadding() // если будет клавиатура — полезно
             ) {
                 Text(
                     text = stringResource(R.string.menu_analytics),
@@ -65,22 +65,23 @@ fun AnalyticsDialog(
 
                 Spacer(modifier = Modifier.height(DP_10))
 
+                // Кнопки Expense / Income
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     ButtonAnalytics(
-                        text = stringResource(id = R.string.bill_list_expense),
-                        color = colorResource(id = R.color.text_expense),
+                        text = stringResource(R.string.bill_list_expense),
+                        color = colorResource(R.color.text_expense),
                         isSelected = isClickedExpenses.value
                     ) {
                         isClickedExpenses.value = true
                         isClickedIncome.value = false
                     }
-                    Spacer(Modifier.size(DP_10))
+                    Spacer(Modifier.width(DP_10))
                     ButtonAnalytics(
-                        text = stringResource(id = R.string.bills_list_income),
-                        color = colorResource(id = R.color.text_income),
+                        text = stringResource(R.string.bills_list_income),
+                        color = colorResource(R.color.text_income),
                         isSelected = isClickedIncome.value
                     ) {
                         isClickedIncome.value = true
@@ -88,24 +89,14 @@ fun AnalyticsDialog(
                     }
                 }
 
-                Spacer(Modifier.size(DP_10))
+                Spacer(Modifier.height(DP_10))
 
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    item {
-                        AnalyticsPieContent(
-                            isExpensesType = isClickedExpenses.value,
-                            categoryDetails = categoryDetails,
-                            bills = bills
-                        )
-                    }
-                    items(items = categoryDetails.value, key = { it.id }) { item ->
-                        BIllsItemAnalytics(
-                            item = item,
-                            smallDp = 5.dp,
-                            bigDp = DP_10
-                        )
-                    }
-                }
+                AnalyticsPieContent(
+                    isExpensesType = isClickedExpenses.value,
+                    bills = bills
+                )
+
+                Spacer(modifier = Modifier.height(DP_15))
             }
         }
     }
@@ -114,7 +105,6 @@ fun AnalyticsDialog(
 @Composable
 private fun AnalyticsPieContent(
     isExpensesType: Boolean,
-    categoryDetails: MutableState<List<BillsItem>>,
     bills: List<BillsItem>
 ) {
     val chartValuesState = remember { mutableStateOf(listOf(0f)) }
@@ -153,27 +143,34 @@ private fun AnalyticsPieContent(
             chartColorsState.value = chartColors
             chartCategoryState.value = chartCategory
         }
-        categoryDetails.value = emptyList() 
     }
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         ListCategory(
             chartColorsState = chartColorsState,
             chartCategoryState = chartCategoryState,
             bigDp = DP_10
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // ← Вот здесь главное изменение
         PieChart(
-            modifier = Modifier.padding(20.dp),
-            type = if (isExpensesType) stringResource(id = R.string.bill_list_expense) else stringResource(id = R.string.bills_list_income),
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .fillMaxWidth()
+                .aspectRatio(1f)           // квадрат остаётся
+                .heightIn(max = 320.dp),   // ← ограничиваем максимальную высоту чарта
+            type = if (isExpensesType) stringResource(R.string.bill_list_expense)
+            else stringResource(R.string.bills_list_income),
             colors = chartColorsState.value,
             inputValues = chartValuesState.value,
             textColor = Color.DarkGray
-        ) { indexCategory ->
-            if (indexCategory >= 0 && indexCategory < chartCategoryState.value.size) {
-                val selectedCategory = chartCategoryState.value[indexCategory]
-                categoryDetails.value = filteredBills.filter { it.category == selectedCategory }
-            }
+        ) {
+            // No action needed
         }
     }
 }
