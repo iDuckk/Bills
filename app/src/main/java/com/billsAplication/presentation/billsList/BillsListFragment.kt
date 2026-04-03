@@ -407,6 +407,7 @@ class BillsListFragment : Fragment() {
         listCategory: MutableState<List<BillsItem>>
     ) {
         AddBillDialog(
+            viewModel = viewModel,
             showDialog = showDialogAddBill,
             listCategory = listCategory,
             getListCategory = { type ->

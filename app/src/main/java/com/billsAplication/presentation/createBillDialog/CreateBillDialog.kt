@@ -29,6 +29,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,6 +58,7 @@ import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
 import com.billsAplication.extension.convertDateToMonthYear
 import com.billsAplication.extension.convertTo12HourFormat
 import com.billsAplication.extension.convertTo24HourFormat
+import com.billsAplication.presentation.billsList.BillsListViewModel
 import com.billsAplication.presentation.createBillDialog.createBill.AddBtnBlock
 import com.billsAplication.presentation.createBillDialog.createBill.CategoryBlock
 import com.billsAplication.presentation.createBillDialog.createBill.DateTimeBlock
@@ -77,6 +79,7 @@ import java.util.Base64
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBillDialog(
+    viewModel: BillsListViewModel,
     showDialog: MutableState<CreateBillDialog>,
     listCategory: MutableState<List<BillsItem>>,
     getListCategory: (Int) -> Unit,
@@ -100,8 +103,10 @@ fun AddBillDialog(
         val category = remember { mutableStateOf(bill?.category ?: "") }
         val newCategory = remember { mutableStateOf("") }
         val amount = remember { mutableStateOf(TextFieldValue(bill?.amount ?: "")) }
-        val note = remember { mutableStateOf(bill?.note ?: "") }
+        val note = remember { mutableStateOf(TextFieldValue(bill?.note ?: "")) }
         val description = remember { mutableStateOf(bill?.description ?: "") }
+        val suggestions = remember { mutableStateOf(emptyList<String>()) }
+
         var images by remember {
             mutableStateOf(
                 bill?.let { it ->
@@ -118,6 +123,13 @@ fun AddBillDialog(
         var previewImage by remember { mutableStateOf<ByteArray?>(null) }
         val dismissPreview = { previewImage = null }
         var tempPhotoFile by remember { mutableStateOf<File?>(null) }
+
+        // Загружаем уникальные заметки при открытии диалога
+        LaunchedEffect(Unit) {
+            viewModel.getUniqueNotes { list ->
+                suggestions.value = list
+            }
+        }
 
         val processImage = { bitmap: Bitmap ->
             val widthPhoto = 600f
@@ -208,14 +220,14 @@ fun AddBillDialog(
                             if (category.value.isNotEmpty()) {
                                 onAddBill(
                                     BillsItem(
-                                        id = 0,
+                                        id = if (bill != null) bill.id else 0,
                                         type = type.intValue,
                                         month = convertDateToMonthYear(date.value),
                                         date = date.value,
                                         time = convertTo24HourFormat(time.value),
                                         category = category.value,
                                         amount = amount.value.text.ifEmpty { "0.0" },
-                                        note = note.value,
+                                        note = note.value.text,
                                         description = description.value,
                                         bookmark = true,
                                         image1 = images.getOrNull(0) ?: "",
@@ -236,8 +248,8 @@ fun AddBillDialog(
                     DateTimeBlock(
                         date = date,
                         time = time,
-                        isEditable = isEditable,
-                        type = type,
+                        isEditable = isEditable.value,
+                        type = type.intValue,
                         showDatePicker = showDatePicker,
                         showTimePicker = showTimePicker,
                         showCategoryPicker = showCategoryPicker,
@@ -248,8 +260,8 @@ fun AddBillDialog(
                         listCategory = listCategory,
                         category = category,
                         newCategory = newCategory,
-                        isEditable = isEditable,
-                        type = type,
+                        isEditable = isEditable.value,
+                        type = type.intValue,
                         showCategoryPicker = showCategoryPicker,
                         onAddNewCategory = { newItem ->
                             onAddBill(newItem)
@@ -258,14 +270,15 @@ fun AddBillDialog(
                             onDeleteCategory.invoke(bill)
                         }
                     )
-//TODO Убрать AUTOCOMPLETE текст NOTE
+
                     InputTextBlock(
                         amount = amount,
                         note = note,
                         description = description,
-                        isEditable = isEditable,
-                        type = type,
+                        isEditable = isEditable.value,
+                        type = type.intValue,
                         showCategoryPicker = showCategoryPicker,
+                        suggestions = suggestions.value
                     )
 
                     Spacer(Modifier.height(DP_10))
@@ -376,7 +389,7 @@ fun AddBillDialog(
                     category.value = ""
                     newCategory.value = ""
                     amount.value = TextFieldValue("")
-                    note.value = ""
+                    note.value = TextFieldValue("")
                     description.value = ""
                     images = listOf()
                     showCategoryPicker.value = false

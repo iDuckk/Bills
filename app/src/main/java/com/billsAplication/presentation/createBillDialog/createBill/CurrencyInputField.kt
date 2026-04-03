@@ -5,7 +5,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,8 +24,8 @@ import com.billsAplication.utils.StateColorButton.Companion.getColorType
 @Composable
 fun CurrencyInputField(
     value: TextFieldValue,
-    type: MutableState<Int>,
-    isEditable: MutableState<Boolean>,
+    type: Int,
+    isEditable: Boolean,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -60,13 +59,13 @@ fun CurrencyInputField(
             onValueChange(
                 TextFieldValue(
                     text = formatted.take(20),
-                    selection = TextRange(formatted.take(20).length) // курсор в конец
+                    selection = TextRange(formatted.take(20).length)
                 )
             )
             isFormatting = false
         },
         label = { Text(stringResource(R.string.title_amount)) },
-        enabled = isEditable.value,
+        enabled = isEditable,
         trailingIcon = {
             Text(
                 text = CurrentCurrency.currency,
@@ -76,11 +75,11 @@ fun CurrencyInputField(
         singleLine = true,
         modifier = modifier,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = getColorType(context = context, type = type.value),
+            focusedBorderColor = getColorType(context = context, type = type),
             unfocusedBorderColor = Color.Gray,
             disabledBorderColor = Color.Gray,
             errorBorderColor = Color.Red,
-            focusedLabelColor = getColorType(context = context, type = type.value),
+            focusedLabelColor = getColorType(context = context, type = type),
             unfocusedLabelColor = Color.Gray,
             disabledLabelColor = Color.Gray,
             errorLabelColor = Color.Red,

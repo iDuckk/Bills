@@ -47,6 +47,9 @@ interface BillDao {
     @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
     fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
 
+    @Query("SELECT DISTINCT note FROM bills_list WHERE note != ''")
+    fun getUniqueNotes(): List<String>
+
     /**
      * Старые DAO
      * */
