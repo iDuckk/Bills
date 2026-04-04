@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,16 +11,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.billsAplication.R
+import com.billsAplication.presentation.components.AutoCompleteInputText
 import com.billsAplication.presentation.components.InputText
 
 @Composable
 fun InputTextBlock(
     amount: MutableState<TextFieldValue>,
-    note: MutableState<String>,
+    note: MutableState<TextFieldValue>,
     description: MutableState<String>,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     showCategoryPicker: MutableState<Boolean>,
+    suggestions: List<String> = emptyList()
 ) {
     // Amount
     CurrencyInputField(
@@ -35,10 +37,32 @@ fun InputTextBlock(
             }
     )
 
-    // Note
-    InputText(
+    // Note with AutoComplete
+    AutoCompleteInputText(
         label = stringResource(R.string.title_note),
         value = note,
+        suggestions = suggestions,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+        ),
+        isEditable = isEditable,
+        type = type,
+        modifier = Modifier
+            .onFocusChanged {
+                if (it.isFocused) showCategoryPicker.value = false
+            }
+            .fillMaxWidth(),
+        onValueChange = { newValue ->
+            if (newValue.text.length <= 50) {
+                note.value = newValue
+            }
+        }
+    )
+
+    // Description
+    InputText(
+        label = stringResource(R.string.title_description),
+        value = description.value,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
         ),
@@ -50,25 +74,8 @@ fun InputTextBlock(
             }
             .fillMaxWidth(),
         onValueChange = { newText ->
-            note.value = newText.take(20)
+            description.value = newText
         },
-        onDone = {}
-    )
-
-    // Description
-    InputText(
-        label = stringResource(R.string.title_description),
-        value = description,
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
-        ),
-        isEditable = isEditable,
-        type = type,
-        modifier = Modifier
-            .onFocusChanged {
-                if (it.isFocused) showCategoryPicker.value = false
-            }
-            .fillMaxWidth(),
         onDone = {}
     )
 }

@@ -72,6 +72,8 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         return mapper.mapBillEntityToBillItemList(billDao.getCategoryList(type))
     }
 
+    override fun getUniqueNotes(): List<String> = billDao.getUniqueNotes()
+
     /**
      * Old repo
      * */

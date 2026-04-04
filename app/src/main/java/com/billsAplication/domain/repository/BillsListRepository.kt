@@ -28,6 +28,10 @@ interface BillsListRepository {
 
     fun getMonthListFlow(month : String) : Flow<ArrayList<BillsItem>>
 
+    fun getCategoryList(type : Int) : List<BillsItem>
+
+    fun getUniqueNotes(): List<String>
+
     /**
      * Old repo
      * */
@@ -43,8 +47,6 @@ interface BillsListRepository {
     fun getMonthList(month : String) : ArrayList<BillsItem>
 
     suspend fun updateItem(item : BillsItem)
-
-    fun getCategoryList(type : Int) : List<BillsItem>
 
     suspend fun getTypeList(type : Int) : List<BillsItem>
 

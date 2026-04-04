@@ -54,17 +54,18 @@ import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_EXPENS
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_INCOME
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EQUALS
 import com.billsAplication.extension.DATE_FORMAT
+import com.billsAplication.presentation.analytics.AnalyticsDialog
 import com.billsAplication.presentation.billsList.view.BillsItemList
 import com.billsAplication.presentation.billsList.view.DateItem
 import com.billsAplication.presentation.billsList.view.TotalAmountItem
+import com.billsAplication.presentation.bookmarks.BookmarksDialog
 import com.billsAplication.presentation.components.AddButton
 import com.billsAplication.presentation.components.AmountBar
 import com.billsAplication.presentation.components.ImgBtn
 import com.billsAplication.presentation.components.MonthPicker
-import com.billsAplication.presentation.dialogs.AddBillDialog
-import com.billsAplication.presentation.dialogs.BookmarksDialog
-import com.billsAplication.presentation.dialogs.CreateBillDialog
-import com.billsAplication.presentation.dialogs.createBill.ConfirmationDialog
+import com.billsAplication.presentation.createBillDialog.AddBillDialog
+import com.billsAplication.presentation.createBillDialog.CreateBillDialog
+import com.billsAplication.presentation.createBillDialog.createBill.ConfirmationDialog
 import com.billsAplication.utils.InterfaceMainActivity
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.PagingConstants.DP_5
@@ -75,7 +76,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import androidx.core.content.edit
 
 
 class BillsListFragment : Fragment() {
@@ -104,6 +104,7 @@ class BillsListFragment : Fragment() {
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
         private const val TYPE_BILL = "type_bill"
         private const val TAG = "BillsListFragment"
+        private const val FILTER_FULL_LIST = 3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,6 +123,7 @@ class BillsListFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //todo удалить Drawable
         //TODO
         initRecView()
         //TODO
@@ -162,7 +164,21 @@ class BillsListFragment : Fragment() {
         val showDialogDelete = remember { mutableStateOf(false) }
         val showDialogAddBill = remember { mutableStateOf(CreateBillDialog(show = false, bill = null)) }
         val showBookmarksDialog = remember { mutableStateOf(false) }
+        val showAnalyticsDialog = remember { mutableStateOf(false) }
+        val isSortDescending = remember { mutableStateOf(true) }
+        val filterState = remember { mutableIntStateOf(FILTER_FULL_LIST) }
         val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
+        
+        val bills = viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
+
+        val filteredBills = remember(bills.value, filterState.intValue) {
+            if (filterState.intValue == FILTER_FULL_LIST) {
+                bills.value
+            } else {
+                bills.value.filter { it.type == filterState.intValue }
+            }
+        }
+
         /**
          * Create dialog for delete Items
          * */
@@ -197,6 +213,15 @@ class BillsListFragment : Fragment() {
             },
             onDismiss = {}
         )
+        
+        /**
+         * Analytics dialog
+         */
+        AnalyticsDialog(
+            showDialog = showAnalyticsDialog,
+            bills = bills.value,
+            onDismiss = {}
+        )
 
         /**
          * Income amount, expense amount, total amount, typeColorAddButton
@@ -210,12 +235,18 @@ class BillsListFragment : Fragment() {
             StateColorButton.CURRENT_TYPE = typeColor
         }
 
-        TopBar(month = month, onBookmarksClick = { showBookmarksDialog.value = true })
+        TopBar(
+            month = month, 
+            onBookmarksClick = { showBookmarksDialog.value = true },
+            onAnalyticsClick = { showAnalyticsDialog.value = true }
+        )
 
         AmountBar(
             incAmountState = incAmountState,
             expAmountState = expAmountState,
             totalAmountState = totalAmountState,
+            isSortDescending = isSortDescending,
+            filterState = filterState
         )
 
         Divider(
@@ -236,14 +267,12 @@ class BillsListFragment : Fragment() {
         )
 
         Box {
-            val bills =
-                viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
-
             BillsList(
-                bills = bills.value.toMapByDate(),
+                bills = filteredBills.toMapByDate(),
                 listDeleteItems = listDeleteItems,
                 typeIconAddButton = typeIconAddButton,
-                showDialogAddBill = showDialogAddBill
+                showDialogAddBill = showDialogAddBill,
+                isSortDescending = isSortDescending.value
             )
 
             AddButton(
@@ -265,7 +294,8 @@ class BillsListFragment : Fragment() {
     @Composable
     fun TopBar(
         month: MutableState<String>,
-        onBookmarksClick: () -> Unit
+        onBookmarksClick: () -> Unit,
+        onAnalyticsClick: () -> Unit
     ) {
         Row(
             horizontalArrangement = Arrangement.Absolute.SpaceBetween,
@@ -285,7 +315,7 @@ class BillsListFragment : Fragment() {
             ) {
                 Spacer(
                     modifier = Modifier
-                        .fillMaxWidth(.5f)
+                        .fillMaxWidth(.4f)
                 )
 
                 ImgBtn(
@@ -293,6 +323,13 @@ class BillsListFragment : Fragment() {
                     description = stringResource(id = R.string.description_bookmarks)
                 ) {
                     onBookmarksClick()
+                }
+
+                ImgBtn(
+                    src = painterResource(id = R.drawable.ic_analytics),
+                    description = stringResource(id = R.string.menu_analytics)
+                ) {
+                    onAnalyticsClick()
                 }
 
                 ImgBtn(
@@ -312,7 +349,8 @@ class BillsListFragment : Fragment() {
         bills: Map<String, List<BillsItem>>,
         listDeleteItems: SnapshotStateList<List<BillsItem>>,
         typeIconAddButton: MutableIntState,
-        showDialogAddBill: MutableState<CreateBillDialog>
+        showDialogAddBill: MutableState<CreateBillDialog>,
+        isSortDescending: Boolean
     ) {
         LazyColumn(
             modifier = Modifier
@@ -322,9 +360,11 @@ class BillsListFragment : Fragment() {
         ) {
             val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
 
-            val sortedBills = bills.toSortedMap(
-                compareByDescending { dateString ->
-                    LocalDate.parse(dateString, formatter)
+            val sortedBills = bills.filterKeys { it.isNotEmpty() }.toSortedMap(
+                if (isSortDescending) {
+                    compareByDescending { dateString -> LocalDate.parse(dateString, formatter) }
+                } else {
+                    compareBy { dateString -> LocalDate.parse(dateString, formatter) }
                 }
             )
 
@@ -368,6 +408,7 @@ class BillsListFragment : Fragment() {
         listCategory: MutableState<List<BillsItem>>
     ) {
         AddBillDialog(
+            viewModel = viewModel,
             showDialog = showDialogAddBill,
             listCategory = listCategory,
             getListCategory = { type ->
@@ -567,8 +608,9 @@ class BillsListFragment : Fragment() {
 
     private fun setSharePrefColors(type: Int) {
         val sharedPref = requireActivity().getPreferences(AppCompatActivity.MODE_PRIVATE) ?: return
-        sharedPref.edit {
+        with(sharedPref.edit()) {
             putInt(TYPE_BILL, type)
+            apply()
         }
     }
 

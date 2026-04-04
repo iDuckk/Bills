@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.dateTime
+package com.billsAplication.presentation.createBillDialog.dateTime
 
 import androidx.compose.foundation.background
 import androidx.compose.material3.DatePicker

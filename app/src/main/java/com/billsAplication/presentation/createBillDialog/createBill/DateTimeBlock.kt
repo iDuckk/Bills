@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -19,8 +19,8 @@ import com.billsAplication.R
 import com.billsAplication.extension.localCurrentDate
 import com.billsAplication.extension.localCurrentTime
 import com.billsAplication.presentation.components.InputText
-import com.billsAplication.presentation.dialogs.dateTime.DatePickerModal
-import com.billsAplication.presentation.dialogs.dateTime.TimePickerModal
+import com.billsAplication.presentation.createBillDialog.dateTime.DatePickerModal
+import com.billsAplication.presentation.createBillDialog.dateTime.TimePickerModal
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.StateColorButton.Companion.getColorType
 
@@ -28,8 +28,8 @@ import com.billsAplication.utils.StateColorButton.Companion.getColorType
 fun DateTimeBlock(
     date: MutableState<String>,
     time: MutableState<String>,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     showDatePicker: MutableState<Boolean>,
     showTimePicker: MutableState<Boolean>,
     showCategoryPicker: MutableState<Boolean>,
@@ -38,7 +38,7 @@ fun DateTimeBlock(
     val context = LocalContext.current
     if (showDatePicker.value) {
         DatePickerModal(
-            color = getColorType(context = context, type = type.value),
+            color = getColorType(context = context, type = type),
             onDateSelected = { selectedDate ->
                 date.value = selectedDate
                 focusManager.clearFocus()
@@ -52,7 +52,7 @@ fun DateTimeBlock(
 
     if (showTimePicker.value) {
         TimePickerModal(
-            color = getColorType(context = context, type = type.value),
+            color = getColorType(context = context, type = type),
             onTimeSelected = { selectedTime ->
                 time.value = selectedTime
                 focusManager.clearFocus()
@@ -77,7 +77,7 @@ fun DateTimeBlock(
 
         InputText(
             label = stringResource(R.string.title_date),
-            value = date,
+            value = date.value,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
             isEditable = isEditable,
             readOnly = true,
@@ -88,6 +88,7 @@ fun DateTimeBlock(
                     if (it.isFocused) showCategoryPicker.value = false
                     showDatePicker.value = it.isFocused
                 },
+            onValueChange = { date.value = it },
             onDone = {}
         )
 
@@ -95,7 +96,7 @@ fun DateTimeBlock(
 
         InputText(
             label = stringResource(R.string.title_time),
-            value = time,
+            value = time.value,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
             isEditable = isEditable,
             readOnly = true,
@@ -106,6 +107,7 @@ fun DateTimeBlock(
                     if (it.isFocused) showCategoryPicker.value = false
                     showTimePicker.value = it.isFocused
                 },
+            onValueChange = { time.value = it },
             onDone = {}
         )
     }

@@ -12,6 +12,7 @@ import com.billsAplication.domain.billsUseCases.GetCategoryListUseCase
 import com.billsAplication.domain.billsUseCases.GetBookmarksUseCase
 import com.billsAplication.domain.billsUseCases.UpdateBillItemUseCase
 import com.billsAplication.domain.billsUseCases.room.GetBillsListFlowUseCase
+import com.billsAplication.domain.billsUseCases.room.GetUniqueNotesUseCase
 import com.billsAplication.domain.billsUseCases.room.SummaryAmountUseCase
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
@@ -35,7 +36,8 @@ class BillsListViewModel @Inject constructor(
     private val addBill: AddBillItemUseCase,
     private val getCategoryListUseCase: GetCategoryListUseCase,
     private val getBookmarksUseCase: GetBookmarksUseCase,
-    private val updateBillItemUseCase: UpdateBillItemUseCase
+    private val updateBillItemUseCase: UpdateBillItemUseCase,
+    private val getUniqueNotesUseCase: GetUniqueNotesUseCase,
 ) : ViewModel() {
 
 
@@ -97,5 +99,10 @@ class BillsListViewModel @Inject constructor(
         }
     }
 
+    fun getUniqueNotes(list: (List<String>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + exception) {
+            list.invoke(getUniqueNotesUseCase.invoke())
+        }
+    }
 
 }

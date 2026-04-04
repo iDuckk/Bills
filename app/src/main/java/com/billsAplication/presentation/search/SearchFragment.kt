@@ -619,7 +619,8 @@ class SearchFragment : Fragment() {
         billAdapter.onClickListenerBillItem = {
             bundle.putInt(ADD_BILL_KEY, UPDATE_TYPE_SEARCH)
             bundle.putParcelable(BILL_ITEM_KEY, it)
-            findNavController().navigate(R.id.action_searchFragment_to_addBillFragment, bundle)
+            // Здесь открывается новый диалог изменения счета
+//            findNavController().navigate(R.id.action_searchFragment_to_addBillFragment, bundle)
         }
 
         billAdapter.onLongClickListenerBillItem = {

@@ -1,4 +1,4 @@
-package com.billsAplication.presentation.dialogs.createBill
+package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -54,8 +54,8 @@ fun CategoryBlock(
     listCategory: MutableState<List<BillsItem>>,
     category: MutableState<String>,
     newCategory: MutableState<String>,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     showCategoryPicker: MutableState<Boolean>,
     onAddNewCategory: (BillsItem) -> Unit,
     onDeleteCategory: (BillsItem) -> Unit
@@ -63,7 +63,7 @@ fun CategoryBlock(
     // Category
     InputText(
         label = stringResource(R.string.title_category),
-        value = category,
+        value = category.value,
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
         isEditable = isEditable,
         readOnly = true,
@@ -78,6 +78,7 @@ fun CategoryBlock(
             .onFocusChanged {
                 if (it.isFocused) showCategoryPicker.value = true
             },
+        onValueChange = { category.value = it },
         onDone = {}
     )
     if (isErrorCategory.value) {
@@ -107,8 +108,8 @@ fun CategoryBlock(
 @Composable
 private fun NewCategoryCard(
     newCategory: MutableState<String>,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     listCategory: MutableState<List<BillsItem>>,
     category: MutableState<String>,
     showCategoryPicker: MutableState<Boolean>,
@@ -177,8 +178,8 @@ private fun NewCategoryCard(
 @Composable
 private fun NewCategoryInputText(
     newCategory: MutableState<String>,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     showDeleteBtn: MutableState<Int>,
     onAddNewCategory: (BillsItem) -> Unit,
 ) {
@@ -186,7 +187,7 @@ private fun NewCategoryInputText(
 
     InputText(
         label = stringResource(R.string.type_new_category),
-        value = newCategory,
+        value = newCategory.value,
         onValueChange = { newCategory.value = it.take(15) },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
         isEditable = isEditable,
@@ -195,7 +196,7 @@ private fun NewCategoryInputText(
             IconButton(onClick = {
                 if (newCategory.value.isNotEmpty()) {
                     val bill = createBill(
-                        typeCategory = if (type.value == TYPE_EXPENSES) TYPE_CATEGORY_EXPENSES else TYPE_CATEGORY_INCOME,
+                        typeCategory = if (type == TYPE_EXPENSES) TYPE_CATEGORY_EXPENSES else TYPE_CATEGORY_INCOME,
                         text = newCategory.value
                     )
                     onAddNewCategory.invoke(bill)

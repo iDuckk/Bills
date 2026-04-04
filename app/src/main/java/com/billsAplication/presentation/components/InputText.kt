@@ -15,43 +15,95 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import com.billsAplication.utils.StateColorButton.Companion.getColorType
 
 @Composable
 fun InputText(
     label: String,
     textStyle: TextStyle = LocalTextStyle.current.copy(),
-    value: MutableState<String>,
+    value: String,
     isError: MutableState<Boolean> = mutableStateOf(false),
     trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions,
-    isEditable: MutableState<Boolean>,
-    type: MutableState<Int>,
+    isEditable: Boolean,
+    type: Int,
     readOnly: Boolean = false,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-    onValueChange: (String) -> Unit = { value.value = it },
+    onValueChange: (String) -> Unit,
     onDone: () -> Unit,
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
-        value = value.value,
+        value = value,
         onValueChange = onValueChange,
         label = { Text(text = label) },
         keyboardOptions = keyboardOptions,
-        enabled = isEditable.value,
+        enabled = isEditable,
         readOnly = readOnly,
         singleLine = true,
         textStyle = textStyle,
         isError = isError.value,
         trailingIcon = trailingIcon,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = getColorType(context = context, type = type.value),
+            focusedBorderColor = getColorType(context = context, type = type),
             unfocusedBorderColor = Color.Gray,
             disabledBorderColor = Color.Gray,
             errorBorderColor = Color.Red,
-            focusedLabelColor = getColorType(context = context, type = type.value),
+            focusedLabelColor = getColorType(context = context, type = type),
+            unfocusedLabelColor = Color.Gray,
+            disabledLabelColor = Color.Gray,
+            errorLabelColor = Color.Red,
+            disabledTextColor = Color.DarkGray,
+            focusedTextColor = Color.DarkGray,
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+                onDone.invoke()
+            }
+        ),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun InputTextValue(
+    label: String,
+    textStyle: TextStyle = LocalTextStyle.current.copy(),
+    value: TextFieldValue,
+    isError: MutableState<Boolean> = mutableStateOf(false),
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions,
+    isEditable: Boolean,
+    type: Int,
+    readOnly: Boolean = false,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
+    onValueChange: (TextFieldValue) -> Unit,
+    onDone: () -> Unit,
+) {
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        keyboardOptions = keyboardOptions,
+        enabled = isEditable,
+        readOnly = readOnly,
+        singleLine = true,
+        textStyle = textStyle,
+        isError = isError.value,
+        trailingIcon = trailingIcon,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = getColorType(context = context, type = type),
+            unfocusedBorderColor = Color.Gray,
+            disabledBorderColor = Color.Gray,
+            errorBorderColor = Color.Red,
+            focusedLabelColor = getColorType(context = context, type = type),
             unfocusedLabelColor = Color.Gray,
             disabledLabelColor = Color.Gray,
             errorLabelColor = Color.Red,
