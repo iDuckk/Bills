@@ -7,12 +7,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ListAdapter
 import com.billsAplication.R
-import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.databinding.BillItemSearchBinding
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.utils.CurrentCurrency

@@ -1,7 +1,6 @@
 package com.billsAplication.presentation.adapter.search_analytics
 
 import androidx.recyclerview.widget.RecyclerView
-import com.billsAplication.databinding.BillItemBinding
 import com.billsAplication.databinding.BillItemSearchBinding
 
 class BillViewHolder_SA(binding: BillItemSearchBinding) : RecyclerView.ViewHolder(binding.root) {

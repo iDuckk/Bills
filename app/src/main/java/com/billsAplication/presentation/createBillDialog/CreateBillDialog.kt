@@ -75,7 +75,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
 
-
+//todo не появляяется сразу категория после добавления
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBillDialog(

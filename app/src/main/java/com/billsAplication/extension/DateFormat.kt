@@ -8,9 +8,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 
-val DATE_FORMAT = "dd/MM/yyyy"
-val TIME_FORMAT_12 = "hh:mm a"
-val TIME_FORMAT_24 = "HH:mm"
+const val DATE_FORMAT = "dd/MM/yyyy"
+const val TIME_FORMAT_12 = "hh:mm a"
+const val TIME_FORMAT_24 = "HH:mm"
 
 /***
  * DATE
