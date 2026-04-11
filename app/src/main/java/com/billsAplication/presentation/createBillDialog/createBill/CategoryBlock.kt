@@ -2,13 +2,14 @@ package com.billsAplication.presentation.createBillDialog.createBill
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -28,22 +30,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.billsAplication.R
-import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_EXPENSES
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_CATEGORY_INCOME
 import com.billsAplication.domain.model.BillsItem.Companion.TYPE_EXPENSES
-import com.billsAplication.presentation.components.ImgBtn
+import com.billsAplication.domain.model.CategoryBillItem
 import com.billsAplication.presentation.components.InputText
 import com.billsAplication.utils.PagingConstants.DP_10
 import com.billsAplication.utils.PagingConstants.DP_5
@@ -51,14 +51,14 @@ import com.billsAplication.utils.PagingConstants.DP_5
 @Composable
 fun CategoryBlock(
     isErrorCategory: MutableState<Boolean>,
-    listCategory: MutableState<List<BillsItem>>,
+    listCategory: List<CategoryBillItem>,
     category: MutableState<String>,
     newCategory: MutableState<String>,
     isEditable: Boolean,
     type: Int,
     showCategoryPicker: MutableState<Boolean>,
-    onAddNewCategory: (BillsItem) -> Unit,
-    onDeleteCategory: (BillsItem) -> Unit
+    onAddNewCategory: (CategoryBillItem) -> Unit,
+    onDeleteCategory: (CategoryBillItem) -> Unit
 ) {
     // Category
     InputText(
@@ -85,7 +85,8 @@ fun CategoryBlock(
         Text(
             text = stringResource(R.string.toast_fill_category),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = DP_10)
         )
     }
 
@@ -110,12 +111,12 @@ private fun NewCategoryCard(
     newCategory: MutableState<String>,
     isEditable: Boolean,
     type: Int,
-    listCategory: MutableState<List<BillsItem>>,
+    listCategory: List<CategoryBillItem>,
     category: MutableState<String>,
     showCategoryPicker: MutableState<Boolean>,
     isErrorCategory: MutableState<Boolean>,
-    onAddNewCategory: (BillsItem) -> Unit,
-    onDeleteCategory: (BillsItem) -> Unit
+    onAddNewCategory: (CategoryBillItem) -> Unit,
+    onDeleteCategory: (CategoryBillItem) -> Unit
 ) {
     val showDeleteBtn = remember { mutableStateOf(0) }
     val focusManager = LocalFocusManager.current
@@ -136,8 +137,14 @@ private fun NewCategoryCard(
 
             Spacer(Modifier.height(DP_10))
 
-            LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                items(listCategory.value.distinctBy { it.category }) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.heightIn(max = 300.dp)
+            ) {
+                items(
+                    items = listCategory.sortedBy { it.category },
+                    key = { it.id } 
+                ) { item ->
                     Card(
                         modifier = Modifier
                             .padding(DP_5)
@@ -145,16 +152,16 @@ private fun NewCategoryCard(
                             .combinedClickable(
                                 onLongClick = {
                                     focusManager.clearFocus()
-                                    showDeleteBtn.value = it.id
+                                    showDeleteBtn.value = item.id
                                 },
                                 onClick = {
-                                    if (showDeleteBtn.value == it.id) {
+                                    if (showDeleteBtn.value == item.id) {
                                         showDeleteBtn.value = 0
                                     } else {
                                         showDeleteBtn.value = 0
-                                        if (it.category.isNotEmpty()) {
+                                        if (item.category.isNotEmpty()) {
                                             isErrorCategory.value = false
-                                            category.value = it.category
+                                            category.value = item.category
                                             showCategoryPicker.value = false
                                             focusManager.clearFocus()
                                         }
@@ -163,10 +170,9 @@ private fun NewCategoryCard(
                             )
                     ) {
                         CategoryItem(
-                            it = it,
+                            it = item,
                             showDeleteBtn = showDeleteBtn,
-                            onDeleteCategory = onDeleteCategory,
-                            listCategory = listCategory
+                            onDeleteCategory = onDeleteCategory
                         )
                     }
                 }
@@ -181,7 +187,7 @@ private fun NewCategoryInputText(
     isEditable: Boolean,
     type: Int,
     showDeleteBtn: MutableState<Int>,
-    onAddNewCategory: (BillsItem) -> Unit,
+    onAddNewCategory: (CategoryBillItem) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -195,11 +201,12 @@ private fun NewCategoryInputText(
         trailingIcon = {
             IconButton(onClick = {
                 if (newCategory.value.isNotEmpty()) {
-                    val bill = createBill(
+                    val categoryItem = CategoryBillItem(
+                        id = 0,
                         typeCategory = if (type == TYPE_EXPENSES) TYPE_CATEGORY_EXPENSES else TYPE_CATEGORY_INCOME,
-                        text = newCategory.value
+                        category = newCategory.value
                     )
-                    onAddNewCategory.invoke(bill)
+                    onAddNewCategory.invoke(categoryItem)
                     focusManager.clearFocus()
                     newCategory.value = ""
                 }
@@ -218,51 +225,40 @@ private fun NewCategoryInputText(
 
 @Composable
 private fun CategoryItem(
-    it: BillsItem,
+    it: CategoryBillItem,
     showDeleteBtn: MutableState<Int>,
-    onDeleteCategory: (BillsItem) -> Unit,
-    listCategory: MutableState<List<BillsItem>>
+    onDeleteCategory: (CategoryBillItem) -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
-            .padding(DP_10)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxWidth()
+            .height(48.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = it.category,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
-        ImgBtn(
-            modifier = Modifier.alpha(
-                if (showDeleteBtn.value == it.id) 1f else 0f
-            ),
-            src = painterResource(R.drawable.ic_close),
-            description = stringResource(R.string.b_delete_note),
-            onClick = {
-                if (showDeleteBtn.value == it.id) {
-                    onDeleteCategory.invoke(it)
-                    showDeleteBtn.value = 0
-                    listCategory.value =
-                        listCategory.value.filter { bill -> bill.id != it.id }
+        if (showDeleteBtn.value == it.id) {
+                IconButton(
+                    onClick = {
+                        onDeleteCategory.invoke(it)
+                        showDeleteBtn.value = 0
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(24.dp) 
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.b_delete_note),
+                        tint = Color.Red,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
             }
-        )
+        }
     }
-}
-
-private fun createBill(typeCategory: Int, text: String) = BillsItem(
-    0,
-    type = typeCategory,
-    "",
-    "",
-    "",
-    category = text,
-    "",
-    "",
-    "",
-    false, "", "", "", "", ""
-)

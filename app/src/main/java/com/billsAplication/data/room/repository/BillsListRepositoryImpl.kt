@@ -8,6 +8,7 @@ import com.billsAplication.data.room.billsDb.BillDao
 import com.billsAplication.data.room.billsDb.BillDatabase
 import com.billsAplication.data.room.mapper.BillMapper
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.CategoryBillItem
 import com.billsAplication.domain.model.NoteItem
 import com.billsAplication.domain.repository.BillsListRepository
 import kotlinx.coroutines.flow.Flow
@@ -68,11 +69,21 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         mapper.mapBillEntityToBillItemList(list = it)
     }
 
-    override fun getCategoryList(type: Int): List<BillsItem> {
-        return mapper.mapBillEntityToBillItemList(billDao.getCategoryList(type))
+    override fun getUniqueNotes(): List<String> = billDao.getUniqueNotes()
+
+    override fun getCategoryListFlow(type: Int): Flow<List<CategoryBillItem>> {
+        return billDao.getCategoryListFlow(type).map {
+            mapper.mapCategoryBillEntityListToCategoryBillItemList(it)
+        }
     }
 
-    override fun getUniqueNotes(): List<String> = billDao.getUniqueNotes()
+    override fun addCategory(item: CategoryBillItem) {
+        billDao.insertCategory(mapper.mapCategoryBillItemToCategoryBillEntity(item))
+    }
+
+    override fun deleteCategory(item: CategoryBillItem) {
+        billDao.deleteCategory(mapper.mapCategoryBillItemToCategoryBillEntity(item))
+    }
 
     /**
      * Old repo

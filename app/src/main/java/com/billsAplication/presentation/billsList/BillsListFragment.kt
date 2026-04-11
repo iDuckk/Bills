@@ -123,7 +123,6 @@ class BillsListFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //todo удалить Drawable
         //TODO
         initRecView()
         //TODO
@@ -167,7 +166,6 @@ class BillsListFragment : Fragment() {
         val showAnalyticsDialog = remember { mutableStateOf(false) }
         val isSortDescending = remember { mutableStateOf(true) }
         val filterState = remember { mutableIntStateOf(FILTER_FULL_LIST) }
-        val listCategory = remember { mutableStateOf(listOf<BillsItem>()) }
         
         val bills = viewModel.getMonthListFlow(month = month.value).collectAsState(initial = listOf())
 
@@ -191,8 +189,7 @@ class BillsListFragment : Fragment() {
          * Create dialog for add Items
          * */
         AddBill(
-            showDialogAddBill = showDialogAddBill,
-            listCategory = listCategory
+            showDialogAddBill = showDialogAddBill
         )
 
         /**
@@ -404,37 +401,12 @@ class BillsListFragment : Fragment() {
 
     @Composable
     private fun AddBill(
-        showDialogAddBill: MutableState<CreateBillDialog>,
-        listCategory: MutableState<List<BillsItem>>
+        showDialogAddBill: MutableState<CreateBillDialog>
     ) {
         AddBillDialog(
             viewModel = viewModel,
             showDialog = showDialogAddBill,
-            listCategory = listCategory,
-            getListCategory = { type ->
-                viewModel.getCategoryList(
-                    type = type,
-                    list = { list ->
-                        listCategory.value = list
-                    }
-                )
-            },
-            onAddBill = { bill ->
-                viewModel.add(billItem = bill)
-                // Если добавляем категорию, то заного загружаем список категорий
-                if (bill.type == TYPE_CATEGORY_INCOME || bill.type == TYPE_CATEGORY_EXPENSES) {
-                    viewModel.getCategoryList(
-                        type = bill.type,
-                        list = { list ->
-                            listCategory.value = list
-                        }
-                    )
-                }
-            },
-            onDismiss = {},
-            onDeleteCategory = {
-                viewModel.delete(it)
-            }
+            onDismiss = {}
         )
     }
 

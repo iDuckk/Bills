@@ -10,6 +10,7 @@ import androidx.room.RawQuery
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.CategoryBillEntity
 import com.billsAplication.data.room.model.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -44,11 +45,17 @@ interface BillDao {
     @Query("SELECT * FROM bills_list WHERE bookmark = :bookmark AND month = :month ORDER BY date, time")
     fun getMonthListFlow(month : String, bookmark : Boolean = false): Flow<List<BillEntity>>
 
-    @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
-    fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
-
     @Query("SELECT DISTINCT note FROM bills_list WHERE note != ''")
     fun getUniqueNotes(): List<String>
+
+    @Query("SELECT * FROM categories_list WHERE typeCategory = :type")
+    fun getCategoryListFlow(type: Int): Flow<List<CategoryBillEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertCategory(item: CategoryBillEntity)
+
+    @Delete
+    fun deleteCategory(item: CategoryBillEntity)
 
     /**
      * Старые DAO
@@ -71,7 +78,7 @@ interface BillDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(item : BillEntity)
 
-    @Delete
+    @Delete(entity = BillEntity::class)
     fun delete(item : BillEntity)
 
     @Update

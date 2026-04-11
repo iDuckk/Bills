@@ -1,8 +1,10 @@
 package com.billsAplication.data.room.mapper
 
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.CategoryBillEntity
 import com.billsAplication.data.room.model.NoteEntity
 import com.billsAplication.domain.model.BillsItem
+import com.billsAplication.domain.model.CategoryBillItem
 import com.billsAplication.domain.model.NoteItem
 import javax.inject.Inject
 
@@ -90,5 +92,21 @@ class BillMapper @Inject constructor(){
         textNote = item.textNote,
         color = item.color
     )
+
+    fun mapCategoryBillItemToCategoryBillEntity(item: CategoryBillItem) = CategoryBillEntity(
+        id = item.id,
+        typeCategory = item.typeCategory,
+        category = item.category
+    )
+
+    fun mapCategoryBillEntityToCategoryBillItem(item: CategoryBillEntity) = CategoryBillItem(
+        id = item.id,
+        typeCategory = item.typeCategory,
+        category = item.category
+    )
+
+    fun mapCategoryBillEntityListToCategoryBillItemList(list: List<CategoryBillEntity>): List<CategoryBillItem> {
+        return list.map { mapCategoryBillEntityToCategoryBillItem(it) }
+    }
 
 }

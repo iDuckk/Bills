@@ -31,6 +31,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,17 +76,13 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
 
-//todo не появляяется сразу категория после добавления
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBillDialog(
     viewModel: BillsListViewModel,
     showDialog: MutableState<CreateBillDialog>,
-    listCategory: MutableState<List<BillsItem>>,
-    getListCategory: (Int) -> Unit,
-    onAddBill: (BillsItem) -> Unit,
-    onDismiss: () -> Unit,
-    onDeleteCategory: (BillsItem) -> Unit
+    onDismiss: () -> Unit
 ) {
 
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -106,6 +103,10 @@ fun AddBillDialog(
         val note = remember { mutableStateOf(TextFieldValue(bill?.note ?: "")) }
         val description = remember { mutableStateOf(bill?.description ?: "") }
         val suggestions = remember { mutableStateOf(emptyList<String>()) }
+
+        // Новое получение категорий через Flow
+        val categoryType = if (type.intValue == TYPE_EXPENSES) TYPE_CATEGORY_EXPENSES else TYPE_CATEGORY_INCOME
+        val categories by viewModel.getCategoryListFlow(categoryType).collectAsState(initial = emptyList())
 
         var images by remember {
             mutableStateOf(
@@ -218,25 +219,23 @@ fun AddBillDialog(
                             showCategoryPicker.value = false
                             focusManager.clearFocus()
                             if (category.value.isNotEmpty()) {
-                                onAddBill(
-                                    BillsItem(
-                                        id = if (bill != null) bill.id else 0,
-                                        type = type.intValue,
-                                        month = convertDateToMonthYear(date.value),
-                                        date = date.value,
-                                        time = convertTo24HourFormat(time.value),
-                                        category = category.value,
-                                        amount = amount.value.text.ifEmpty { "0.0" },
-                                        note = note.value.text,
-                                        description = description.value,
-                                        bookmark = true,
-                                        image1 = images.getOrNull(0) ?: "",
-                                        image2 = images.getOrNull(1) ?: "",
-                                        image3 = images.getOrNull(2) ?: "",
-                                        image4 = images.getOrNull(3) ?: "",
-                                        image5 = images.getOrNull(4) ?: ""
-                                    )
-                                )
+                                viewModel.add(billItem = BillsItem(
+                                    id = if (bill != null) bill.id else 0,
+                                    type = type.intValue,
+                                    month = convertDateToMonthYear(date.value),
+                                    date = date.value,
+                                    time = convertTo24HourFormat(time.value),
+                                    category = category.value,
+                                    amount = amount.value.text.ifEmpty { "0.0" },
+                                    note = note.value.text,
+                                    description = description.value,
+                                    bookmark = true,
+                                    image1 = images.getOrNull(0) ?: "",
+                                    image2 = images.getOrNull(1) ?: "",
+                                    image3 = images.getOrNull(2) ?: "",
+                                    image4 = images.getOrNull(3) ?: "",
+                                    image5 = images.getOrNull(4) ?: ""
+                                ))
                                 showDialog.value = CreateBillDialog(show = false, bill = null)
                                 onDismiss()
                             } else {
@@ -257,17 +256,17 @@ fun AddBillDialog(
 
                     CategoryBlock(
                         isErrorCategory = isErrorCategory,
-                        listCategory = listCategory,
+                        listCategory = categories,
                         category = category,
                         newCategory = newCategory,
                         isEditable = isEditable.value,
                         type = type.intValue,
                         showCategoryPicker = showCategoryPicker,
                         onAddNewCategory = { newItem ->
-                            onAddBill(newItem)
+                            viewModel.addCategory(newItem)
                         },
-                        onDeleteCategory = { bill ->
-                            onDeleteCategory.invoke(bill)
+                        onDeleteCategory = { categoryItem ->
+                            viewModel.deleteCategory(categoryItem)
                         }
                     )
 
@@ -372,7 +371,7 @@ fun AddBillDialog(
                             showCategoryPicker.value = false
                             focusManager.clearFocus()
                             if (category.value.isNotEmpty()) {
-                                onAddBill(newItem)
+                                viewModel.add(billItem = newItem)
                                 showDialog.value = CreateBillDialog(show = false, bill = null)
                                 onDismiss()
                             } else {
@@ -401,9 +400,7 @@ fun AddBillDialog(
                         type = type,
                         showMainBlock = showMainBlock,
                         onClick = {
-                            getListCategory.invoke(
-                                if (type.intValue == TYPE_EXPENSES) TYPE_CATEGORY_EXPENSES else TYPE_CATEGORY_INCOME
-                            )
+                            // Больше не нужно вызывать getListCategory вручную
                         }
                     )
                 }

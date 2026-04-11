@@ -6,17 +6,20 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.billsAplication.data.room.model.BillEntity
+import com.billsAplication.data.room.model.CategoryBillEntity
 import com.billsAplication.data.room.model.NoteEntity
 
 @Database(
     entities = [
         BillEntity::class,
-        NoteEntity::class
+        NoteEntity::class,
+        CategoryBillEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration (from = 3, to = 4)
+        AutoMigration (from = 3, to = 4),
+        AutoMigration (from = 4, to = 5)
     ]
 )
 abstract class BillDatabase : RoomDatabase() {
