@@ -6,17 +6,20 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.billsAplication.BillsApplication
 import com.billsAplication.R
 import com.billsAplication.databinding.ActivityMainBinding
-import com.billsAplication.utils.*
 import com.billsAplication.utils.Currency
+import com.billsAplication.utils.CurrentCurrency
+import com.billsAplication.utils.FadeOutView
+import com.billsAplication.utils.InterfaceMainActivity
+import com.billsAplication.utils.Language
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdView
@@ -26,8 +29,14 @@ import com.yandex.mobile.ads.common.ImpressionData
 import com.yandex.mobile.ads.common.MobileAds
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.interstitial.InterstitialAdEventListener
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import javax.inject.Inject
+import androidx.core.content.edit
+import androidx.core.view.isVisible
 
 
 /*
@@ -44,7 +53,15 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     private lateinit var binding: ActivityMainBinding
     private var mInterstitialAd: InterstitialAd? = null
 
+    @Inject
+    lateinit var viewModel: MainActivityViewModel
+
+    private val component by lazy {
+        (application as BillsApplication).component
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         setLocate()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -54,10 +71,11 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
 //        initAdMob()
 
         initBottomNavigation()
-
         setCurrency()
         //if we receive note string from other app
         intentActionSendText()
+        // Проверка и миграция категорий через ViewModel
+        viewModel.migrateCategories()
     }
 
     companion object {
@@ -99,10 +117,9 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     private fun setSharePref(note: String) {
         //Save statement of Currency in Share preference
         val sharedPref = getPreferences(MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
+        sharedPref.edit {
             putBoolean(TYPE_NOTE_RECEIVE, true)
             putString(KEY_NOTE_RECEIVE, note)
-            apply()
         }
     }
 
@@ -164,7 +181,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         val position = sharedPref.getInt(CURRANT_LANGUAGE_POS, DEFAULT_POS)
         //Set Language
         if (position != DEFAULT_POS) {
-            val locale = Locale(Language.values().get(position).shortName)
+            val locale = Locale(Language.entries[position].shortName)
             Locale.setDefault(locale)
             val config = Configuration()
             config.locale = locale
@@ -188,10 +205,10 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
         val curPos = sharedPref.getInt(CURRANT_CURRENCY_POS, Currency.United_States.ordinal)
         if (type) {
             //currency
-            CurrentCurrency.currency = Currency.values().get(curPos).symbol
+            CurrentCurrency.currency = Currency.entries[curPos].symbol
         } else {
             //currency
-            CurrentCurrency.currency = Currency.values().get(curPos).code
+            CurrentCurrency.currency = Currency.entries[curPos].code
         }
     }
 
@@ -230,7 +247,7 @@ class MainActivity : AppCompatActivity(), InterfaceMainActivity {
     }
 
     override suspend fun splash() {
-        if (binding.splash.visibility == View.VISIBLE) {
+        if (binding.splash.isVisible) {
             withContext(Dispatchers.Main) {
                 delay(2000)
 //                binding.splash.visibility = View.GONE

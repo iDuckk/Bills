@@ -69,6 +69,10 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         mapper.mapBillEntityToBillItemList(list = it)
     }
 
+    override fun getCategoryList(type: Int): List<BillsItem> {
+        return mapper.mapBillEntityToBillItemList(billDao.getCategoryList(type))
+    }
+
     override fun getUniqueNotes(): List<String> = billDao.getUniqueNotes()
 
     override fun getCategoryListFlow(type: Int): Flow<List<CategoryBillItem>> {

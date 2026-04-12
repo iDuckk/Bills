@@ -29,6 +29,8 @@ interface BillsListRepository {
 
     fun getMonthListFlow(month : String) : Flow<ArrayList<BillsItem>>
 
+    fun getCategoryList(type : Int) : List<BillsItem>
+
     fun getUniqueNotes(): List<String>
 
     fun getCategoryListFlow(type: Int): Flow<List<CategoryBillItem>>

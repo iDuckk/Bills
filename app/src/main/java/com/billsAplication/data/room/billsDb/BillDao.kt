@@ -58,6 +58,12 @@ interface BillDao {
     fun deleteCategory(item: CategoryBillEntity)
 
     /**
+     * Нужен для того чтобы перекинуть категории из старой БД в новую
+     * */
+    @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
+    fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
+
+    /**
      * Старые DAO
      * */
     @Query("SELECT * FROM bills_list")
