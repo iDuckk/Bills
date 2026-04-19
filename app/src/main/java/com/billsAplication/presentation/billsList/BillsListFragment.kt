@@ -100,6 +100,23 @@ class BillsListFragment : Fragment() {
         (requireActivity().application as BillsApplication).component
     }
 
+    /**
+    Сделай аккуратно пошагово реализацию:
+    Перенести @SearchFragment как диалог в @BillsListFragment. Так же как @AddBillDialog
+     В SearchDialog:
+        1. Поле с выбранными полями SummarySearch. Самая первая сверху.
+        2. Рядом кнопка с лупой при нажати на которую SearchDialog сваричивается до SummarySearch.
+            Кнопка меняет img на значек refresh. При нажатии на который сбрасывается поиск и разворачивается SearchDialog.
+            Все остальные поля disable, пока не сбросишь поля.
+        3. Рядом с кнопкой лупы кнопка крест, которая закрывает SearchDialog.
+        4. Результат поиска отображается в главном списке @BillsListFragment.
+        5. Note
+        6. Category
+        7. Amount (from, to)
+        8. Date month, year (from)
+        9. Date month, year (to)
+
+     */
     companion object {
         private const val TYPE_NOTE_RECEIVE = "type_note_receive"
         private const val TYPE_BILL = "type_bill"

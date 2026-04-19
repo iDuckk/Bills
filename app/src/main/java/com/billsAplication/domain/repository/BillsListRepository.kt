@@ -39,6 +39,15 @@ interface BillsListRepository {
 
     fun deleteCategory(item: CategoryBillItem)
 
+    fun searchBills(
+        note: String,
+        category: String,
+        minAmount: Double,
+        maxAmount: Double,
+        startDate: String,
+        endDate: String
+    ): Flow<List<BillsItem>>
+
     /**
      * Old repo
      * */

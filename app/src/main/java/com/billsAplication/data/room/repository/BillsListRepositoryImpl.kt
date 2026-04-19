@@ -89,6 +89,19 @@ class BillsListRepositoryImpl @Inject constructor(private val billDao: BillDao, 
         billDao.deleteCategory(mapper.mapCategoryBillItemToCategoryBillEntity(item))
     }
 
+    override fun searchBills(
+        note: String,
+        category: String,
+        minAmount: Double,
+        maxAmount: Double,
+        startDate: String,
+        endDate: String
+    ): Flow<List<BillsItem>> {
+        return billDao.searchBills(note, category, minAmount, maxAmount, startDate, endDate).map {
+            mapper.mapBillEntityToBillItemList(it)
+        }
+    }
+
     /**
      * Old repo
      * */

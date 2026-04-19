@@ -45,6 +45,9 @@ interface BillDao {
     @Query("SELECT * FROM bills_list WHERE bookmark = :bookmark AND month = :month ORDER BY date, time")
     fun getMonthListFlow(month : String, bookmark : Boolean = false): Flow<List<BillEntity>>
 
+    @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
+    fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
+
     @Query("SELECT DISTINCT note FROM bills_list WHERE note != ''")
     fun getUniqueNotes(): List<String>
 
@@ -57,11 +60,22 @@ interface BillDao {
     @Delete
     fun deleteCategory(item: CategoryBillEntity)
 
-    /**
-     * Нужен для того чтобы перекинуть категории из старой БД в новую
-     * */
-    @Query("SELECT * FROM bills_list WHERE type = :type AND bookmark = :bookmark")
-    fun getCategoryList(type : Int, bookmark : Boolean = false): List<BillEntity>
+    @Query("""
+        SELECT * FROM bills_list 
+        WHERE (:note = '' OR note LIKE '%' || :note || '%') 
+        AND (:category = '' OR category = :category) 
+        AND (CAST(REPLACE(amount, ',', '') AS REAL) BETWEEN :minAmount AND :maxAmount) 
+        AND (substr(date, 7, 4) || substr(date, 4, 2) || substr(date, 1, 2) BETWEEN :startDate AND :endDate) 
+        ORDER BY substr(date, 7, 4) DESC, substr(date, 4, 2) DESC, substr(date, 1, 2) DESC, time DESC
+    """)
+    fun searchBills(
+        note: String,
+        category: String,
+        minAmount: Double,
+        maxAmount: Double,
+        startDate: String,
+        endDate: String
+    ): Flow<List<BillEntity>>
 
     /**
      * Старые DAO

@@ -13,6 +13,7 @@ import com.billsAplication.domain.billsUseCases.room.DeleteCategoryUseCase
 import com.billsAplication.domain.billsUseCases.room.GetBillsListFlowUseCase
 import com.billsAplication.domain.billsUseCases.room.GetCategoryListFlowUseCase
 import com.billsAplication.domain.billsUseCases.room.GetUniqueNotesUseCase
+import com.billsAplication.domain.billsUseCases.room.SearchBillsUseCase
 import com.billsAplication.domain.billsUseCases.room.SummaryAmountUseCase
 import com.billsAplication.domain.model.BillsItem
 import com.billsAplication.domain.model.CategoryBillItem
@@ -38,7 +39,8 @@ class BillsListViewModel @Inject constructor(
     private val getUniqueNotesUseCase: GetUniqueNotesUseCase,
     private val getCategoryListFlowUseCase: GetCategoryListFlowUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
-    private val deleteCategoryUseCase: DeleteCategoryUseCase
+    private val deleteCategoryUseCase: DeleteCategoryUseCase,
+    private val searchBillsUseCase: SearchBillsUseCase,
 ) : ViewModel() {
 
     private val exception = CoroutineExceptionHandler { _, e ->
